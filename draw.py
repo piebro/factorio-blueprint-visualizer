@@ -1,6 +1,6 @@
 import numpy as np
 
-def get_drawing(bbox_width, bbox_height, max_size_in_mm=250, background_color=(220,220,220)):
+def get_drawing(bbox_width, bbox_height, max_size_in_mm=250, background_color="#dddddd"):
   if bbox_width>bbox_height:
     dwg_size_in_mm = (max_size_in_mm, np.round(max_size_in_mm*bbox_height/bbox_width))
   else:
@@ -9,7 +9,7 @@ def get_drawing(bbox_width, bbox_height, max_size_in_mm=250, background_color=(2
   dwg = [f'<svg baseProfile="tiny" height="{dwg_size_in_mm[1]}mm" version="1.2" viewBox="0,0,{bbox_width},{bbox_height}" width="{dwg_size_in_mm[0]}mm" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">']
 
   if background_color is not None:
-    dwg.append('<rect fill="rgb({},{},{})" height="1000" width="1000" x="-100" y="-100" />'.format(*background_color))
+    dwg.append(f'<rect fill="{background_color}" height="1000" width="1000" x="-100" y="-100" />')
   return dwg
 
 def draw_lines(dwg, lines, svg_setting):
