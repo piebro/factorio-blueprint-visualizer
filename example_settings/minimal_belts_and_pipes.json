@@ -1,0 +1,32 @@
+[
+  [
+    "default-svg-properties",
+    {
+      "fill": "none",
+      "stroke-linecap": "round"
+    }
+  ],
+  [
+    "default-svg-properties",
+    {
+      "stroke-width": 1,
+      "stroke": "#4c9f70"
+    }
+  ],
+  [
+    "connected-underground-belt",
+    {}
+  ],
+  [
+    "connected-belt",
+    {}
+  ],
+  [
+    "connected-pipe-to-ground",
+    {}
+  ],
+  [
+    "connected-pipe",
+    {}
+  ]
+]
