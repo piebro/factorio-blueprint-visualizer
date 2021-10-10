@@ -407,7 +407,7 @@ def draw_blueprints(encoded_blueprint_str, blueprint_name_or_number, settings):
 
   entities = get_simplified_entities(blueprint_dict[blueprint_name])
   bbox_width, bbox_height = get_size_and_normalize_entities(entities, meta_settings["bbox_border"])
-  dwg = get_drawing(bbox_width, bbox_height, meta_settings["max_size_in_mm"], meta_settings["background"])
+  dwg = get_drawing(bbox_width, bbox_height, meta_settings["max_size_in_mm"], meta_settings["background"], settings)
   
   dwg_groups_to_close = 0
   default_bbox_prop = {"scale": None, "rx": None, "ry": None}
@@ -483,7 +483,10 @@ def change_colors_in_settings(settings, color_count=None, change_background=True
   np.random.shuffle(original_colors_list)
 
   if color_count is None:
-    color_count = np.random.randint(2, min(10, max(3,len(original_colors_list))))
+    color_count = len(original_colors_list)
+  else:
+    color_count = min(color_count, len(original_colors_list))
+  color_count = min(10, color_count)
 
   color_palette = PREDEFINED_COLOR_PALETTES[color_count-2][np.random.randint(0,7)]
   np.random.shuffle(color_palette)
@@ -494,18 +497,20 @@ def change_colors_in_settings(settings, color_count=None, change_background=True
   
   return settings
 
-def save_svg_and_settings(folder_path, svg_str, settings):
+
+def check_for_filename(folder_path, filename, file_ending):
+  if not os.path.isdir(folder_path):
+    os.mkdir(folder_path)
+  
   files_in_folder = os.listdir(folder_path)
-  for i in range(1000):
-    save_name_svg = f"save_{i:04d}.svg"
-    save_name_json = f"save_{i:04d}.json"
-    if save_name_svg not in files_in_folder and save_name_json not in files_in_folder:
+  for i in range(10000):
+    possible_valid_fn = f"{filename}_{i:05d}.{file_ending}"
+    if possible_valid_fn not in files_in_folder:
+      return os.path.join(folder_path, possible_valid_fn)
 
-      
-      with open(os.path.join(folder_path, save_name_svg), "w") as text_file:
-        text_file.write(svg_str)
-      with open(os.path.join(folder_path, save_name_json), "w") as text_file:
-        text_file.write(json.dumps(settings, indent=2))
 
-      print("saved to:", save_name_svg, "and", save_name_json)
-      return
+def save_svg(folder_path, filename, svg_str):
+  valid_file_path = check_for_filename(folder_path, filename, "svg")
+  with open(valid_file_path, "w") as text_file:
+    text_file.write(svg_str)
+  print("saved at:", valid_file_path)
