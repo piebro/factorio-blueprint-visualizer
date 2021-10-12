@@ -158,7 +158,7 @@ def settings_change_property(settings, property_name, change_func):
       s[1][property_name] = change_func(s[1][property_name])
   return settings
 
-def change_colors_in_settings(settings, color_count=None, change_background=True):
+def settings_change_colors(settings, color_count=None, change_background=True):
   settings = copy.deepcopy(settings)
   original_colors = {}
 
@@ -200,7 +200,7 @@ def get_random_settings():
     settings.extend(RANDOM_SETTING_ELEMENTS[i][:num_of_rules_in_entity])
   
   color_count = np.random.randint(2, 15)
-  settings = change_colors_in_settings(settings, color_count, change_background=True)
+  settings = settings_change_colors(settings, color_count, change_background=True)
   settings = settings_change_property(settings, "stroke-width", lambda v: v*np.random.uniform(0.5, 2))
   settings = settings_change_property(settings, "bbox-scale", lambda v: v*np.random.uniform(0.7, 1))
   return settings
