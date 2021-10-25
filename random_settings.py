@@ -203,4 +203,5 @@ def get_random_settings():
   settings = settings_change_colors(settings, color_count, change_background=True)
   settings = settings_change_property(settings, "stroke-width", lambda v: v*np.random.uniform(0.5, 2))
   settings = settings_change_property(settings, "bbox-scale", lambda v: v*np.random.uniform(0.7, 1))
+  # randomly change 'stroke-linecap' to 'round', 'square' or 'butt'
   return settings

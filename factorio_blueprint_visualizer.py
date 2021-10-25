@@ -1,9 +1,9 @@
 import json
 import zlib
 import base64
-import copy
 import random
 import os
+import re
 
 import numpy as np
 
@@ -404,6 +404,12 @@ def check_for_filename(folder_path, filename, file_ending):
     if possible_valid_fn not in files_in_folder:
       return os.path.join(folder_path, possible_valid_fn)
 
+def get_settings_from_svg(svg_path):
+  with open(svg_path, 'r') as txt_file:
+    settings_svg_str = txt_file.read()
+  settings_str = re.findall(r"<settings>(.*)</settings>", settings_svg_str)[0]
+  settings_str = settings_str.replace("'", "\"")
+  return json.loads(settings_str)
 
 def save_svg(folder_path, filename, svg_str):
   valid_file_path = check_for_filename(folder_path, filename, "svg")
