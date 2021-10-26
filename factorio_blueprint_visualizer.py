@@ -328,7 +328,7 @@ def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number, bbox_bo
   cache = {"bbox_width": bbox_width, "bbox_height": bbox_height, "entities": entities}
   return cache
 
-def draw_blueprints(encoded_blueprint_str, blueprint_name_or_number, settings, blueprint_cache=None):
+def draw_blueprints(encoded_blueprint_str, blueprint_name_or_number, settings, blueprint_cache=None, svg_max_size_in_mm=300):
 
   default_meta_settings = {"background":"#E6E6E6"}
   if settings[0][0] == "meta":
@@ -340,7 +340,7 @@ def draw_blueprints(encoded_blueprint_str, blueprint_name_or_number, settings, b
     blueprint_cache = get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number, bbox_border=3)
   entities = blueprint_cache["entities"]
 
-  dwg = get_drawing(blueprint_cache["bbox_width"], blueprint_cache["bbox_height"], 300, meta_settings["background"], settings)  
+  dwg = get_drawing(blueprint_cache["bbox_width"], blueprint_cache["bbox_height"], svg_max_size_in_mm, meta_settings["background"], settings)  
   dwg_groups_to_close = 0
   default_bbox_prop = {"scale": None, "rx": None, "ry": None}
   
