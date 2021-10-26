@@ -1,0 +1,138 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Factorio Blueprint Visualizer</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js"></script>
+</head>
+
+<style>
+img, svg {
+  width:auto;
+  height:auto;
+  max-width: 92vw;
+  max-height: 86vh;
+  margin: auto;
+  display: block;
+  padding-top: 10px;
+}
+
+.button-container {
+  text-align: center;
+  float:center;
+}
+
+.btn {
+  background-color: #04AA6D;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn:hover{
+  background-color: #3e8e41;
+}
+</style>
+
+<script>
+async function setup(){
+  
+  pyodide = await loadPyodide({indexURL : "https://cdn.jsdelivr.net/pyodide/v0.18.1/full/"});
+  await pyodide.loadPackage('numpy');
+
+  const response = await fetch("website/index.py");
+  const scr_py = await response.text();
+  pyodide.runPython(scr_py)
+
+  const response_blueprint = await fetch('website/blueprint.txt');
+  current_blueprint_str = await response_blueprint.text();
+  pyodide.runPython(`blueprint_cache = get_blueprint_cache("`+current_blueprint_str+`", 0)`)
+  const response_settings = await fetch('website/settings.txt');
+  settings_list.push(await response_settings.text())
+
+  draw_blueprint()
+
+  document.getElementById("uploadBtn").onclick = uploadBtnClick
+  document.getElementById("uploadBtn").innerText = "Upload Blueprint"
+  document.getElementById("saveBtn").onclick = saveBtnClick
+  document.getElementById("saveBtn").innerText = "Save"
+  document.getElementById("nextSettingBtn").onclick = nextSetting
+  document.getElementById("nextSettingBtn").innerText = "Random Drawing Setting"
+  document.addEventListener('keyup', onKeyUp);
+  console.log("finished setup")
+}
+
+function draw_blueprint(){
+  document.getElementById("svg-container").innerHTML = pyodide.runPython(`draw_blueprints(None, None, `+settings_list[current_setting_index]+`, blueprint_cache)`)
+}
+
+async function saveBtnClick(){
+  svg_str = document.getElementById("svg-container").innerHTML
+
+  const element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(svg_str));
+  element.setAttribute('download', "blueprint.svg");
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
+function uploadBtnClick(){
+  input = window.prompt("paste blueprint here")
+  if (input != null && input != ""){
+    current_blueprint_str = input
+    pyodide.runPython(`blueprint_cache = get_blueprint_cache("`+current_blueprint_str+`", 0)`)
+    draw_blueprint()
+  }
+}
+
+function nextSetting(){
+  current_setting_index += 1
+  if (settings_list.length == current_setting_index){
+    settings_list.push(pyodide.runPython("get_random_settings()"))
+  }
+  draw_blueprint()
+}
+
+function previousSetting(){
+  if (current_setting_index > 0){
+    current_setting_index -= 1
+  }
+  draw_blueprint()
+}
+
+
+function onKeyUp(e){
+  if (e.code == "ArrowRight"){
+    nextSetting()
+  } else if (e.code == "ArrowLeft"){
+    previousSetting()
+  }
+}
+
+settings_list = []
+current_setting_index = 0
+pyodide = null
+
+setup()
+</script>
+<body>
+
+<div class="button-container">
+  <button class="btn" id="nextSettingBtn">Loading</button>
+  <button class="btn" id="saveBtn">Loading</button>
+  <button class="btn" id="uploadBtn">Loading</button>
+  <button class="btn" id="infoBtn" onclick="location.href='https://github.com/piebro/factorio-blueprint-visualizer';">Infos</button>
+</div>
+
+<div class="svg-container" id="svg-container">
+  <img src="website/start.svg">
+</div>
+
+</body>
+</html>
