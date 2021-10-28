@@ -9,7 +9,12 @@ The hardest part was writing the logic for connecting rails, belts and pipes. Af
 
 ## Usage
 
-You can visualize your own blueprint with random drawing settings at: [https://piebro.github.io/factorio-blueprint-visualizer](https://piebro.github.io/factorio-blueprint-visualizer/) (You can use the arrow keys for going through the visualization). You can use the notebook, if you want to create your own drawing settings or tinker some more. For an easy setup, you can open the example notebook in -colab- or -binder-. You can find many blueprints from other people at: https://factorioprints.com.
+
+
+You can visualize your own blueprint with random drawing settings at: [https://piebro.github.io/factorio-blueprint-visualizer](https://piebro.github.io/factorio-blueprint-visualizer/) (You can use the arrow keys for going through the visualization). You can use the notebook, if you want to create your own drawing settings or tinker some more. For an easy setup, you can open the example notebook in [colab](https://colab.research.google.com/github/piebro/factorio-blueprint-visualizer/blob/master/notebook.ipynb) or [binder](https://mybinder.org/v2/gh/piebro/factorio-blueprint-visualizer/HEAD?labpath=notebook.ipynb). You can find many blueprints at: https://factorioprints.com.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/piebro/factorio-blueprint-visualizer/blob/master/notebook.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/piebro/factorio-blueprint-visualizer/HEAD?labpath=notebook.ipynb)
 
 ## Examples
 
