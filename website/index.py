@@ -102,6 +102,17 @@ BUILDING_SIZES = {
     "flamethrower-turret": (2,3),
     "artillery-turret": (3,3),
     "radar": (3,3),
+
+    ### MODS
+    # Factorissimo2
+    "factory-1":(8,8),
+    "factory-2":(12,12),
+    "factory-3":(16,16),
+    "factory-circuit-input": (1,1),
+    "factory-circuit-output": (1,1),
+    "factory-input-pipe": (1,1),
+    "factory-output-pipe": (1,1),
+    "factory-requester-chest": (1,1),
 }
 
 BUILDING_GENERIC_TERMS = {
@@ -128,7 +139,11 @@ BUILDING_GENERIC_TERMS = {
                   "straight-rail", "curved-rail", "pipe", "pipe-to-ground", "burner-inserter", "inserter",
                   "long-handed-inserter", "fast-inserter", "filter-inserter", "stack-inserter",
                   "stack-filter-inserter"],
-    "train-stuff": ["straight-rail", "curved-rail", "train-stop", "rail-signal", "rail-chain-signal"]
+    "train-stuff": ["straight-rail", "curved-rail", "train-stop", "rail-signal", "rail-chain-signal"],
+
+    ### MODS
+    # Factorissimo2
+    "factorissimo2": ["factory-1", "factory-2", "factory-3", "factory-circuit-input", "factory-circuit-output", "factory-input-pipe", "factory-output-pipe", "factory-requester-chest"],
 }
 
 RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE = {
@@ -326,16 +341,16 @@ def get_simplified_entities(blueprint_json):
       e["pos"] += 0.5*DIRECTION_OFFSET[e["direction"]]
   return blueprint_json["entities"]
 
-def get_size_and_normalize_entities(entities, bbox_border=3):
+def get_size_and_normalize_entities(entities, bbox_border, building_sizes):
   if len(entities) == 0:
     return 1, 1
   entity_bboxes = []
   for e in entities:
-    if e["name"] in BUILDING_SIZES:
+    if e["name"] in building_sizes:
       if e["direction"]%2 == 0:
-        size_x, size_y = BUILDING_SIZES[e["name"]]
+        size_x, size_y = building_sizes[e["name"]]
       else:
-        size_y, size_x = BUILDING_SIZES[e["name"]]
+        size_y, size_x = building_sizes[e["name"]]
       entity_bboxes.append((e["pos"][0]-size_x/2, e["pos"][1]-size_y/2, e["pos"][0]+size_x/2, e["pos"][1]+size_y/2))
   entity_bboxes = np.array(entity_bboxes)
 
@@ -403,25 +418,25 @@ def get_lines_nodes_and_connect_conditions(nodes, connect_conditions, draw_nodes
       nodes[src_pos][src_dir] = not set_target_false
   return lines
 
-def get_lines_pipes(dwg, entities):
+def get_lines_pipes(dwg, entities, building_pipe_connections, recipes_in_assembly_machine_with_fluids_to_dir_change):
   nodes = {}
   connect_conditions = []
   for e in entities:
-    if e["name"] not in BUILDING_PIPE_CONNECTIONS:
+    if e["name"] not in building_pipe_connections:
       continue
       
     if e["name"] in ["assembling-machine-1", "assembling-machine-2", "assembling-machine-3"]:
       if "recipe" not in e:
         continue
 
-      if e["recipe"] in RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE:
-        recipe_dir_change = RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE[e["recipe"]]
+      if e["recipe"] in recipes_in_assembly_machine_with_fluids_to_dir_change:
+        recipe_dir_change = recipes_in_assembly_machine_with_fluids_to_dir_change[e["recipe"]]
       else:
         continue
     else:
       recipe_dir_change = 0
 
-    for connection in BUILDING_PIPE_CONNECTIONS[e["name"]]:
+    for connection in building_pipe_connections[e["name"]]:
       pos = tuple(e["pos"] + rotate((e["direction"] + recipe_dir_change)%8, connection["pos"]))
       dir = (e["direction"] + connection["direction"] + recipe_dir_change)%8
       add_pos_to_nodes(nodes, tuple(pos), dir)
@@ -527,21 +542,20 @@ def get_lines_rails(dwg, entities):
   return lines
 
 
-def replace_building_generic_terms(builing_name_list):
+def replace_building_generic_terms(builing_name_list, building_generic_terms):
   new_builing_name_list = []
   for name in builing_name_list:
-    if name in BUILDING_GENERIC_TERMS:
-      new_builing_name_list.extend(BUILDING_GENERIC_TERMS[name])
+    if name in building_generic_terms:
+      new_builing_name_list.extend(building_generic_terms[name])
     else:
       new_builing_name_list.append(name)
   return new_builing_name_list
 
-def draw_entities_bbox(dwg, entities, settings, default_bbox_prop):
-
+def draw_entities_bbox(dwg, entities, settings, default_bbox_prop, building_sizes, building_generic_terms):
   if "allow" in settings:
-    bbox_entities = [e for e in entities if e["name"] in replace_building_generic_terms(settings["allow"])]
+    bbox_entities = [e for e in entities if e["name"] in replace_building_generic_terms(settings["allow"], building_generic_terms)]
   elif "deny" in settings:
-    bbox_entities = [e for e in entities if e["name"] not in replace_building_generic_terms(settings["deny"])]
+    bbox_entities = [e for e in entities if e["name"] not in replace_building_generic_terms(settings["deny"], building_generic_terms)]
   else:
     bbox_entities = entities
     
@@ -554,11 +568,11 @@ def draw_entities_bbox(dwg, entities, settings, default_bbox_prop):
 
   append_group(dwg, settings, deny_list=["bbox-scale", "bbox-rx", "bbox-ry"])
   for e in bbox_entities:
-    if e["name"] in BUILDING_SIZES:
+    if e["name"] in building_sizes:
       if e["direction"]%4 == 0:
-        size_x, size_y = BUILDING_SIZES[e["name"]]
+        size_x, size_y = building_sizes[e["name"]]
       else:
-        size_y, size_x = BUILDING_SIZES[e["name"]]
+        size_y, size_x = building_sizes[e["name"]]
       draw_rect(dwg, e["pos"], (size_x, size_y), **bbox_prop)
   dwg.append('</g>')
 
@@ -569,9 +583,11 @@ def get_blueprint_labels(encoded_blueprint_str):
   return list(blueprint_dict.keys())
 
 
-def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number, bbox_border=3):
+def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number, bbox_border=3, building_settings={}):
   raw_blueprint_json = json.loads(zlib.decompress(base64.b64decode(encoded_blueprint_str[1:])))
   
+  building_sizes = building_settings["BUILDING_SIZES"] if "BUILDING_SIZES" in building_settings else BUILDING_SIZES
+
   blueprint_dict = {}
   get_label_and_blueprint(blueprint_dict, raw_blueprint_json)
 
@@ -581,11 +597,42 @@ def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number, bbox_bo
     blueprint_name = list(blueprint_dict.keys())[blueprint_name_or_number]
 
   entities = get_simplified_entities(blueprint_dict[blueprint_name])
-  bbox_width, bbox_height = get_size_and_normalize_entities(entities, bbox_border=3)
+  bbox_width, bbox_height = get_size_and_normalize_entities(entities, bbox_border, building_sizes)
   cache = {"bbox_width": bbox_width, "bbox_height": bbox_height, "entities": entities}
   return cache
 
-def draw_blueprints(encoded_blueprint_str, blueprint_name_or_number, settings, blueprint_cache=None, svg_max_size_in_mm=300):
+def get_custom_building_settings(new_building_sizes={}, new_building_generic_terms={}, new_building_pipe_connections={}, new_recipes_in_assembly_machine_with_fluids_to_dir_change={}):
+  custom_building_settings = {}
+  custom_building_settings["BUILDING_SIZES"] = {**BUILDING_SIZES, **new_building_sizes}
+  custom_building_settings["BUILDING_GENERIC_TERMS"] = {**BUILDING_GENERIC_TERMS, **new_building_generic_terms}
+  custom_building_settings["BUILDING_PIPE_CONNECTIONS"] = {**BUILDING_PIPE_CONNECTIONS, **new_building_pipe_connections}
+  custom_building_settings["RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE"] = {**RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE, **new_recipes_in_assembly_machine_with_fluids_to_dir_change}
+  return custom_building_settings
+
+def draw_blueprints(encoded_blueprint_str, blueprint_name_or_number, settings, blueprint_cache=None, svg_max_size_in_mm=300, building_settings={}):
+
+  building_sizes = building_settings["BUILDING_SIZES"] if "BUILDING_SIZES" in building_settings else BUILDING_SIZES
+  building_generic_terms = building_settings["BUILDING_GENERIC_TERMS"] if "BUILDING_GENERIC_TERMS" in building_settings else BUILDING_GENERIC_TERMS
+  
+  if "BUILDING_SIZES" in building_settings:
+    building_sizes = building_settings["BUILDING_SIZES"]
+  else:
+    building_sizes = BUILDING_SIZES
+
+  if "BUILDING_GENERIC_TERMS" in building_settings:
+    building_generic_terms = building_settings["BUILDING_GENERIC_TERMS"]
+  else:
+    building_generic_terms = BUILDING_GENERIC_TERMS
+
+  if "BUILDING_PIPE_CONNECTIONS" in building_settings:
+    building_pipe_connections = building_settings["BUILDING_PIPE_CONNECTIONS"]
+  else:
+    building_pipe_connections = BUILDING_PIPE_CONNECTIONS
+  
+  if "RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE" in building_settings:
+    recipes_in_assembly_machine_with_fluids_to_dir_change = building_settings["RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE"]
+  else:
+    recipes_in_assembly_machine_with_fluids_to_dir_change = RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE
 
   default_meta_settings = {"background":"#E6E6E6"}
   if settings[0][0] == "meta":
@@ -610,7 +657,7 @@ def draw_blueprints(encoded_blueprint_str, blueprint_name_or_number, settings, b
           default_bbox_prop[bbox_prop_key[5:]] = setting[1][bbox_prop_key]
       
     elif setting[0] == "bbox":
-      draw_entities_bbox(dwg, entities, setting[1], default_bbox_prop)
+      draw_entities_bbox(dwg, entities, setting[1], default_bbox_prop, building_sizes, building_generic_terms)
       
     elif setting[0] == "connected-belt":
       if "connected-belt" not in blueprint_cache:
@@ -632,7 +679,7 @@ def draw_blueprints(encoded_blueprint_str, blueprint_name_or_number, settings, b
 
     elif setting[0] == "connected-pipe":
       if "connected-pipe" not in blueprint_cache:
-        blueprint_cache["connected-pipe"] = get_lines_pipes(dwg, entities)
+        blueprint_cache["connected-pipe"] = get_lines_pipes(dwg, entities, building_pipe_connections, recipes_in_assembly_machine_with_fluids_to_dir_change)
       draw_lines(dwg, blueprint_cache["connected-pipe"], setting[1])
   
     elif setting[0] == "connected-inserter":
