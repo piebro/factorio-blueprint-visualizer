@@ -98,6 +98,17 @@ BUILDING_SIZES = {
     "flamethrower-turret": (2,3),
     "artillery-turret": (3,3),
     "radar": (3,3),
+
+    ### MODS
+    # Factorissimo2
+    "factory-1":(8,8),
+    "factory-2":(12,12),
+    "factory-3":(16,16),
+    "factory-circuit-input": (1,1),
+    "factory-circuit-output": (1,1),
+    "factory-input-pipe": (1,1),
+    "factory-output-pipe": (1,1),
+    "factory-requester-chest": (1,1),
 }
 
 BUILDING_GENERIC_TERMS = {
@@ -124,7 +135,11 @@ BUILDING_GENERIC_TERMS = {
                   "straight-rail", "curved-rail", "pipe", "pipe-to-ground", "burner-inserter", "inserter",
                   "long-handed-inserter", "fast-inserter", "filter-inserter", "stack-inserter",
                   "stack-filter-inserter"],
-    "train-stuff": ["straight-rail", "curved-rail", "train-stop", "rail-signal", "rail-chain-signal"]
+    "train-stuff": ["straight-rail", "curved-rail", "train-stop", "rail-signal", "rail-chain-signal"],
+
+    ### MODS
+    # Factorissimo2
+    "factorissimo2": ["factory-1", "factory-2", "factory-3", "factory-circuit-input", "factory-circuit-output", "factory-input-pipe", "factory-output-pipe", "factory-requester-chest"],
 }
 
 RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE = {
