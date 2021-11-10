@@ -311,10 +311,10 @@ def get_blueprint_labels(encoded_blueprint_str):
   return list(blueprint_dict.keys())
 
 
-def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number, bbox_border=3, custom_building_settings={}):
+def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number, bbox_border=3, building_settings={}):
   raw_blueprint_json = json.loads(zlib.decompress(base64.b64decode(encoded_blueprint_str[1:])))
   
-  building_sizes = custom_building_settings["BUILDING_SIZES"] if "BUILDING_SIZES" in custom_building_settings else BUILDING_SIZES
+  building_sizes = building_settings["BUILDING_SIZES"] if "BUILDING_SIZES" in building_settings else BUILDING_SIZES
 
   blueprint_dict = {}
   get_label_and_blueprint(blueprint_dict, raw_blueprint_json)
