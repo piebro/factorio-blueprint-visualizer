@@ -146,7 +146,7 @@ BUILDING_GENERIC_TERMS = {
     "factorissimo2": ["factory-1", "factory-2", "factory-3", "factory-circuit-input", "factory-circuit-output", "factory-input-pipe", "factory-output-pipe", "factory-requester-chest"],
 }
 
-RECIPES_IN_ASSEMBLY_MACHINE_WITH_FLUIDS_TO_DIR_CHANGE = {
+ASSEMBLY_MACHINE_RESIPE_TO_DIR_CHANGE = {
   "electric-engine-unit": NORTH,
   "express-transport-belt": NORTH,
   "express-underground-belt": NORTH,
