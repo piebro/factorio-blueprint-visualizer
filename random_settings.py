@@ -103,6 +103,12 @@ RANDOM_SETTING_ELEMENTS = [
     ['connected-pipe-to-ground', {}],
     ['connected-pipe', {}]
   ],[
+    ['default-svg-properties', {'stroke-width': 1, 'stroke': '#000011', 'fill': 'none', 'stroke-linecap': 'round'}],
+    ['connected-underground-belt', {'stroke-opacity': 0.7}],
+    ['connected-belt', {}],
+    ['connected-pipe-to-ground', {'stroke-opacity': 0.7}],
+    ['connected-pipe', {}]
+  ],[
     ['default-svg-properties', {'stroke-width': 0.8, 'fill': 'none', 'stroke-linecap': 'round'}],
     ['bbox', {'deny': ['connected-stuff', 'electric-stuff', 'train-stuff'], 'bbox-scale': 1, 'stroke': '#000012', 'fill': '#000012', 'bbox-rx': 0.15, 'bbox-ry': 0.15}],
   ],[
@@ -121,7 +127,7 @@ RANDOM_SETTING_ELEMENTS = [
     ['bbox', {'allow': ['roboport'], 'fill': '#000017'}],
     ['bbox', {'allow': ['beacon'], 'fill': '#000018'}]
   ],[
-    ['default-svg-properties', {'stroke': 'none', 'stroke-width': 0, 'bbox-scale': 1, 'bbox-rx': 0.15, 'bbox-ry': 0.15}],
+    ['default-svg-properties', {'stroke': 'none', 'stroke-width': 0, 'bbox-scale': 1, 'bbox-rx': 0.15, 'bbox-ry': 0.15, "stroke-linecap": "round"}],
     ['bbox', {'allow': ['electric-stuff'], 'fill': '#000016'}],
     ['bbox', {'allow': ['chests'], 'fill': '#000017'}],
     ['bbox', {'allow': ['roboport'], 'fill': '#000018'}],
@@ -143,10 +149,24 @@ RANDOM_SETTING_ELEMENTS = [
     ['bbox', {'allow': ['military']}],
     ['bbox', {'allow': ['connected-stuff']}],
   ],[
-    ['default-svg-properties', {'stroke': '#000026', 'stroke-width': 0.2}],
+    ['default-svg-properties', {'stroke': '#000026', 'stroke-width': 0.2, "stroke-linecap": "round"}],
     ['connected-belt', {}],
     ['connected-pipe', {}],
     ['connected-inserter', {}]
+  ],[
+    ['default-svg-properties', {'stroke': '#000027', 'stroke-width': 0.2, "stroke-linecap": "round"}],
+    ['connected-belt', {}],
+    ['connected-pipe', {}],
+    ['connected-rail', {}]
+  ],[
+    ['default-svg-properties', {'stroke': '#000028', 'stroke-width': 0.3, 'fill': 'none', 'bbox-scale': 1, 'bbox-rx': 0.15, 'bbox-ry': 0.15}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#000029'}],
+    ['bbox', {'allow': ['roboport'], 'fill': '#000030'}],
+    ['bbox', {'allow': ['lab'], 'fill': '#000031'}],
+    ['bbox', {'allow': ['beacon'], 'fill': '#000032'}],
+    ['bbox', {'allow': ['electicity-generation', 'boiler'], 'fill': '#000033'}],
+    ['bbox', {'allow': ['drill'], 'fill': '#000034'}],
+    ['bbox', {'allow': ['furnace'], 'fill': '#000035'}]
   ]
 ]
 
@@ -196,12 +216,26 @@ def get_random_settings():
   settings = [["meta", {"background":"#000000"}]]
   num_of_entities = np.random.randint(1,4)
   for i in np.random.choice(range(len(RANDOM_SETTING_ELEMENTS)), num_of_entities, replace=False):
-    num_of_rules_in_entity = np.random.randint(2,10)
-    settings.extend(RANDOM_SETTING_ELEMENTS[i][:num_of_rules_in_entity])
+    num_of_rules_in_entity = np.random.randint(2,12)
+    c = RANDOM_SETTING_ELEMENTS[i][1:].copy()
+    np.random.shuffle(c)
+    random_setting_elements = [RANDOM_SETTING_ELEMENTS[i][0], *c]
+    settings.extend(random_setting_elements[:num_of_rules_in_entity])
   
   color_count = np.random.randint(2, 15)
+
+  uniform_stroke = np.random.uniform(1)<0.3
+  if uniform_stroke:
+    settings = settings_change_property(settings, "stroke", lambda v: "#000100")
+
   settings = settings_change_colors(settings, color_count, change_background=True)
-  settings = settings_change_property(settings, "stroke-width", lambda v: v*np.random.uniform(0.5, 2))
+  
+  if uniform_stroke:
+    settings = settings_change_property(settings, "stroke-width", lambda v: "#000100")
+  else:
+    settings = settings_change_property(settings, "stroke-width", lambda v: v*np.random.uniform(0.5, 2))
+  
   settings = settings_change_property(settings, "bbox-scale", lambda v: v*np.random.uniform(0.7, 1))
-  # randomly change 'stroke-linecap' to 'round', 'square' or 'butt'
+  settings = settings_change_property(settings, "stroke-linecap", lambda v: v if np.random.uniform(1)<0.8 else np.random.choice(["butt", "round", "square"]))
+  
   return settings

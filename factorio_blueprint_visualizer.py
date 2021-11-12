@@ -274,16 +274,18 @@ def replace_building_generic_terms(builing_name_list, building_generic_terms):
   new_builing_name_list = []
   for name in builing_name_list:
     if name in building_generic_terms:
-      new_builing_name_list.extend(building_generic_terms[name])
+      new_builing_name_list.extend(replace_building_generic_terms(building_generic_terms[name], building_generic_terms))
     else:
       new_builing_name_list.append(name)
   return new_builing_name_list
 
 def draw_entities_bbox(dwg, entities, settings, default_bbox_prop, building_sizes, building_generic_terms):
   if "allow" in settings:
-    bbox_entities = [e for e in entities if e["name"] in replace_building_generic_terms(settings["allow"], building_generic_terms)]
+    allow_resolved_generic_terms = replace_building_generic_terms(settings["allow"], building_generic_terms)
+    bbox_entities = [e for e in entities if e["name"] in allow_resolved_generic_terms]
   elif "deny" in settings:
-    bbox_entities = [e for e in entities if e["name"] not in replace_building_generic_terms(settings["deny"], building_generic_terms)]
+    deny_resolved_generic_terms = replace_building_generic_terms(settings["deny"], building_generic_terms)
+    bbox_entities = [e for e in entities if e["name"] not in deny_resolved_generic_terms]
   else:
     bbox_entities = entities
     
