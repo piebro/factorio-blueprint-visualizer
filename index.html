@@ -41,17 +41,23 @@ img, svg {
 async function setup(){
   
   pyodide = await loadPyodide({indexURL : "https://cdn.jsdelivr.net/pyodide/v0.18.1/full/"});
-  await pyodide.loadPackage('numpy');
+  await pyodide.loadPackage(['numpy', 'micropip']);
 
-  const response = await fetch("website/index.py");
-  const scr_py = await response.text();
-  pyodide.runPython(scr_py)
+  await pyodide.runPythonAsync(`
+    import micropip
+    
+    await micropip.install('https://github.com/piebro/factorio-blueprint-visualizer/releases/download/v0.0.1/factorioBlueprintVisualizer-0.0.1-py2.py3-none-any.whl')
+    
+    # for local development use a local wheel to follow Browser CORS guidlines and update the release locally if needed. Its important to switch back before comitting
+    # await micropip.install('dist/factorioBlueprintVisualizer-0.0.1-py2.py3-none-any.whl')
+    
+    import factorioBlueprintVisualizer as bv
 
-  const response_blueprint = await fetch('website/blueprint.txt');
-  current_blueprint_str = await response_blueprint.text();
-  pyodide.runPython(`blueprint_cache = get_blueprint_cache("`+current_blueprint_str+`", 0)`)
-  const response_settings = await fetch('website/settings.txt');
-  settings_list.push(await response_settings.text())
+    settings_list = [bv.EXAMPLE_SETTINGS]
+    current_setting_index = 0
+
+    blueprint_cache = bv.get_blueprint_cache(bv.EXAMPLE_BLUEPRINT, blueprint_name_or_number=0, bbox_border=3)
+  `)
 
   draw_blueprint()
 
@@ -66,7 +72,9 @@ async function setup(){
 }
 
 function draw_blueprint(){
-  document.getElementById("svg-container").innerHTML = pyodide.runPython(`draw_blueprints(None, None, `+settings_list[current_setting_index]+`, blueprint_cache)`)
+  document.getElementById("svg-container").innerHTML = pyodide.runPython(`
+    bv.draw_blueprints(blueprint_cache, settings_list[current_setting_index], svg_max_size_in_mm=300)
+  `)
 }
 
 async function saveBtnClick(){
@@ -85,24 +93,25 @@ async function saveBtnClick(){
 function uploadBtnClick(){
   input = window.prompt("paste blueprint here")
   if (input != null && input != ""){
-    current_blueprint_str = input
-    pyodide.runPython(`blueprint_cache = get_blueprint_cache("`+current_blueprint_str+`", 0)`)
+    pyodide.runPython(`blueprint_cache = bv.get_blueprint_cache("`+input+`", blueprint_name_or_number=0, bbox_border=3)`)
     draw_blueprint()
   }
 }
 
 function nextSetting(){
-  current_setting_index += 1
-  if (settings_list.length == current_setting_index){
-    settings_list.push(pyodide.runPython("get_random_settings()"))
-  }
+  pyodide.runPython(`
+    current_setting_index += 1
+    if len(settings_list) == current_setting_index:
+      settings_list.append(bv.get_random_settings())
+  `)
   draw_blueprint()
 }
 
 function previousSetting(){
-  if (current_setting_index > 0){
-    current_setting_index -= 1
-  }
+  pyodide.runPython(`
+    if current_setting_index > 0:
+      current_setting_index -= 1
+  `)
   draw_blueprint()
 }
 
