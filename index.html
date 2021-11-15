@@ -46,10 +46,7 @@ async function setup(){
   await pyodide.runPythonAsync(`
     import micropip
     
-    await micropip.install('https://github.com/piebro/factorio-blueprint-visualizer/releases/download/v0.0.1/factorioBlueprintVisualizer-0.0.1-py2.py3-none-any.whl')
-    
-    # for local development use a local wheel to follow Browser CORS guidlines and update the release locally if needed. Its important to switch back before comitting
-    # await micropip.install('dist/factorioBlueprintVisualizer-0.0.1-py2.py3-none-any.whl')
+    await micropip.install('website/factorioBlueprintVisualizer-0.0.1-py2.py3-none-any.whl')
     
     import factorioBlueprintVisualizer as bv
 
