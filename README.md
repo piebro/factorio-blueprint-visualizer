@@ -33,6 +33,8 @@ These awesome blueprints are by Josh Ventura and can be found [here](https://fac
 
 If you create some cool blueprints and want to share them, you can add an issue in GitHub with the SVG and the blueprint link for others to enjoy and experiment with.
 
+To update the python code for the website you have to update the python wheel in the website folder. To update it just run: ```python setup.py bdist_wheel --universal --dist-dir=website```
+
 ## Other
 
 I also have a pen plotter, and one of my initial ideas was also to be able to plot my factories. The 5th example is made with pen plotting in mind, and some other drawing settings can be used to create plottable factories.
