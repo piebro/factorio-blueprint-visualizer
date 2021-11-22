@@ -67,10 +67,11 @@ def get_size_and_normalize_entities(entities, bbox_border, building_sizes):
   return bbox_width, bbox_height
 
 
-def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number, bbox_border=3, building_settings={}):
+def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number=0, bbox_border=3, building_settings=None):
+  if building_settings is None:
+    building_settings = get_custom_building_settings()
+
   raw_blueprint_json = json.loads(zlib.decompress(base64.b64decode(encoded_blueprint_str[1:])))
-  
-  building_sizes = building_settings["BUILDING_SIZES"] if "BUILDING_SIZES" in building_settings else BUILDING_SIZES
 
   blueprint_dict = {}
   get_label_and_blueprint(blueprint_dict, raw_blueprint_json)
@@ -80,9 +81,13 @@ def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number, bbox_bo
   else:
     blueprint_name = list(blueprint_dict.keys())[blueprint_name_or_number]
 
+  blueprint_json_str = json.dumps({'blueprint': blueprint_dict[blueprint_name]}, separators=[",",":"], ensure_ascii=False).encode('utf8')
+  encoded_selected_blueprint_str = encoded_blueprint_str[0] + base64.b64encode(zlib.compress(blueprint_json_str, level=9)).decode()
+  
   entities = get_simplified_entities(blueprint_dict[blueprint_name])
-  bbox_width, bbox_height = get_size_and_normalize_entities(entities, bbox_border, building_sizes)
-  cache = {"bbox_width": bbox_width, "bbox_height": bbox_height, "entities": entities}
+  bbox_width, bbox_height = get_size_and_normalize_entities(entities, bbox_border, building_settings["building_sizes"])
+
+  cache = {"bbox_width": bbox_width, "bbox_height": bbox_height, "entities": entities, "encoded_blueprint": encoded_selected_blueprint_str}
   return cache
 
 
@@ -103,7 +108,7 @@ def draw_entities_bbox(dwg, entities, settings, default_bbox_prop, building_sett
     else:
       bbox_prop[bbox_prop_key[5:]] = default_bbox_prop[bbox_prop_key[5:]]
 
-  append_group(dwg, settings, deny_list=["bbox-scale", "bbox-rx", "bbox-ry"])
+  append_group(dwg, settings, deny_list=["bbox-scale", "bbox-rx", "bbox-ry", "allow", "deny"])
   for e in bbox_entities:
     if e["name"] in building_settings["building_sizes"]:
       if e["direction"]%4 == 0:
@@ -288,6 +293,28 @@ def get_lines_rails(entities):
   return lines
 
 
+def get_lines_circuit(entities, circuit_color):
+    lines = []
+    for e in entities:
+        if "connections" in e:
+            connected_entity_ids = []
+            if "1" in e["connections"] and circuit_color in e["connections"]["1"]:
+                connected_entity_ids.extend([i["entity_id"] for i in e["connections"]["1"][circuit_color]])
+            if "2" in e["connections"] and circuit_color in e["connections"]["2"]:
+                connected_entity_ids.extend([i["entity_id"] for i in e["connections"]["2"][circuit_color]])
+            lines.extend([[e["pos"], entities[n-1]["pos"]] for n in connected_entity_ids])
+    return lines
+
+
+def get_lines_electricity(entities):
+    lines = []
+    for e in entities:
+        if "neighbours" in e:
+          lines.extend([[e["pos"], entities[n-1]["pos"]] for n in e["neighbours"]])
+
+    return lines
+
+
 def draw_blueprints(blueprint_cache, settings, svg_max_size_in_mm=300, building_settings=None):
   if building_settings is None:
     building_settings = get_custom_building_settings()
@@ -296,54 +323,76 @@ def draw_blueprints(blueprint_cache, settings, svg_max_size_in_mm=300, building_
   
   entities = blueprint_cache["entities"]
 
-  dwg = get_drawing(blueprint_cache["bbox_width"], blueprint_cache["bbox_height"], svg_max_size_in_mm, meta_settings["background"], settings)  
+  metadata_str = f'<metadata generated_with="https://piebro.github.io/factorio-blueprint-visualizer"><settings>{settings}</settings><blueprint>{blueprint_cache["encoded_blueprint"]}</blueprint></metadata>'
+
+  dwg = get_drawing(blueprint_cache["bbox_width"], blueprint_cache["bbox_height"], svg_max_size_in_mm, meta_settings["background"], metadata_str)  
   
   dwg_groups_to_close = 0
   default_bbox_prop = {"scale": None, "rx": None, "ry": None}
   
-  for setting in settings:
-    if setting[0] == "default-svg-properties":
-      append_group(dwg, setting[1], deny_list=["bbox-scale", "bbox-rx", "bbox-ry"])
+  for setting_name, setting_options in settings:
+    if setting_name == "meta":
+      continue
+
+    elif setting_name == "svg":
+      append_group(dwg, setting_options, deny_list=["bbox-scale", "bbox-rx", "bbox-ry"])
       dwg_groups_to_close += 1
       for bbox_prop_key in ["bbox-scale", "bbox-rx", "bbox-ry"]:
-        if bbox_prop_key in setting[1]:
-          default_bbox_prop[bbox_prop_key[5:]] = setting[1][bbox_prop_key]
+        if bbox_prop_key in setting_options:
+          default_bbox_prop[bbox_prop_key[5:]] = setting_options[bbox_prop_key]
       
-    elif setting[0] == "bbox":
-      draw_entities_bbox(dwg, entities, setting[1], default_bbox_prop, building_settings)
+    elif setting_name == "bbox":
+      draw_entities_bbox(dwg, entities, setting_options, default_bbox_prop, building_settings)
       
-    elif setting[0] == "connected-belt":
-      if "connected-belt" not in blueprint_cache:
-        blueprint_cache["connected-belt"] = get_lines_belt(entities)
-      draw_lines(dwg, blueprint_cache["connected-belt"], setting[1])
+    elif setting_name == "belt":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_belt(entities)
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
 
-    elif setting[0] == "connected-underground-belt":
-      if "connected-underground-belt" not in blueprint_cache:
-        lines = get_lines_underground_belt(entities, "underground-belt", 6)
-        lines.extend(get_lines_underground_belt(entities, "fast-underground-belt", 8))
-        lines.extend(get_lines_underground_belt(entities, "express-underground-belt", 10))
-        blueprint_cache["connected-underground-belt"] = lines
-      draw_lines(dwg, blueprint_cache["connected-underground-belt"], setting[1])
+    elif setting_name == "underground-belt":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_underground_belt(entities, "underground-belt", 6)
+        blueprint_cache[setting_name].extend(get_lines_underground_belt(entities, "fast-underground-belt", 8))
+        blueprint_cache[setting_name].extend(get_lines_underground_belt(entities, "express-underground-belt", 10))
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
 
-    elif setting[0] == "connected-pipe-to-ground":
-      if "connected-pipe-to-ground" not in blueprint_cache:
-        blueprint_cache["connected-pipe-to-ground"] = get_lines_underground_pipes(entities, 11)
-      draw_lines(dwg, blueprint_cache["connected-pipe-to-ground"], setting[1])
+    elif setting_name == "underground-pipe":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_underground_pipes(entities, 11)
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
 
-    elif setting[0] == "connected-pipe":
-      if "connected-pipe" not in blueprint_cache:
-        blueprint_cache["connected-pipe"] = get_lines_pipes(entities, building_settings)
-      draw_lines(dwg, blueprint_cache["connected-pipe"], setting[1])
+    elif setting_name == "pipe":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_pipes(entities, building_settings)
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
   
-    elif setting[0] == "connected-inserter":
-      if "connected-inserter" not in blueprint_cache:
-        blueprint_cache["connected-inserter"] = get_lines_inserter(entities)
-      draw_lines(dwg, blueprint_cache["connected-inserter"], setting[1])
+    elif setting_name == "inserter":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_inserter(entities)
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
 
-    elif setting[0] == "connected-rail":
-      if "connected-rail" not in blueprint_cache:
-        blueprint_cache["connected-rail"] = get_lines_rails(entities)
-      draw_lines(dwg, blueprint_cache["connected-rail"], setting[1])
+    elif setting_name == "rail":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_rails(entities)
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
+    
+    elif setting_name == "electricity":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_electricity(entities)
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
+
+    elif setting_name == "red-circuit":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_circuit(entities, "red")
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
+
+    elif setting_name == "green-circuit":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_circuit(entities, "green")
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
+
+    else:
+      print("unknown setting name:", setting_name)
 
   for _ in range(dwg_groups_to_close):
     dwg.append('</g>')
