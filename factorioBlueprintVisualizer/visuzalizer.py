@@ -228,21 +228,32 @@ def get_lines_belt(entities):
       target_pos = tuple(np.array(pos) + DIRECTION_OFFSET[dir])
       for target_dir in [(dir-2)%8, dir, (dir+2)%8]:
         connect_conditions.append([pos, dir, target_pos, target_dir])
+        
+  lines = get_lines_nodes_and_connect_conditions(nodes, connect_conditions, draw_nodes=False, set_self_false=False, set_target_false=False)
 
-    elif e["name"] in ["splitter", "fast-splitter", "express-splitter"]:
+  for e in entities:
+    if e["name"] in ["splitter", "fast-splitter", "express-splitter"]:
       dir = e["direction"]
       offset = 0.5*DIRECTION_OFFSET[(dir+2)%8]
       pos_1_2 = [tuple(e["pos"]-offset), tuple(e["pos"]+offset)]
-
-      for pos in pos_1_2:
-        add_pos_to_nodes(nodes, pos, dir)
+      from_pos_1_2 = [tuple(np.array(pos) - DIRECTION_OFFSET[dir]) for pos in pos_1_2]
+      to_pos_1_2 = [tuple(np.array(pos) + DIRECTION_OFFSET[dir]) for pos in pos_1_2]
       
-        for pos_i in [0,1]:
-            target_pos = tuple(np.array(pos_1_2[pos_i]) + DIRECTION_OFFSET[dir])
-            for target_dir in [(dir-2)%8, dir, (dir+2)%8]:
-              connect_conditions.append([pos, dir, target_pos, target_dir])
+      to_pos_in_nodes = [to_pos_1_2[i] in nodes and not nodes[to_pos_1_2[i]][dir-4] for i in [0,1]]
+      from_pos_in_nodes = [from_pos_1_2[i] in nodes and nodes[from_pos_1_2[i]][dir] for i in [0,1]]
 
-  return get_lines_nodes_and_connect_conditions(nodes, connect_conditions, draw_nodes=False, set_self_false=False, set_target_false=False)
+      for i in [0,1]:
+        if to_pos_in_nodes[i] and (not from_pos_in_nodes[i-1] or from_pos_in_nodes[i]):
+          lines.append([pos_1_2[i], to_pos_1_2[i]])
+        
+        if from_pos_in_nodes[i]:
+          lines.append([from_pos_1_2[i], pos_1_2[i]])
+        
+          if to_pos_in_nodes[i-1]:
+            lines.append([pos_1_2[i], to_pos_1_2[i-1]])
+
+  return lines
+
 
 
 def get_lines_underground_belt(entities, entity_name=None, max_length=None):
