@@ -195,7 +195,7 @@ def get_lines_pipes(entities, building_settings):
   return get_lines_nodes_and_connect_conditions(nodes, connect_conditions)
 
 
-def get_lines_underground_pipes(entities, max_length):
+def get_lines_underground_pipes(entities, max_length=11):
   nodes = {}
   for e in entities:
     if e["name"] == "pipe-to-ground":
@@ -245,7 +245,13 @@ def get_lines_belt(entities):
   return get_lines_nodes_and_connect_conditions(nodes, connect_conditions, draw_nodes=False, set_self_false=False, set_target_false=False)
 
 
-def get_lines_underground_belt(entities, entity_name, max_length):
+def get_lines_underground_belt(entities, entity_name=None, max_length=None):
+  if entity_name is None and max_length is None:
+    lines = get_lines_underground_belt(entities, "underground-belt", 6)
+    lines.extend(get_lines_underground_belt(entities, "fast-underground-belt", 8))
+    lines.extend(get_lines_underground_belt(entities, "express-underground-belt", 10))
+    return lines
+
   nodes_input = {}
   nodes_output = {}
   for e in entities:
@@ -344,34 +350,32 @@ def draw_blueprints(blueprint_cache, settings, svg_max_size_in_mm=300, building_
     elif setting_name == "bbox":
       draw_entities_bbox(dwg, entities, setting_options, default_bbox_prop, building_settings)
       
-    elif setting_name == "belt":
+    elif setting_name == "belts":
       if setting_name not in blueprint_cache:
         blueprint_cache[setting_name] = get_lines_belt(entities)
       draw_lines(dwg, blueprint_cache[setting_name], setting_options)
 
-    elif setting_name == "underground-belt":
+    elif setting_name == "underground-belts":
       if setting_name not in blueprint_cache:
-        blueprint_cache[setting_name] = get_lines_underground_belt(entities, "underground-belt", 6)
-        blueprint_cache[setting_name].extend(get_lines_underground_belt(entities, "fast-underground-belt", 8))
-        blueprint_cache[setting_name].extend(get_lines_underground_belt(entities, "express-underground-belt", 10))
+        blueprint_cache[setting_name] = get_lines_underground_belt(entities)
       draw_lines(dwg, blueprint_cache[setting_name], setting_options)
-
-    elif setting_name == "underground-pipe":
-      if setting_name not in blueprint_cache:
-        blueprint_cache[setting_name] = get_lines_underground_pipes(entities, 11)
-      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
-
-    elif setting_name == "pipe":
+    
+    elif setting_name == "pipes":
       if setting_name not in blueprint_cache:
         blueprint_cache[setting_name] = get_lines_pipes(entities, building_settings)
       draw_lines(dwg, blueprint_cache[setting_name], setting_options)
+
+    elif setting_name == "underground-pipes":
+      if setting_name not in blueprint_cache:
+        blueprint_cache[setting_name] = get_lines_underground_pipes(entities)
+      draw_lines(dwg, blueprint_cache[setting_name], setting_options)
   
-    elif setting_name == "inserter":
+    elif setting_name == "inserters":
       if setting_name not in blueprint_cache:
         blueprint_cache[setting_name] = get_lines_inserter(entities)
       draw_lines(dwg, blueprint_cache[setting_name], setting_options)
 
-    elif setting_name == "rail":
+    elif setting_name == "rails":
       if setting_name not in blueprint_cache:
         blueprint_cache[setting_name] = get_lines_rails(entities)
       draw_lines(dwg, blueprint_cache[setting_name], setting_options)
@@ -381,12 +385,12 @@ def draw_blueprints(blueprint_cache, settings, svg_max_size_in_mm=300, building_
         blueprint_cache[setting_name] = get_lines_electricity(entities)
       draw_lines(dwg, blueprint_cache[setting_name], setting_options)
 
-    elif setting_name == "red-circuit":
+    elif setting_name == "red-circuits":
       if setting_name not in blueprint_cache:
         blueprint_cache[setting_name] = get_lines_circuit(entities, "red")
       draw_lines(dwg, blueprint_cache[setting_name], setting_options)
 
-    elif setting_name == "green-circuit":
+    elif setting_name == "green-circuits":
       if setting_name not in blueprint_cache:
         blueprint_cache[setting_name] = get_lines_circuit(entities, "green")
       draw_lines(dwg, blueprint_cache[setting_name], setting_options)
