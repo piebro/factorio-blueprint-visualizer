@@ -10,8 +10,8 @@ def check_for_filename(folder_path, filename, file_ending):
     os.mkdir(folder_path)
   
   files_in_folder = os.listdir(folder_path)
-  for i in range(10000):
-    possible_valid_fn = f"{filename}_{i:05d}.{file_ending}"
+  for i in range(1000):
+    possible_valid_fn = f"{filename}_{i:04d}.{file_ending}"
     if possible_valid_fn not in files_in_folder:
       return os.path.join(folder_path, possible_valid_fn)
 
@@ -39,6 +39,17 @@ def get_blueprint_from_svg(svg_path):
 def pretty_print_settings(settings):
     print("settings = " + str(settings).replace("[[", "[\n  [").replace("]]", "],\n]").replace("}], ", "}],\n  "))
 
+def print_blueprint_entity_count(blueprint_cache):
+    entity_count = {}
+    for e in blueprint_cache["entities"]:
+        if e["name"] in entity_count:
+            entity_count[e["name"]] += 1
+        else:
+            entity_count[e["name"]] = 1
+    sorted_entity_count = sorted(entity_count.items(), key=lambda item: item[1])
+    sorted_entity_count.reverse()
+    for e in sorted_entity_count:
+        print(f"{e[0]}: {e[1]}")
 
 def get_custom_building_settings(new_building_sizes={}, new_building_generic_terms={}, new_building_pipe_connections={}, new_recipes_in_assembly_machine_with_fluids_to_dir_change={}):
   custom_building_settings = {}
