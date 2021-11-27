@@ -37,6 +37,11 @@ def get_blueprint_from_svg(svg_path):
 
 
 def pretty_print_settings(settings):
+    for s in settings:
+      new_s1 = {}
+      for key in sorted(s[1]):
+          new_s1[key] = s[1][key]
+      s[1] = new_s1
     print("settings = " + str(settings).replace("[[", "[\n  [").replace("]]", "],\n]").replace("}], ", "}],\n  "))
 
 def print_blueprint_entity_count(blueprint_cache):
