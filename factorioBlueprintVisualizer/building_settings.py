@@ -169,6 +169,10 @@ BUILDING_PIPE_CONNECTIONS = {
       {"pos":(0,0), "direction": SOUTH},
       {"pos":(0,0), "direction": WEST}      
     ],
+    "pump":[
+      {"pos":(0,0.5), "direction": SOUTH},
+      {"pos":(0,-0.5), "direction": NORTH},
+    ],
     "assembling-machine-1":[
       {"pos":(0,-1), "direction": NORTH}
     ],
