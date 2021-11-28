@@ -47,7 +47,7 @@ async function setup(){
   await pyodide.runPythonAsync(`
     import micropip
     
-    await micropip.install('website/factorioBlueprintVisualizer-0.0.1-py2.py3-none-any.whl')
+    await micropip.install('website/factorioBlueprintVisualizer-1.0.0-py2.py3-none-any.whl')
     
     import factorioBlueprintVisualizer as bv
 
@@ -71,7 +71,7 @@ async function setup(){
 
 function draw_blueprint(){
   document.getElementById("svg-container").innerHTML = pyodide.runPython(`
-    bv.draw_blueprints(blueprint_cache, settings_list[current_setting_index], svg_max_size_in_mm=300)
+    bv.draw_blueprint(blueprint_cache, settings_list[current_setting_index], svg_max_size_in_mm=300)
   `)
 }
 

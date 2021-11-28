@@ -1,6 +1,6 @@
 import numpy as np
 
-def get_drawing(bbox_width, bbox_height, max_size_in_mm=250, background_color="#dddddd", settings=None):
+def get_drawing(bbox_width, bbox_height, max_size_in_mm=250, background_color="#dddddd", metadata_str=None):
   if bbox_width>bbox_height:
     dwg_size_in_mm = (max_size_in_mm, np.round(max_size_in_mm*bbox_height/bbox_width))
   else:
@@ -8,8 +8,8 @@ def get_drawing(bbox_width, bbox_height, max_size_in_mm=250, background_color="#
 
   dwg = [f'<svg baseProfile="tiny" height="{dwg_size_in_mm[1]}mm" version="1.2" viewBox="0,0,{bbox_width},{bbox_height}" width="{dwg_size_in_mm[0]}mm" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">']
 
-  if settings is not None:
-    dwg.append(f"<metadata><generated_with>https://piebro.github.io/factorio-blueprint-visualizer/</generated_with><settings>{settings}</settings></metadata>")
+  if metadata_str is not None:
+    dwg.append(metadata_str)
 
   if background_color is not None:
     dwg.append(f'<rect fill="{background_color}" height="10000" width="10000" x="-100" y="-100" />')

@@ -1,6 +1,8 @@
 import copy
 import numpy as np
 
+from .visualizer import *
+
 # generated with https://coolors.co/
 PREDEFINED_COLOR_PALETTES = [
   [
@@ -11,6 +13,18 @@ PREDEFINED_COLOR_PALETTES = [
     ['#1446a0', '#db3069'],
     ['#ff6666', '#ccff66'],
     ['#251605', '#c57b57'],
+    ["#353535", "#ffffff"],
+    ["#34344a", "#80475e"],
+    ["#e9d758", "#297373"],
+    ["#c2c1c2", "#42213d"],
+    ["#333745", "#e63462"],
+    ["#0d3b66", "#faf0ca"],
+    ["#f55d3e", "#878e88"],
+    ["#fe4a49", "#2ab7ca"],
+    ["#444545", "#b5ffe9"],
+    ["#89b6a5", "#4c3b4d"],
+    ["#f05d5e", "#0f7173"],
+    ["#50514f", "#b4adea"],
   ],[
     ['#ff4e00', '#8ea604', '#f5bb00'],
     ['#a54657', '#582630', '#f7ee7f'],
@@ -19,6 +33,18 @@ PREDEFINED_COLOR_PALETTES = [
     ['#ef767a', '#456990', '#49beaa'],
     ['#eca400', '#eaf8bf', '#006992'],
     ['#ef946c', '#c4a77d', '#70877f'],
+    ["#313715", "#d16014", "#939f5c"],
+    ["#442b48", "#726e60", "#98b06f"],
+    ["#002a32", "#c4a29e", "#eba6a9"],
+    ["#51a3a3", "#75485e", "#cb904d"],
+    ["#0d3b66", "#faf0ca", "#f4d35e"],
+    ["#f2c57c", "#ddae7e", "#7fb685"],
+    ["#28536b", "#c2948a", "#7ea8be"],
+    ["#3a2e39", "#1e555c", "#f4d8cd"],
+    ["#ffa69e", "#ff7e6b", "#8c5e58"],
+    ["#f4d06f", "#ff8811", "#9dd9d2"],
+    ["#fbfef9", "#191923", "#0e79b2"],
+    ["#bf4e30", "#c6ccb2", "#093824"],
   ],[
     ['#ec0b43', '#58355e', '#7ae7c7', '#d6ffb7'],
     ['#bfae48', '#5fad41', '#2d936c', '#391463'],
@@ -27,6 +53,12 @@ PREDEFINED_COLOR_PALETTES = [
     ['#042a2b', '#5eb1bf', '#cdedf6', '#ef7b45'],
     ['#540d6e', '#ee4266', '#ffd23f', '#f3fcf0'],
     ['#ffb997', '#f67e7d', '#843b62', '#0b032d'],
+    ["#06070e", "#29524a", "#94a187", "#c5afa0"],
+    ["#f1bf98", "#e1f4cb", "#bacba9", "#717568"],
+    ["#ccd7c5", "#efd2cb", "#c7a27c", "#d65780"],
+    ["#ecebe4", "#cc998d", "#16f4d0", "#429ea6"],
+    ["#004777", "#a30000", "#ff7700", "#efd28d"],
+    ["#aba9bf", "#beb7df", "#d4f2d2", "#34113f"],
   ],[
     ['#d6ffb7', '#f5ff90', '#ffc15e', '#ff9f1c', '#080357'],
     ['#52489c', '#4062bb', '#59c3c3', '#ebebeb', '#f45b69'],
@@ -78,95 +110,266 @@ PREDEFINED_COLOR_PALETTES = [
   ]
 ]
 
-RANDOM_SETTING_ELEMENTS = [
+RANDOM_SETTING_LIST = [  
   [
-    ["default-svg-properties", {"stroke-width": 0.8, "fill": "none", "stroke-linecap": "round"}],
-    ["connected-underground-belt", {"stroke": "#000001"}],
-    ["connected-pipe-to-ground", {"stroke": "#000002"}]
+    ['meta', {'background': '#cfd186'}],
+    ['svg', {'fill': 'none', 'stroke': '#596157', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['drills'], 'fill': '#5b8c5a', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#52414c', 'stroke': 'none'}],
+    ['bbox', {'allow': ['furnaces'], 'fill': '#e3655b', 'stroke': 'none'}],
+    ['bbox', {'allow': ['lab'], 'fill': '#e3655b', 'stroke': 'none'}],
+    ['bbox', {'allow': ['military'], 'fill': '#d67ab1', 'stroke': 'none'}],
+    ['bbox', {'deny': ['transportation', 'electricity', 'inserters', 'electricity-generators', 'boiler']}],
   ],[
-    ["default-svg-properties", {"stroke-width": 0.8, "fill": "none", "stroke-linecap": "round"}],
-    ["connected-belt", {"stroke": "#000001"}],
-    ["connected-pipe", {"stroke": "#000002"}],
-    ["connected-inserter", {"stroke": "#000003"}],
-    ["connected-rail", {"stroke": "#000004"}]
+    ['meta', {'background': '#faf0ca'}],
+    ['svg', {'fill': 'none', 'stroke': '#0d3b66', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
+    ['belts', {}],
+    ['bbox', {'deny': ['belts']}],
+    ['electricity', {}],
   ],[
-    ["default-svg-properties", {"stroke": "#000005", "stroke-width": 0.2, "bbox-scale": 1, "bbox-rx": 0.15, "bbox-ry": 0.15}],
-    ["bbox", {"deny": ["connected-stuff", "electric-stuff", "chests"], "bbox-scale": 1, "fill": "#000006"}],
-    ["bbox", {"allow": ["electric-stuff"], "bbox-scale": 1, "fill": "#000007"}],
-    ["bbox", {"allow": ["chests"], "bbox-scale": 1, "fill": "#000008"}],
-    ["bbox", {"allow": ["roboport"], "bbox-scale": 1, "fill": "#000009"}],
-    ["bbox", {"allow": ["beacon"], "bbox-scale": 1, "fill": "#000010"}]
+    ['meta', {'background': '#5998c5'}],
+    ['svg', {'bbox-scale': 0.7, 'stroke': '#12eaea', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['drills'], 'fill': '#8eb1c7', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#fff689', 'stroke': 'none'}],
+    ['bbox', {'allow': ['furnaces'], 'fill': '#e03616', 'stroke': 'none'}],
+    ['bbox', {'allow': ['lab'], 'fill': '#cfffb0', 'stroke': 'none'}],
+    ['bbox', {'allow': ['military'], 'fill': '#58355e', 'stroke': 'none'}],
   ],[
-    ['default-svg-properties', {'stroke-width': 1, 'stroke': '#000011', 'fill': 'none', 'stroke-linecap': 'round'}],
-    ['connected-underground-belt', {}],
-    ['connected-belt', {}],
-    ['connected-pipe-to-ground', {}],
-    ['connected-pipe', {}]
+    ['meta', {'background': '#36827f'}],
+    ['bbox', {'bbox-scale': 0.85, 'deny': ['transportation', 'electricity', 'inserters'], 'fill': '#f9db6d', 'stroke': 'none'}],
+    ['electricity', {'stroke': '#f9db6d', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
   ],[
-    ['default-svg-properties', {'stroke-width': 1, 'stroke': '#000011', 'fill': 'none', 'stroke-linecap': 'round'}],
-    ['connected-underground-belt', {'stroke-opacity': 0.7}],
-    ['connected-belt', {}],
-    ['connected-pipe-to-ground', {'stroke-opacity': 0.7}],
-    ['connected-pipe', {}]
+    ['meta', {'background': '#58355e'}],
+    ['svg', {'bbox-scale': 0.7, 'fill': 'none', 'stroke': '#cfffb0', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['drills'], 'fill': '#e03616', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#8eb1c7', 'stroke': 'none'}],
+    ['bbox', {'allow': ['furnaces'], 'fill': '#5998c5', 'stroke': 'none'}],
+    ['bbox', {'allow': ['lab'], 'fill': '#fff689', 'stroke': 'none'}],
+    ['bbox', {'allow': ['military'], 'fill': '#12eaea', 'stroke': 'none'}],
   ],[
-    ['default-svg-properties', {'stroke-width': 0.8, 'fill': 'none', 'stroke-linecap': 'round'}],
-    ['bbox', {'deny': ['connected-stuff', 'electric-stuff', 'train-stuff'], 'bbox-scale': 1, 'stroke': '#000012', 'fill': '#000012', 'bbox-rx': 0.15, 'bbox-ry': 0.15}],
+    ['meta', {'background': '#eddea4'}],
+    ['svg', {'fill': 'none', 'stroke': '#f7a072', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['drills'], 'fill': '#e08dac', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#0fa3b1', 'stroke': 'none'}],
+    ['bbox', {'allow': ['furnaces'], 'fill': '#ff9b42', 'stroke': 'none'}],
+    ['bbox', {'allow': ['lab'], 'fill': '#ff9b42', 'stroke': 'none'}],
+    ['bbox', {'allow': ['military'], 'fill': '#d9e5d6', 'stroke': 'none'}],
+    ['bbox', {'deny': ['transportation', 'electricity', 'inserters', 'electricity-generators', 'boiler']}],
   ],[
-    ["default-svg-properties", {"stroke-width": 1.1, "fill": "none", "stroke-linecap": "round"}],
-    ['connected-underground-belt', {'stroke': '#000001'}],
-    ['connected-pipe-to-ground', {'stroke': '#000002'}],
-    ['connected-belt', {'stroke': '#000001'}],
-    ['connected-pipe', {'stroke': '#000002'}],
-    ['connected-inserter', {'stroke': '#000003'}],
-    ['connected-rail', {'stroke': '#000004'}]
+    ['meta', {'background': '#e3b5a4'}],
+    ['svg', {'bbox-scale': 0.9, 'fill': 'none', 'stroke': '#773344', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#e85f5c', 'stroke': 'none'}],
+    ['bbox', {'allow': ['lab'], 'fill': '#9cfffa', 'stroke': 'none'}],
+    ['bbox', {'allow': ['electricity'], 'fill': '#acf39d', 'stroke': 'none'}],
   ],[
-    ['default-svg-properties', {'stroke': '#000013', 'stroke-width': 0.2, 'bbox-scale': 1, 'bbox-rx': 0.15, 'bbox-ry': 0.15}],
-    ['bbox', {'deny': ['connected-stuff', 'electric-stuff', 'chests', 'roboport', 'beacon'], 'fill': '#000014'}],
-    ['bbox', {'allow': ['electric-stuff'], 'fill': '#000015'}],
-    ['bbox', {'allow': ['chests'], 'fill': '#000016'}],
-    ['bbox', {'allow': ['roboport'], 'fill': '#000017'}],
-    ['bbox', {'allow': ['beacon'], 'fill': '#000018'}]
+    ['meta', {'background': '#98b06f'}],
+    ['svg', {'bbox-scale': 0.85, 'stroke': '#442b48', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['pipes', {}],
+    ['underground-pipes', {'stroke-opacity': 0.6}],
+    ['bbox', {'deny': ['transportation', 'electricity'], 'fill': '#726e60'}],
   ],[
-    ['default-svg-properties', {'stroke': 'none', 'stroke-width': 0, 'bbox-scale': 1, 'bbox-rx': 0.15, 'bbox-ry': 0.15, "stroke-linecap": "round"}],
-    ['bbox', {'allow': ['electric-stuff'], 'fill': '#000016'}],
-    ['bbox', {'allow': ['chests'], 'fill': '#000017'}],
-    ['bbox', {'allow': ['roboport'], 'fill': '#000018'}],
-    ['bbox', {'allow': ['beacon'], 'fill': '#000019'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#000021'}],
-    ['bbox', {'allow': ['lab'], 'fill': '#000022'}],
-    ['bbox', {'allow': ['drill'], 'fill': '#000023'}],
-    ['bbox', {'allow': ['military'], 'fill': '#000024'}],
-    ['bbox', {'allow': ['connected-stuff'], 'fill': '#000020'}],
+    ['meta', {'background': '#52414c'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#5b8c5a', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['pipes', {}],
+    ['underground-pipes', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#e3655b', 'stroke': 'none'}],
+    ['bbox', {'allow': ['beacon'], 'fill': '#d67ab1', 'stroke': 'none'}],
+    ['bbox', {'allow': ['electricity'], 'fill': '#596157', 'stroke': 'none'}],
+    ['bbox', {'allow': ['boiler'], 'fill': '#cfd186', 'stroke': 'none'}],
+    ['bbox', {'allow': ['pump'], 'fill': '#cfd186', 'stroke': 'none'}],
   ],[
-    ['default-svg-properties', {'stroke': '#000025', 'fill': 'none', 'stroke-width': 0.2, 'bbox-scale': 0.5, 'bbox-rx': 0.15, 'bbox-ry': 0.15}],
-    ['bbox', {'allow': ['electric-stuff']}],
-    ['bbox', {'allow': ['chests']}],
-    ['bbox', {'allow': ['roboport']}],
-    ['bbox', {'allow': ['beacon']}],
-    ['bbox', {'allow': ['producing-machines']}],
-    ['bbox', {'allow': ['lab']}],
-    ['bbox', {'allow': ['drill']}],
-    ['bbox', {'allow': ['military']}],
-    ['bbox', {'allow': ['connected-stuff']}],
+    ['meta', {'background': '#faf0ca'}],
+    ['svg', {'fill': 'none', 'stroke': '#0d3b66', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['bbox', {'allow': ['transportation']}],
   ],[
-    ['default-svg-properties', {'stroke': '#000026', 'stroke-width': 0.2, "stroke-linecap": "round"}],
-    ['connected-belt', {}],
-    ['connected-pipe', {}],
-    ['connected-inserter', {}]
+    ['meta', {'background': '#773344'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#e3b5a4', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
+    ['rails', {}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.5}],
+    ['pipes', {}],
+    ['underground-pipes', {'stroke-opacity': 0.5}],
+    ['bbox', {'allow': ['drills'], 'fill': '#acf39d', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines', 'furnaces'], 'fill': '#e85f5c', 'stroke': 'none'}],
+    ['bbox', {'deny': ['transportation', 'drills', 'producing-machines', 'furnaces', 'electricity'], 'fill': '#9cfffa', 'stroke': 'none'}],
   ],[
-    ['default-svg-properties', {'stroke': '#000027', 'stroke-width': 0.2, "stroke-linecap": "round"}],
-    ['connected-belt', {}],
-    ['connected-pipe', {}],
-    ['connected-rail', {}]
+    ['meta', {'background': '#89b6a5'}],
+    ['bbox', {'bbox-rx': 0.15, 'bbox-ry': 0.15, 'bbox-scale': 0.9, 'deny': [], 'fill': '#4c3b4d', 'stroke': 'none'}],
   ],[
-    ['default-svg-properties', {'stroke': '#000028', 'stroke-width': 0.3, 'fill': 'none', 'bbox-scale': 1, 'bbox-rx': 0.15, 'bbox-ry': 0.15}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#000029'}],
-    ['bbox', {'allow': ['roboport'], 'fill': '#000030'}],
-    ['bbox', {'allow': ['lab'], 'fill': '#000031'}],
-    ['bbox', {'allow': ['beacon'], 'fill': '#000032'}],
-    ['bbox', {'allow': ['electicity-generation', 'boiler'], 'fill': '#000033'}],
-    ['bbox', {'allow': ['drill'], 'fill': '#000034'}],
-    ['bbox', {'allow': ['furnace'], 'fill': '#000035'}]
+    ['meta', {'background': '#a2aebb'}],
+    ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['pipes', {}],
+    ['underground-pipes', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['drills'], 'fill': '#ffba08', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#d00000', 'stroke': 'none'}],
+    ['bbox', {'allow': ['furnaces', 'electricity-generators', 'boiler'], 'fill': '#1c3144', 'stroke': 'none'}],
+    ['bbox', {'allow': ['lab'], 'fill': '#1c3144', 'stroke': 'none'}],
+    ['bbox', {'deny': ['transportation', 'electricity', 'inserters'], 'fill': 'none'}],
+  ],[
+    ['meta', {'background': '#2a9d8f'}],
+    ['svg', {'bbox-scale': 0.85, 'stroke': '#e9c46a', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#264653', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#6cd4ff'}],
+    ['svg', {'bbox-scale': 0.65, 'stroke': '#1b2d2a', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['rails', {}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['drills'], 'fill': '#8a6552', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#462521', 'stroke': 'none'}],
+    ['bbox', {'allow': ['furnaces'], 'fill': '#bdb246', 'stroke': 'none'}],
+    ['bbox', {'allow': ['inserters'], 'fill': '#ffe0b5', 'stroke': 'none'}],
+    ['bbox', {'allow': ['beacon'], 'fill': '#69a197', 'stroke': 'none'}],
+    ['bbox', {'allow': ['electricity'], 'fill': '#104547', 'stroke': 'none'}],
+    ['bbox', {'allow': ['roboport'], 'fill': '#ca2e55', 'stroke': 'none'}],
+    ['bbox', {'allow': ['chests'], 'fill': '#000000', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#52414c'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#e3655b', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['pipes', {'stroke': '#596157'}],
+    ['underground-pipes', {'stroke': '#596157', 'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#5b8c5a', 'stroke': 'none'}],
+    ['bbox', {'allow': ['beacon'], 'fill': '#cfd186', 'stroke': 'none'}],
+    ['bbox', {'allow': ['electricity'], 'fill': '#d67ab1', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#006494'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#13293d', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['drills'], 'fill': '#5d675b', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#f78e69', 'stroke': 'none'}],
+    ['bbox', {'allow': ['furnaces'], 'fill': '#f7ef99', 'stroke': 'none'}],
+    ['bbox', {'allow': ['electricity'], 'fill': '#f1bb87', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#52489c'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#f45b69', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['drills'], 'fill': '#4062bb', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#ebebeb', 'stroke': 'none'}],
+    ['bbox', {'allow': ['furnaces'], 'fill': '#59c3c3', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#ffba08'}],
+    ['svg', {'bbox-scale': 0.9, 'fill': 'none', 'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#1c3144', 'stroke': 'none'}],
+    ['bbox', {'allow': ['lab'], 'fill': '#a2aebb', 'stroke': 'none'}],
+    ['bbox', {'allow': ['electricity'], 'fill': '#d00000', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#cfd186'}],
+    ['svg', {'bbox-rx': 0, 'bbox-ry': 0, 'bbox-scale': 0.7, 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.12}],
+    ['bbox', {'allow': ['decider-combinator'], 'fill': '#52414c'}],
+    ['bbox', {'allow': ['arithmetic-combinator'], 'fill': '#596157'}],
+    ['bbox', {'allow': ['constant-combinator', 'chests'], 'fill': '#e3655b'}],
+    ['green-circuits', {'stroke': '#d67ab1'}],
+    ['red-circuits', {'stroke': '#5b8c5a'}],
+  ],[
+    ['meta', {'background': '#464d77'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#36827f', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.6}],
+    ['electricity', {'stroke': '#f9db6d'}],
+    ['bbox', {'deny': ['belts'], 'fill': '#f9db6d', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#13293d'}],
+    ['svg', {'stroke-width': 0.5}],
+    ['bbox', {'allow': ['belts'], 'fill': '#006494', 'stroke': '#006494'}],
+    ['bbox', {'allow': ['inserters'], 'fill': '#abe188', 'stroke': '#abe188'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#5d675b', 'stroke': '#5d675b'}],
+    ['bbox', {'allow': ['electricity'], 'fill': '#f1bb87', 'stroke': '#f1bb87'}],
+    ['bbox', {'allow': ['beacon'], 'fill': '#f7ef99', 'stroke': '#f7ef99'}],
+  ],[
+    ['meta', {'background': '#2a9d8f'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#264653', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.5}],
+    ['pipes', {}],
+    ['underground-pipes', {'stroke-opacity': 0.5}],
+    ['bbox', {'deny': ['transportation'], 'fill': 'none', 'stroke': '#e9c46a', 'stroke-width': 0.15}],
+  ],[
+    ['meta', {'background': '#104547'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': 'none'}],
+    ['bbox', {'allow': ['pipe'], 'fill': '#462521'}],
+    ['bbox', {'allow': ['pipe-to-ground'], 'fill': '#8a6552'}],
+    ['bbox', {'allow': ['small-lamp'], 'fill': '#ca2e55'}],
+    ['bbox', {'allow': ['beacon'], 'fill': '#1b2d2a'}],
+    ['bbox', {'allow': ['electricity'], 'fill': '#bdb246'}],
+    ['bbox', {'allow': ['pump'], 'fill': '#000000'}],
+    ['bbox', {'allow': ['chemical-plant'], 'fill': '#ffe0b5'}],
+    ['bbox', {'allow': ['storage-tank'], 'fill': '#69a197'}],
+    ['bbox', {'allow': ['oil-refinery'], 'fill': '#6cd4ff'}],
+  ],[
+    ['meta', {'background': '#313715'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#d16014', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.5}],
+    ['pipes', {}],
+    ['underground-pipes', {'stroke-opacity': 0.5}],
+    ['bbox', {'deny': ['transportation'], 'fill': '#939f5c', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#c2c1c2'}],
+    ['svg', {'fill': 'none', 'stroke': '#42213d', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
+    ['rails', {}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.8}],
+    ['pipes', {}],
+    ['underground-pipes', {'stroke-opacity': 0.8}],
+  ],[
+    ['meta', {'background': '#5b8c5a'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#d67ab1', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.5}],
+    ['bbox', {'allow': ['producing-machines', 'lab'], 'fill': '#e3655b', 'stroke': 'none'}],
+    ['bbox', {'allow': ['beacon'], 'fill': '#596157', 'stroke': 'none'}],
+    ['bbox', {'allow': ['roboport'], 'fill': '#cfd186', 'stroke': 'none'}],
+    ['bbox', {'deny': ['transportation', 'producing-machines', 'lab', 'beacon', 'roboport'], 'fill': '#52414c', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#596157'}],
+    ['svg', {'bbox-scale': 0.9, 'stroke': '#cfd186', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
+    ['rails', {}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.5}],
+    ['pipes', {}],
+    ['underground-pipes', {'stroke-opacity': 0.5}],
+    ['bbox', {'allow': ['drills'], 'fill': '#e3655b', 'stroke': 'none'}],
+    ['bbox', {'allow': ['producing-machines'], 'fill': '#d67ab1', 'stroke': 'none'}],
+    ['bbox', {'allow': ['furnaces'], 'fill': '#5b8c5a', 'stroke': 'none'}],
+    ['bbox', {'allow': ['solar-panel', 'accumulator'], 'fill': '#52414c', 'stroke': 'none'}],
+  ],[
+    ['meta', {'background': '#faf0ca'}],
+    ['svg', {'stroke': '#0d3b66', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.7}],
+    ['bbox', {'deny': ['belts'], 'fill': 'none'}],
+    ['electricity', {}],
+  ],[
+    ['meta', {'background': '#353535'}],
+    ['svg', {'stroke': '#ffffff', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
+    ['belts', {}],
+    ['underground-belts', {'stroke-opacity': 0.7}],
+    ['bbox', {'deny': ['belts'], 'fill': 'none'}],
+    ['electricity', {}],
+  ],[
+    ['meta', {'background': '#444545'}],
+    ['electricity', {'stroke': '#b5ffe9', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
   ]
 ]
 
@@ -198,12 +401,12 @@ def settings_change_colors(settings, color_count=None, change_background=True):
   np.random.shuffle(original_colors_list)
 
   if color_count is None:
-    color_count = len(original_colors_list)
+    color_count = min(10, len(original_colors_list))
   else:
     color_count = min(color_count, len(original_colors_list))
   color_count = min(10, color_count)
 
-  color_palette = PREDEFINED_COLOR_PALETTES[color_count-2][np.random.randint(0,7)]
+  color_palette = PREDEFINED_COLOR_PALETTES[color_count-2][np.random.randint(0,len(PREDEFINED_COLOR_PALETTES[color_count-2]))]
   np.random.shuffle(color_palette)
 
   for i, original_color in enumerate(original_colors_list):
@@ -213,29 +416,126 @@ def settings_change_colors(settings, color_count=None, change_background=True):
   return settings
 
 def get_random_settings():
-  settings = [["meta", {"background":"#000000"}]]
-  num_of_entities = np.random.randint(1,4)
-  for i in np.random.choice(range(len(RANDOM_SETTING_ELEMENTS)), num_of_entities, replace=False):
-    num_of_rules_in_entity = np.random.randint(2,12)
-    c = RANDOM_SETTING_ELEMENTS[i][1:].copy()
-    np.random.shuffle(c)
-    random_setting_elements = [RANDOM_SETTING_ELEMENTS[i][0], *c]
-    settings.extend(random_setting_elements[:num_of_rules_in_entity])
-  
-  color_count = np.random.randint(2, 15)
+  settings = RANDOM_SETTING_LIST[np.random.randint(0, len(RANDOM_SETTING_LIST))]
 
-  uniform_stroke = np.random.uniform(1)<0.3
-  if uniform_stroke:
-    settings = settings_change_property(settings, "stroke", lambda v: "#000100")
-
-  settings = settings_change_colors(settings, color_count, change_background=True)
+  if np.random.uniform(0, 1)<0.4:
+    settings.extend(RANDOM_SETTING_LIST[np.random.randint(0, len(RANDOM_SETTING_LIST))])
+    settings = settings_change_colors(settings)
   
-  if uniform_stroke:
-    settings = settings_change_property(settings, "stroke-width", lambda v: "#000100")
-  else:
+  if np.random.uniform(0, 1)<0.3:
+    settings.extend(RANDOM_SETTING_LIST[np.random.randint(0, len(RANDOM_SETTING_LIST))])
+    if len(settings)>8:
+      a = [0, 1, *np.random.choice(np.arange(1,len(settings)), len(settings)-4)]
+      settings = [s for i, s in enumerate(settings) if i in a]
+    settings = settings_change_colors(settings)
+  
+  if np.random.uniform(0, 1)<0.8:
+    settings = settings_change_colors(settings, color_count=np.random.randint(2,12))
+  
+  if np.random.uniform(0, 1)<0.5:
     settings = settings_change_property(settings, "stroke-width", lambda v: v*np.random.uniform(0.5, 2))
   
-  settings = settings_change_property(settings, "bbox-scale", lambda v: v*np.random.uniform(0.7, 1))
-  settings = settings_change_property(settings, "stroke-linecap", lambda v: v if np.random.uniform(1)<0.8 else np.random.choice(["butt", "round", "square"]))
+  if np.random.uniform(0, 1)<0.5:
+    settings = settings_change_property(settings, "bbox-scale", lambda v: v*np.random.uniform(0.7, 1))
   
   return settings
+
+
+def get_possible_passive_tokens():
+    possible_passiv_tokens=[]
+    possible_passiv_tokens.append("fill=none")
+    possible_passiv_tokens.extend([f"fill=#{i:06}" for i in range(10)])
+    possible_passiv_tokens.append("stroke=none")
+    possible_passiv_tokens.extend([f"stroke=#{i:06}" for i in range(10)])
+    possible_passiv_tokens.extend([f"stroke-width={i}" for i in [0.3, 0.5, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.4]])
+    possible_passiv_tokens.extend([f"stroke-linecap={i}" for i in ["butt", "round", "square"]])
+    possible_passiv_tokens.extend([f"bbox-scale={i}" for i in [0.3, 0.5, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]])
+    possible_passiv_tokens.extend([f"bbox-rx-ry={i}" for i in [0, 0.5, 0.10, 0.15, 0.25]])
+    return possible_passiv_tokens
+
+def get_possible_active_tokens(blueprint_cache, building_settings=None):
+    if building_settings is None:
+        building_settings = get_custom_building_settings()
+
+    names = {}
+    entities = blueprint_cache["entities"]
+    for e in entities:
+        if e["name"] not in names:
+            names[e["name"]] = 0
+
+    for generic_term in building_settings["building_generic_terms"]:
+        for building_name in building_settings["building_generic_terms"][generic_term]:
+            if building_name in names:
+                names[generic_term] = 0
+                break
+
+    possible_active_tokens = []
+    possible_active_tokens.extend(f"bbox-allow={i}" for i in names.keys())
+    possible_active_tokens.extend(f"bbox-deny={i}" for i in names.keys())    
+
+    if "belts" not in blueprint_cache:
+        blueprint_cache["belts"] = get_lines_belt(entities)
+    if "underground-belts" not in blueprint_cache:
+        blueprint_cache["underground-belts"] = get_lines_underground_belt(entities)
+    if "pipes" not in blueprint_cache:
+        blueprint_cache["pipes"] = get_lines_pipes(entities, building_settings)
+    if "underground-pipes" not in blueprint_cache:
+        blueprint_cache["underground-pipes"] = get_lines_underground_pipes(entities)
+    if "inserters" not in blueprint_cache:
+        blueprint_cache["inserters"] = get_lines_inserter(entities)
+    if "rails" not in blueprint_cache:
+        blueprint_cache["rails"] = get_lines_rails(entities)
+    if "electricity" not in blueprint_cache:
+        blueprint_cache["electricity"] = get_lines_electricity(entities)
+    if "red-circuit" not in blueprint_cache:
+        blueprint_cache["red-circuits"] = get_lines_circuit(entities, "red")
+    if "green-circuit" not in blueprint_cache:
+        blueprint_cache["green-circuits"] = get_lines_circuit(entities, "green")
+
+    for setting_name in ["belts", "underground-belts", "pipes", "underground-pipes", "inserters", "rails", "electricity", "red-circuits", "green-circuits"]:
+        if len(blueprint_cache[setting_name]) > 0:
+            possible_active_tokens.append(setting_name)
+
+    return possible_active_tokens
+
+
+def get_random_settings_2(blueprint_cache):
+    possible_passiv_tokens = get_possible_passive_tokens()
+    if "possible_active_tokens" not in blueprint_cache:
+        blueprint_cache["possible_active_tokens"] = get_possible_active_tokens(blueprint_cache)
+    all_possible_tokens = [*possible_passiv_tokens, *blueprint_cache["possible_active_tokens"]]
+
+    random_token_settings = []
+    bbox_deny_used = True
+    while len(random_token_settings) < 30:
+        s = np.random.choice(all_possible_tokens)
+        if "bbox-deny" in s:
+            if bbox_deny_used:
+                continue
+            else:
+                bbox_deny_used = True
+        if len(random_token_settings) > 0 and s == random_token_settings[-1]:
+            continue
+        random_token_settings.append(s)
+
+    return token_setting_to_settings(random_token_settings)
+
+
+def token_setting_to_settings(token_settings):
+    settings = []
+    for token in token_settings:
+        if "=" in token:
+            t1, t2 = token.split("=")
+            if t1 == "bbox-allow":
+                settings.append(["bbox", {"allow": [t2]}])
+            elif t1 == "bbox-deny":
+                settings.append(["bbox", {"deny": [t2]}])
+            else:
+                try:
+                    settings.append(["svg", {t1: float(t2)}])
+                except ValueError:
+                    settings.append(["svg", {t1: t2}])
+        else:
+            settings.append([token, {}])
+
+    return settings

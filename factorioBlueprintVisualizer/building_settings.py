@@ -62,7 +62,7 @@ BUILDING_SIZES = {
 
     # tap 2
     "boiler": (3, 2),
-    "steam-engine": (3,5), ####
+    "steam-engine": (3,5),
     "solar-panel": (3,3),
     "accumulator": (2,2),
     "nuclear-reactor": (5,5),
@@ -112,34 +112,27 @@ BUILDING_SIZES = {
 }
 
 BUILDING_GENERIC_TERMS = {
-    "assembling-machine": ["assembling-machine-1", "assembling-machine-2", "assembling-machine-3"],
-    "assembling-machines": ["assembling-machine"],
+    "assembling-machines": ["assembling-machine-1", "assembling-machine-2", "assembling-machine-3"],
     "producing-machines": ["assembling-machine-1", "assembling-machine-2", "assembling-machine-3", "oil-refinery",
-                           "chemical-plant", "centrifuge"],
-    "belt-stuff": ["transport-belt", "fast-transport-belt", "express-transport-belt", "underground-belt",
-                   "fast-underground-belt", "express-underground-belt", "splitter", "fast-splitter",
-                   "express-splitter"],
-    "belts": ["belt-stuff"],
-    "electric-stuff": ["small-electric-pole", "medium-electric-pole", "big-electric-pole", "substation"],
-    "furnace": ["stone-furnace", "steel-furnace", "electric-furnace"],
-    "drill": ["burner-mining-drill", "electric-mining-drill", "pumpjack"],
-    "electicity-generation": ["steam-engine", "solar-panel", "nuclear-reactor", "steam-turbine"],
-    "military": ["stone-wall", "gate", "gun-turret", "laser-turret", "flamethrower-turret", "artillery-turret",
-                 "radar"],
-    "all-inserter": ["burner-inserter", "inserter", "long-handed-inserter", "fast-inserter", "filter-inserter",
-                     "stack-inserter", "stack-filter-inserter"],
-    "inserters": ["all-inserter"],
+                           "chemical-plant", "centrifuge"],            
+    "belts": ["transport-belt", "fast-transport-belt", "express-transport-belt", "underground-belt", "fast-underground-belt",
+             "express-underground-belt", "splitter", "fast-splitter", "express-splitter"],
+    "electricity": ["small-electric-pole", "medium-electric-pole", "big-electric-pole", "substation"],
+    "furnaces": ["stone-furnace", "steel-furnace", "electric-furnace"],
+    "drills": ["burner-mining-drill", "electric-mining-drill", "pumpjack"],
+    "electricity-generators": ["steam-engine", "solar-panel", "steam-turbine"],
+    "military": ["stone-wall", "gate", "gun-turret", "laser-turret", "flamethrower-turret", "artillery-turret", "radar"],
+    "inserters": ["burner-inserter", "inserter", "long-handed-inserter", "fast-inserter", "filter-inserter", "stack-inserter", "stack-filter-inserter"],
     "chests": ["wooden-chest", "iron-chest", "steel-chest", "logistic-chest-active-provider",
                "logistic-chest-passive-provider", "logistic-chest-storage", "logistic-chest-buffer",
                "logistic-chest-requester"],
-    "rail": ["straight-rail", "curved-rail"],
-    "rails": ["rail"],
-    "connected-stuff": ["transport-belt", "fast-transport-belt", "express-transport-belt", "underground-belt",
+    "rails": ["straight-rail", "curved-rail"],
+    "transportation": ["transport-belt", "fast-transport-belt", "express-transport-belt", "underground-belt",
                   "fast-underground-belt", "express-underground-belt", "splitter", "fast-splitter", "express-splitter",
                   "straight-rail", "curved-rail", "pipe", "pipe-to-ground", "burner-inserter", "inserter",
                   "long-handed-inserter", "fast-inserter", "filter-inserter", "stack-inserter",
                   "stack-filter-inserter"],
-    "train-stuff": ["straight-rail", "curved-rail", "train-stop", "rail-signal", "rail-chain-signal"],
+    "rails": ["straight-rail", "curved-rail"],
 
     ### MODS
     # Factorissimo2
@@ -175,6 +168,10 @@ BUILDING_PIPE_CONNECTIONS = {
       {"pos":(0,0), "direction": EAST},
       {"pos":(0,0), "direction": SOUTH},
       {"pos":(0,0), "direction": WEST}      
+    ],
+    "pump":[
+      {"pos":(0,0.5), "direction": SOUTH},
+      {"pos":(0,-0.5), "direction": NORTH},
     ],
     "assembling-machine-1":[
       {"pos":(0,-1), "direction": NORTH}
