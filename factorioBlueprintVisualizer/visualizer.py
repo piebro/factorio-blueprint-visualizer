@@ -42,7 +42,7 @@ def get_simplified_entities(blueprint_json):
   return blueprint_json["entities"]
 
 
-def get_size_and_normalize_entities(entities, bbox_border, building_sizes):
+def get_size_and_normalize_entities(entities, bbox_border_NWSE, building_sizes):
   if len(entities) == 0:
     return 1, 1
   entity_bboxes = []
@@ -56,7 +56,7 @@ def get_size_and_normalize_entities(entities, bbox_border, building_sizes):
   entity_bboxes = np.array(entity_bboxes)
 
   bbox = np.array([np.min(entity_bboxes[:, 0]), np.min(entity_bboxes[:, 1]), np.max(entity_bboxes[:, 2]), np.max(entity_bboxes[:, 3])])
-  bbox += np.array([-bbox_border, -bbox_border, bbox_border, bbox_border])
+  bbox += np.array([-bbox_border_NWSE[1], -bbox_border_NWSE[0], bbox_border_NWSE[3], bbox_border_NWSE[2]])
   bbox_width = bbox[2]-bbox[0] 
   bbox_height = bbox[3]-bbox[1]
 
@@ -67,7 +67,7 @@ def get_size_and_normalize_entities(entities, bbox_border, building_sizes):
   return bbox_width, bbox_height
 
 
-def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number=0, bbox_border=3, building_settings=None):
+def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number=0, bbox_border_NWSE=[3,3,3,3], building_settings=None):
   if building_settings is None:
     building_settings = get_custom_building_settings()
 
@@ -85,7 +85,7 @@ def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number=0, bbox_
   encoded_selected_blueprint_str = encoded_blueprint_str[0] + base64.b64encode(zlib.compress(blueprint_json_str, level=9)).decode()
   
   entities = get_simplified_entities(blueprint_dict[blueprint_name])
-  bbox_width, bbox_height = get_size_and_normalize_entities(entities, bbox_border, building_settings["building_sizes"])
+  bbox_width, bbox_height = get_size_and_normalize_entities(entities, bbox_border_NWSE, building_settings["building_sizes"])
 
   cache = {
     "bbox_width": bbox_width,
