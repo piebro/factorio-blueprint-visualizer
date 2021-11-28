@@ -1,6 +1,8 @@
 import copy
 import numpy as np
 
+from .visualizer import *
+
 # generated with https://coolors.co/
 PREDEFINED_COLOR_PALETTES = [
   [
@@ -437,3 +439,103 @@ def get_random_settings():
     settings = settings_change_property(settings, "bbox-scale", lambda v: v*np.random.uniform(0.7, 1))
   
   return settings
+
+
+def get_possible_passive_tokens():
+    possible_passiv_tokens=[]
+    possible_passiv_tokens.append("fill=none")
+    possible_passiv_tokens.extend([f"fill=#{i:06}" for i in range(10)])
+    possible_passiv_tokens.append("stroke=none")
+    possible_passiv_tokens.extend([f"stroke=#{i:06}" for i in range(10)])
+    possible_passiv_tokens.extend([f"stroke-width={i}" for i in [0.3, 0.5, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.4]])
+    possible_passiv_tokens.extend([f"stroke-linecap={i}" for i in ["butt", "round", "square"]])
+    possible_passiv_tokens.extend([f"bbox-scale={i}" for i in [0.3, 0.5, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]])
+    possible_passiv_tokens.extend([f"bbox-rx-ry={i}" for i in [0, 0.5, 0.10, 0.15, 0.25]])
+    return possible_passiv_tokens
+
+def get_possible_active_tokens(blueprint_cache, building_settings=None):
+    if building_settings is None:
+        building_settings = get_custom_building_settings()
+
+    names = {}
+    entities = blueprint_cache["entities"]
+    for e in entities:
+        if e["name"] not in names:
+            names[e["name"]] = 0
+
+    for generic_term in building_settings["building_generic_terms"]:
+        for building_name in building_settings["building_generic_terms"][generic_term]:
+            if building_name in names:
+                names[generic_term] = 0
+                break
+
+    possible_active_tokens = []
+    possible_active_tokens.extend(f"bbox-allow={i}" for i in names.keys())
+    possible_active_tokens.extend(f"bbox-deny={i}" for i in names.keys())    
+
+    if "belts" not in blueprint_cache:
+        blueprint_cache["belts"] = get_lines_belt(entities)
+    if "underground-belts" not in blueprint_cache:
+        blueprint_cache["underground-belts"] = get_lines_underground_belt(entities)
+    if "pipes" not in blueprint_cache:
+        blueprint_cache["pipes"] = get_lines_pipes(entities, building_settings)
+    if "underground-pipes" not in blueprint_cache:
+        blueprint_cache["underground-pipes"] = get_lines_underground_pipes(entities)
+    if "inserters" not in blueprint_cache:
+        blueprint_cache["inserters"] = get_lines_inserter(entities)
+    if "rails" not in blueprint_cache:
+        blueprint_cache["rails"] = get_lines_rails(entities)
+    if "electricity" not in blueprint_cache:
+        blueprint_cache["electricity"] = get_lines_electricity(entities)
+    if "red-circuit" not in blueprint_cache:
+        blueprint_cache["red-circuits"] = get_lines_circuit(entities, "red")
+    if "green-circuit" not in blueprint_cache:
+        blueprint_cache["green-circuits"] = get_lines_circuit(entities, "green")
+
+    for setting_name in ["belts", "underground-belts", "pipes", "underground-pipes", "inserters", "rails", "electricity", "red-circuits", "green-circuits"]:
+        if len(blueprint_cache[setting_name]) > 0:
+            possible_active_tokens.append(setting_name)
+
+    return possible_active_tokens
+
+
+def get_random_settings_2(blueprint_cache):
+    possible_passiv_tokens = get_possible_passive_tokens()
+    if "possible_active_tokens" not in blueprint_cache:
+        blueprint_cache["possible_active_tokens"] = get_possible_active_tokens(blueprint_cache)
+    all_possible_tokens = [*possible_passiv_tokens, *blueprint_cache["possible_active_tokens"]]
+
+    random_token_settings = []
+    bbox_deny_used = True
+    while len(random_token_settings) < 30:
+        s = np.random.choice(all_possible_tokens)
+        if "bbox-deny" in s:
+            if bbox_deny_used:
+                continue
+            else:
+                bbox_deny_used = True
+        if len(random_token_settings) > 0 and s == random_token_settings[-1]:
+            continue
+        random_token_settings.append(s)
+
+    return token_setting_to_settings(random_token_settings)
+
+
+def token_setting_to_settings(token_settings):
+    settings = []
+    for token in token_settings:
+        if "=" in token:
+            t1, t2 = token.split("=")
+            if t1 == "bbox-allow":
+                settings.append(["bbox", {"allow": [t2]}])
+            elif t1 == "bbox-deny":
+                settings.append(["bbox", {"deny": [t2]}])
+            else:
+                try:
+                    settings.append(["svg", {t1: float(t2)}])
+                except ValueError:
+                    settings.append(["svg", {t1: t2}])
+        else:
+            settings.append([token, {}])
+
+    return settings
