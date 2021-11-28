@@ -87,7 +87,13 @@ def get_blueprint_cache(encoded_blueprint_str, blueprint_name_or_number=0, bbox_
   entities = get_simplified_entities(blueprint_dict[blueprint_name])
   bbox_width, bbox_height = get_size_and_normalize_entities(entities, bbox_border, building_settings["building_sizes"])
 
-  cache = {"bbox_width": bbox_width, "bbox_height": bbox_height, "entities": entities, "encoded_blueprint": encoded_selected_blueprint_str}
+  cache = {
+    "bbox_width": bbox_width,
+    "bbox_height": bbox_height,
+    "entities": entities,
+    "encoded_blueprint": encoded_selected_blueprint_str,
+    "building_settings": building_settings
+  }
   return cache
 
 
@@ -332,10 +338,7 @@ def get_lines_electricity(entities):
     return lines
 
 
-def draw_blueprints(blueprint_cache, settings, svg_max_size_in_mm=300, building_settings=None):
-  if building_settings is None:
-    building_settings = get_custom_building_settings()
-
+def draw_blueprint(blueprint_cache, settings, svg_max_size_in_mm=300):
   meta_settings = settings[0][1] if settings[0][0] == "meta" else {"background":"#E6E6E6"}
   
   entities = blueprint_cache["entities"]
@@ -359,7 +362,7 @@ def draw_blueprints(blueprint_cache, settings, svg_max_size_in_mm=300, building_
           default_bbox_prop[bbox_prop_key[5:]] = setting_options[bbox_prop_key]
       
     elif setting_name == "bbox":
-      draw_entities_bbox(dwg, entities, setting_options, default_bbox_prop, building_settings)
+      draw_entities_bbox(dwg, entities, setting_options, default_bbox_prop, blueprint_cache["building_settings"])
       
     elif setting_name == "belts":
       if setting_name not in blueprint_cache:
@@ -373,7 +376,7 @@ def draw_blueprints(blueprint_cache, settings, svg_max_size_in_mm=300, building_
     
     elif setting_name == "pipes":
       if setting_name not in blueprint_cache:
-        blueprint_cache[setting_name] = get_lines_pipes(entities, building_settings)
+        blueprint_cache[setting_name] = get_lines_pipes(entities, blueprint_cache["building_settings"])
       draw_lines(dwg, blueprint_cache[setting_name], setting_options)
 
     elif setting_name == "underground-pipes":
