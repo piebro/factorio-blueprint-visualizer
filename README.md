@@ -13,12 +13,12 @@ The hardest part was writing the logic for connecting rails, belts and pipes. Af
 ## Examples
 
 <p align="center">
-<img src="example_svgs/random_0077.svg" width="40%" style="padding: 1% 1% 1% 1%">
-<img src="example_svgs/example_06.svg" width="40%" style="padding: 1% 1% 1% 1%">
-<img src="example_svgs/example_12.svg" width="40%" style="padding: 1% 1% 1% 1%">
-<img src="example_svgs/example_23.svg" width="40%" style="padding: 1% 1% 1% 1%">
-<img src="example_svgs/example_24.svg" width="40%" style="padding: 1% 1% 1% 1%">
-<img src="example_svgs/example_21.svg" width="40%" style="padding: 1% 1% 1% 1%">
+<img src="example_svgs/random_0077.svg" width="47%" style="padding: 1% 1% 1% 1%">
+<img src="example_svgs/example_06.svg" width="47%" style="padding: 1% 1% 1% 1%">
+<img src="example_svgs/example_12.svg" width="47%" style="padding: 1% 1% 1% 1%">
+<img src="example_svgs/example_23.svg" width="47%" style="padding: 1% 1% 1% 1%">
+<img src="example_svgs/example_24.svg" width="47%" style="padding: 1% 1% 1% 1%">
+<img src="example_svgs/example_21.svg" width="47%" style="padding: 1% 1% 1% 1%">
 </p>
 
 The last three blueprints are by Josh Ventura and can be found [here](https://factorioprints.com/user/6QrnfqXIffQcWgHC6Xs4uHv1BGg2).
