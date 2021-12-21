@@ -1,12 +1,7 @@
 import numpy as np
 
-def get_drawing(bbox_width, bbox_height, max_size_in_mm=250, background_color="#dddddd", metadata_str=None):
-  if bbox_width>bbox_height:
-    dwg_size_in_mm = (max_size_in_mm, np.round(max_size_in_mm*bbox_height/bbox_width))
-  else:
-    dwg_size_in_mm = (np.round(max_size_in_mm*bbox_width/bbox_height), max_size_in_mm)
-
-  dwg = [f'<svg baseProfile="tiny" height="{dwg_size_in_mm[1]}mm" version="1.2" viewBox="0,0,{bbox_width},{bbox_height}" width="{dwg_size_in_mm[0]}mm" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">']
+def get_drawing(bbox_width, bbox_height, svg_width_in_mm=250, background_color="#dddddd", metadata_str=None):
+  dwg = [f'<svg baseProfile="tiny" height="{svg_width_in_mm*bbox_height/bbox_width}mm" version="1.2" viewBox="0,0,{bbox_width},{bbox_height}" width="{svg_width_in_mm}mm" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">']
 
   if metadata_str is not None:
     dwg.append(metadata_str)

@@ -338,17 +338,35 @@ def get_lines_electricity(entities):
     return lines
 
 
-def draw_blueprint(blueprint_cache, settings, svg_max_size_in_mm=300):
+def draw_blueprint(blueprint_cache, settings, svg_max_size_in_mm=300, aspect_ratio=None):
   meta_settings = settings[0][1] if settings[0][0] == "meta" else {"background":"#E6E6E6"}
   
   entities = blueprint_cache["entities"]
 
   metadata_str = f'<metadata generated_with="https://piebro.github.io/factorio-blueprint-visualizer"><settings>{settings}</settings><blueprint>{blueprint_cache["encoded_blueprint"]}</blueprint></metadata>'
 
-  dwg = get_drawing(blueprint_cache["bbox_width"], blueprint_cache["bbox_height"], svg_max_size_in_mm, meta_settings["background"], metadata_str)  
-  
   dwg_groups_to_close = 0
   default_bbox_prop = {"scale": None, "rx": None, "ry": None}
+  
+  if aspect_ratio is not None:
+    real_ratio = blueprint_cache["bbox_width"]/blueprint_cache["bbox_height"]
+    target_ratio = aspect_ratio[0]/aspect_ratio[1]
+
+    new_bbox_width = blueprint_cache["bbox_width"]
+    new_bbox_height = blueprint_cache["bbox_height"]
+    if real_ratio < target_ratio:
+      new_bbox_width = target_ratio * blueprint_cache["bbox_height"]
+      translate = [(new_bbox_width - blueprint_cache["bbox_width"])/2, 0]
+    else:
+      new_bbox_height = 1/target_ratio * blueprint_cache["bbox_width"]
+      translate = [0, (new_bbox_height - blueprint_cache["bbox_height"])/2]
+    
+    dwg = get_drawing(new_bbox_width, new_bbox_height, svg_max_size_in_mm, meta_settings["background"], metadata_str)
+    
+    append_group(dwg, {"transform": "translate({} {})".format(*translate)})
+    dwg_groups_to_close += 1
+  else:
+    dwg = get_drawing(blueprint_cache["bbox_width"], blueprint_cache["bbox_height"], svg_max_size_in_mm, meta_settings["background"], metadata_str)
   
   for setting_name, setting_options in settings:
     if setting_name == "meta":
