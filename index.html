@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <title>Factorio Blueprint Visualizer</title>
   <link rel='shortcut icon' type='image/x-icon' href='website/favicon.ico'/>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.19.0/full/pyodide.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.19.1/full/pyodide.js"></script>
   <script defer data-domain="piebro.github.io/factorio-blueprint-visualizer" src="https://plausible.io/js/plausible.js"></script>
 </head>
 
@@ -42,7 +42,7 @@ img, svg {
 <script>
 async function setup(){
   
-  pyodide = await loadPyodide({indexURL : "https://cdn.jsdelivr.net/pyodide/v0.19.0/full/"});
+  pyodide = await loadPyodide({indexURL : "https://cdn.jsdelivr.net/pyodide/v0.19.1/full/"});
   await pyodide.loadPackage(['numpy', 'micropip']);
 
   await pyodide.runPythonAsync(`
