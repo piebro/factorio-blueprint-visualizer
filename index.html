@@ -63,7 +63,7 @@ async function get_init_blueprint(params){
 
 async function setup(){
   let params = (new URL(document.location)).searchParams;
-  if (params.has("source")){
+  if (params.has("source") && params.get("source").substring(0,28) == "https://www.factorio.school/"){
     let [, init_blueprint] = await Promise.all([setup_pyodide(), get_init_blueprint(params)]);
     pyodide.globals.set("init_blueprint", init_blueprint);
     pyodide.runPython("blueprint_cache = bv.get_blueprint_cache(init_blueprint, blueprint_name_or_number=0, bbox_border=3)");
