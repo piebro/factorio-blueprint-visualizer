@@ -68,7 +68,7 @@ async function setup(){
     pyodide.globals.set("init_blueprint", init_blueprint);
     pyodide.runPython("blueprint_cache = bv.get_blueprint_cache(init_blueprint, blueprint_name_or_number=0, bbox_border=3)");
   } else {
-    setup_pyodide();
+    await setup_pyodide();
     pyodide.runPython("blueprint_cache = bv.get_blueprint_cache(bv.EXAMPLE_BLUEPRINT, blueprint_name_or_number=0, bbox_border=3)");
   } 
 
