@@ -41,23 +41,36 @@ img, svg {
 </style>
 
 <script>
-async function setup(){
-  
+
+async function setup_pyodide(){
   pyodide = await loadPyodide();
   await pyodide.loadPackage(['numpy', 'micropip']);
-
   await pyodide.runPythonAsync(`
-    import micropip
-    
+    import micropip    
     await micropip.install('website/factorioBlueprintVisualizer-1.0.0-py2.py3-none-any.whl')
-    
     import factorioBlueprintVisualizer as bv
 
     settings_list = [bv.EXAMPLE_SETTINGS]
     current_setting_index = 0
-
-    blueprint_cache = bv.get_blueprint_cache(bv.EXAMPLE_BLUEPRINT, blueprint_name_or_number=0, bbox_border=3)
   `)
+}
+
+async function get_init_blueprint(params){
+  const blueprint_id = params.get("source").split("/").at(-1);
+  const init_blueprint = await fetch("https://www.factorio.school/api/blueprintString/" + blueprint_id).then(response => response.text());
+  return init_blueprint
+}
+
+async function setup(){
+  let params = (new URL(document.location)).searchParams;
+  if (params.has("source")){
+    let [, init_blueprint] = await Promise.all([setup_pyodide(), get_init_blueprint(params)]);
+    pyodide.globals.set("init_blueprint", init_blueprint);
+    pyodide.runPython("blueprint_cache = bv.get_blueprint_cache(init_blueprint, blueprint_name_or_number=0, bbox_border=3)");
+  } else {
+    setup_pyodide();
+    pyodide.runPython("blueprint_cache = bv.get_blueprint_cache(bv.EXAMPLE_BLUEPRINT, blueprint_name_or_number=0, bbox_border=3)");
+  } 
 
   draw_blueprint()
 
