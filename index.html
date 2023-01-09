@@ -117,7 +117,7 @@ async function setup(){
 
 function draw_blueprint(){
   document.getElementById("svg-container").innerHTML = pyodide.runPython(`
-    bv.draw_blueprint(current_blueprint, settings_list[current_setting_index])
+    bv.draw_blueprint(current_blueprint, settings_list[current_setting_index], svg_width_in_mm=300)
   `)
 }
 
