@@ -112,7 +112,7 @@ PREDEFINED_COLOR_PALETTES = [
 
 RANDOM_SETTING_LIST = [  
   [
-    ['meta', {'background': '#cfd186'}],
+    ['background', '#cfd186'],
     ['svg', {'fill': 'none', 'stroke': '#596157', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -123,13 +123,13 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['military'], 'fill': '#d67ab1', 'stroke': 'none'}],
     ['bbox', {'deny': ['transportation', 'electricity', 'inserters', 'electricity-generators', 'boiler']}],
   ],[
-    ['meta', {'background': '#faf0ca'}],
+    ['background', '#faf0ca'],
     ['svg', {'fill': 'none', 'stroke': '#0d3b66', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
     ['belts', {}],
     ['bbox', {'deny': ['belts']}],
     ['electricity', {}],
   ],[
-    ['meta', {'background': '#5998c5'}],
+    ['background', '#5998c5'],
     ['svg', {'bbox-scale': 0.7, 'stroke': '#12eaea', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -139,11 +139,11 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['lab'], 'fill': '#cfffb0', 'stroke': 'none'}],
     ['bbox', {'allow': ['military'], 'fill': '#58355e', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#36827f'}],
+    ['background', '#36827f'],
     ['bbox', {'bbox-scale': 0.85, 'deny': ['transportation', 'electricity', 'inserters'], 'fill': '#f9db6d', 'stroke': 'none'}],
     ['electricity', {'stroke': '#f9db6d', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
   ],[
-    ['meta', {'background': '#58355e'}],
+    ['background', '#58355e'],
     ['svg', {'bbox-scale': 0.7, 'fill': 'none', 'stroke': '#cfffb0', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -153,7 +153,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['lab'], 'fill': '#fff689', 'stroke': 'none'}],
     ['bbox', {'allow': ['military'], 'fill': '#12eaea', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#eddea4'}],
+    ['background', '#eddea4'],
     ['svg', {'fill': 'none', 'stroke': '#f7a072', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -164,7 +164,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['military'], 'fill': '#d9e5d6', 'stroke': 'none'}],
     ['bbox', {'deny': ['transportation', 'electricity', 'inserters', 'electricity-generators', 'boiler']}],
   ],[
-    ['meta', {'background': '#e3b5a4'}],
+    ['background', '#e3b5a4'],
     ['svg', {'bbox-scale': 0.9, 'fill': 'none', 'stroke': '#773344', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -172,13 +172,13 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['lab'], 'fill': '#9cfffa', 'stroke': 'none'}],
     ['bbox', {'allow': ['electricity'], 'fill': '#acf39d', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#98b06f'}],
+    ['background', '#98b06f'],
     ['svg', {'bbox-scale': 0.85, 'stroke': '#442b48', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['pipes', {}],
     ['underground-pipes', {'stroke-opacity': 0.6}],
     ['bbox', {'deny': ['transportation', 'electricity'], 'fill': '#726e60'}],
   ],[
-    ['meta', {'background': '#52414c'}],
+    ['background', '#52414c'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#5b8c5a', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['pipes', {}],
     ['underground-pipes', {'stroke-opacity': 0.6}],
@@ -188,12 +188,12 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['boiler'], 'fill': '#cfd186', 'stroke': 'none'}],
     ['bbox', {'allow': ['pump'], 'fill': '#cfd186', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#faf0ca'}],
+    ['background', '#faf0ca'],
     ['svg', {'fill': 'none', 'stroke': '#0d3b66', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['bbox', {'allow': ['transportation']}],
   ],[
-    ['meta', {'background': '#773344'}],
+    ['background', '#773344'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#e3b5a4', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
     ['rails', {}],
     ['belts', {}],
@@ -204,10 +204,10 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['producing-machines', 'furnaces'], 'fill': '#e85f5c', 'stroke': 'none'}],
     ['bbox', {'deny': ['transportation', 'drills', 'producing-machines', 'furnaces', 'electricity'], 'fill': '#9cfffa', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#89b6a5'}],
+    ['background', '#89b6a5'],
     ['bbox', {'bbox-rx': 0.15, 'bbox-ry': 0.15, 'bbox-scale': 0.9, 'deny': [], 'fill': '#4c3b4d', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#a2aebb'}],
+    ['background', '#a2aebb'],
     ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -219,13 +219,13 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['lab'], 'fill': '#1c3144', 'stroke': 'none'}],
     ['bbox', {'deny': ['transportation', 'electricity', 'inserters'], 'fill': 'none'}],
   ],[
-    ['meta', {'background': '#2a9d8f'}],
+    ['background', '#2a9d8f'],
     ['svg', {'bbox-scale': 0.85, 'stroke': '#e9c46a', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
     ['bbox', {'allow': ['producing-machines'], 'fill': '#264653', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#6cd4ff'}],
+    ['background', '#6cd4ff'],
     ['svg', {'bbox-scale': 0.65, 'stroke': '#1b2d2a', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['rails', {}],
     ['belts', {}],
@@ -239,7 +239,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['roboport'], 'fill': '#ca2e55', 'stroke': 'none'}],
     ['bbox', {'allow': ['chests'], 'fill': '#000000', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#52414c'}],
+    ['background', '#52414c'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#e3655b', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -249,7 +249,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['beacon'], 'fill': '#cfd186', 'stroke': 'none'}],
     ['bbox', {'allow': ['electricity'], 'fill': '#d67ab1', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#006494'}],
+    ['background', '#006494'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#13293d', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -258,7 +258,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['furnaces'], 'fill': '#f7ef99', 'stroke': 'none'}],
     ['bbox', {'allow': ['electricity'], 'fill': '#f1bb87', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#52489c'}],
+    ['background', '#52489c'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#f45b69', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -266,7 +266,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['producing-machines'], 'fill': '#ebebeb', 'stroke': 'none'}],
     ['bbox', {'allow': ['furnaces'], 'fill': '#59c3c3', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#ffba08'}],
+    ['background', '#ffba08'],
     ['svg', {'bbox-scale': 0.9, 'fill': 'none', 'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
@@ -274,7 +274,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['lab'], 'fill': '#a2aebb', 'stroke': 'none'}],
     ['bbox', {'allow': ['electricity'], 'fill': '#d00000', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#cfd186'}],
+    ['background', '#cfd186'],
     ['svg', {'bbox-rx': 0, 'bbox-ry': 0, 'bbox-scale': 0.7, 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.12}],
     ['bbox', {'allow': ['decider-combinator'], 'fill': '#52414c'}],
     ['bbox', {'allow': ['arithmetic-combinator'], 'fill': '#596157'}],
@@ -282,14 +282,14 @@ RANDOM_SETTING_LIST = [
     ['green-circuits', {'stroke': '#d67ab1'}],
     ['red-circuits', {'stroke': '#5b8c5a'}],
   ],[
-    ['meta', {'background': '#464d77'}],
+    ['background', '#464d77'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#36827f', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.6}],
     ['electricity', {'stroke': '#f9db6d'}],
     ['bbox', {'deny': ['belts'], 'fill': '#f9db6d', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#13293d'}],
+    ['background', '#13293d'],
     ['svg', {'stroke-width': 0.5}],
     ['bbox', {'allow': ['belts'], 'fill': '#006494', 'stroke': '#006494'}],
     ['bbox', {'allow': ['inserters'], 'fill': '#abe188', 'stroke': '#abe188'}],
@@ -297,7 +297,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['electricity'], 'fill': '#f1bb87', 'stroke': '#f1bb87'}],
     ['bbox', {'allow': ['beacon'], 'fill': '#f7ef99', 'stroke': '#f7ef99'}],
   ],[
-    ['meta', {'background': '#2a9d8f'}],
+    ['background', '#2a9d8f'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#264653', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.5}],
@@ -305,7 +305,7 @@ RANDOM_SETTING_LIST = [
     ['underground-pipes', {'stroke-opacity': 0.5}],
     ['bbox', {'deny': ['transportation'], 'fill': 'none', 'stroke': '#e9c46a', 'stroke-width': 0.15}],
   ],[
-    ['meta', {'background': '#104547'}],
+    ['background', '#104547'],
     ['svg', {'bbox-scale': 0.9, 'stroke': 'none'}],
     ['bbox', {'allow': ['pipe'], 'fill': '#462521'}],
     ['bbox', {'allow': ['pipe-to-ground'], 'fill': '#8a6552'}],
@@ -317,7 +317,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['storage-tank'], 'fill': '#69a197'}],
     ['bbox', {'allow': ['oil-refinery'], 'fill': '#6cd4ff'}],
   ],[
-    ['meta', {'background': '#313715'}],
+    ['background', '#313715'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#d16014', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.5}],
@@ -325,7 +325,7 @@ RANDOM_SETTING_LIST = [
     ['underground-pipes', {'stroke-opacity': 0.5}],
     ['bbox', {'deny': ['transportation'], 'fill': '#939f5c', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#c2c1c2'}],
+    ['background', '#c2c1c2'],
     ['svg', {'fill': 'none', 'stroke': '#42213d', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
     ['rails', {}],
     ['belts', {}],
@@ -333,7 +333,7 @@ RANDOM_SETTING_LIST = [
     ['pipes', {}],
     ['underground-pipes', {'stroke-opacity': 0.8}],
   ],[
-    ['meta', {'background': '#5b8c5a'}],
+    ['background', '#5b8c5a'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#d67ab1', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.5}],
@@ -342,7 +342,7 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['roboport'], 'fill': '#cfd186', 'stroke': 'none'}],
     ['bbox', {'deny': ['transportation', 'producing-machines', 'lab', 'beacon', 'roboport'], 'fill': '#52414c', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#596157'}],
+    ['background', '#596157'],
     ['svg', {'bbox-scale': 0.9, 'stroke': '#cfd186', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
     ['rails', {}],
     ['belts', {}],
@@ -354,21 +354,21 @@ RANDOM_SETTING_LIST = [
     ['bbox', {'allow': ['furnaces'], 'fill': '#5b8c5a', 'stroke': 'none'}],
     ['bbox', {'allow': ['solar-panel', 'accumulator'], 'fill': '#52414c', 'stroke': 'none'}],
   ],[
-    ['meta', {'background': '#faf0ca'}],
+    ['background', '#faf0ca'],
     ['svg', {'stroke': '#0d3b66', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.7}],
     ['bbox', {'deny': ['belts'], 'fill': 'none'}],
     ['electricity', {}],
   ],[
-    ['meta', {'background': '#353535'}],
+    ['background', '#353535'],
     ['svg', {'stroke': '#ffffff', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
     ['belts', {}],
     ['underground-belts', {'stroke-opacity': 0.7}],
     ['bbox', {'deny': ['belts'], 'fill': 'none'}],
     ['electricity', {}],
   ],[
-    ['meta', {'background': '#444545'}],
+    ['background', '#444545'],
     ['electricity', {'stroke': '#b5ffe9', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
   ]
 ]
@@ -381,15 +381,20 @@ def settings_change_property(settings, property_name, change_func):
       s[1][property_name] = change_func(s[1][property_name])
   return settings
 
+
 def settings_change_colors(settings, color_count=None, change_background=True):
   settings = copy.deepcopy(settings)
   original_colors = {}
 
   keys_that_have_a_color = ["stroke", "fill"]
-  if change_background:
-    keys_that_have_a_color.append("background")
 
   for s in settings:
+    if change_background and s[0] == "background":
+      if s[1] not in original_colors:
+        original_colors[s[1]] = [[s, 1]]
+      else:
+        original_colors[s[1]].append([s, 1])
+
     for key in keys_that_have_a_color:
       if key in s[1] and s[1][key] != "none":
         if s[1][key] not in original_colors:
@@ -415,6 +420,7 @@ def settings_change_colors(settings, color_count=None, change_background=True):
   
   return settings
 
+
 def get_random_settings():
   settings = RANDOM_SETTING_LIST[np.random.randint(0, len(RANDOM_SETTING_LIST))]
 
@@ -439,103 +445,3 @@ def get_random_settings():
     settings = settings_change_property(settings, "bbox-scale", lambda v: v*np.random.uniform(0.7, 1))
   
   return settings
-
-
-def get_possible_passive_tokens():
-    possible_passiv_tokens=[]
-    possible_passiv_tokens.append("fill=none")
-    possible_passiv_tokens.extend([f"fill=#{i:06}" for i in range(10)])
-    possible_passiv_tokens.append("stroke=none")
-    possible_passiv_tokens.extend([f"stroke=#{i:06}" for i in range(10)])
-    possible_passiv_tokens.extend([f"stroke-width={i}" for i in [0.3, 0.5, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.4]])
-    possible_passiv_tokens.extend([f"stroke-linecap={i}" for i in ["butt", "round", "square"]])
-    possible_passiv_tokens.extend([f"bbox-scale={i}" for i in [0.3, 0.5, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]])
-    possible_passiv_tokens.extend([f"bbox-rx-ry={i}" for i in [0, 0.5, 0.10, 0.15, 0.25]])
-    return possible_passiv_tokens
-
-def get_possible_active_tokens(blueprint_cache, building_settings=None):
-    if building_settings is None:
-        building_settings = get_custom_building_settings()
-
-    names = {}
-    entities = blueprint_cache["entities"]
-    for e in entities:
-        if e["name"] not in names:
-            names[e["name"]] = 0
-
-    for generic_term in building_settings["building_generic_terms"]:
-        for building_name in building_settings["building_generic_terms"][generic_term]:
-            if building_name in names:
-                names[generic_term] = 0
-                break
-
-    possible_active_tokens = []
-    possible_active_tokens.extend(f"bbox-allow={i}" for i in names.keys())
-    possible_active_tokens.extend(f"bbox-deny={i}" for i in names.keys())    
-
-    if "belts" not in blueprint_cache:
-        blueprint_cache["belts"] = get_lines_belt(entities)
-    if "underground-belts" not in blueprint_cache:
-        blueprint_cache["underground-belts"] = get_lines_underground_belt(entities)
-    if "pipes" not in blueprint_cache:
-        blueprint_cache["pipes"] = get_lines_pipes(entities, building_settings)
-    if "underground-pipes" not in blueprint_cache:
-        blueprint_cache["underground-pipes"] = get_lines_underground_pipes(entities)
-    if "inserters" not in blueprint_cache:
-        blueprint_cache["inserters"] = get_lines_inserter(entities)
-    if "rails" not in blueprint_cache:
-        blueprint_cache["rails"] = get_lines_rails(entities)
-    if "electricity" not in blueprint_cache:
-        blueprint_cache["electricity"] = get_lines_electricity(entities)
-    if "red-circuit" not in blueprint_cache:
-        blueprint_cache["red-circuits"] = get_lines_circuit(entities, "red")
-    if "green-circuit" not in blueprint_cache:
-        blueprint_cache["green-circuits"] = get_lines_circuit(entities, "green")
-
-    for setting_name in ["belts", "underground-belts", "pipes", "underground-pipes", "inserters", "rails", "electricity", "red-circuits", "green-circuits"]:
-        if len(blueprint_cache[setting_name]) > 0:
-            possible_active_tokens.append(setting_name)
-
-    return possible_active_tokens
-
-
-def get_random_settings_2(blueprint_cache):
-    possible_passiv_tokens = get_possible_passive_tokens()
-    if "possible_active_tokens" not in blueprint_cache:
-        blueprint_cache["possible_active_tokens"] = get_possible_active_tokens(blueprint_cache)
-    all_possible_tokens = [*possible_passiv_tokens, *blueprint_cache["possible_active_tokens"]]
-
-    random_token_settings = []
-    bbox_deny_used = True
-    while len(random_token_settings) < 30:
-        s = np.random.choice(all_possible_tokens)
-        if "bbox-deny" in s:
-            if bbox_deny_used:
-                continue
-            else:
-                bbox_deny_used = True
-        if len(random_token_settings) > 0 and s == random_token_settings[-1]:
-            continue
-        random_token_settings.append(s)
-
-    return token_setting_to_settings(random_token_settings)
-
-
-def token_setting_to_settings(token_settings):
-    settings = []
-    for token in token_settings:
-        if "=" in token:
-            t1, t2 = token.split("=")
-            if t1 == "bbox-allow":
-                settings.append(["bbox", {"allow": [t2]}])
-            elif t1 == "bbox-deny":
-                settings.append(["bbox", {"deny": [t2]}])
-            else:
-                try:
-                    settings.append(["svg", {t1: float(t2)}])
-                except ValueError:
-                    settings.append(["svg", {t1: t2}])
-        else:
-            settings.append([token, {}])
-
-    return settings

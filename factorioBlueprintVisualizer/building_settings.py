@@ -60,7 +60,7 @@ BUILDING_SIZES = {
     "power-switch": (2,2),
     "programmable-speaker": (1,1),
 
-    # tap 2
+    # tab 2
     "boiler": (3, 2),
     "steam-engine": (3,5),
     "solar-panel": (3,3),
@@ -90,14 +90,14 @@ BUILDING_SIZES = {
     "beacon": (3,3),
     "rocket-silo": (9,9),
 
-    # tap 3
+    # tab 3
     "stone-wall": (1,1),
     "gate": (1,1),
     "gun-turret": (2,2),
     "laser-turret": (2,2),
     "flamethrower-turret": (2,3),
     "artillery-turret": (3,3),
-    "radar": (3,3),
+    "radar": (3,3), 
 
     ### MODS
     # Factorissimo2
@@ -132,14 +132,13 @@ BUILDING_GENERIC_TERMS = {
                   "straight-rail", "curved-rail", "pipe", "pipe-to-ground", "burner-inserter", "inserter",
                   "long-handed-inserter", "fast-inserter", "filter-inserter", "stack-inserter",
                   "stack-filter-inserter"],
-    "rails": ["straight-rail", "curved-rail"],
 
     ### MODS
     # Factorissimo2
     "factorissimo2": ["factory-1", "factory-2", "factory-3", "factory-circuit-input", "factory-circuit-output", "factory-input-pipe", "factory-output-pipe", "factory-requester-chest"],
 }
 
-ASSEMBLY_MACHINE_RESIPE_TO_DIR_CHANGE = {
+ASSEMBLY_MACHINE_RECIPE_TO_DIR_CHANGE = {
   "electric-engine-unit": NORTH,
   "express-transport-belt": NORTH,
   "express-underground-belt": NORTH,

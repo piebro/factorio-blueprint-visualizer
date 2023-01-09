@@ -1,5 +1,5 @@
 EXAMPLE_SETTINGS = [
-  ['meta', {'background': '#a2aebb'}],
+  ['background', '#a2aebb'],
   ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
   ['belts', {}],
   ['underground-belts', {'stroke-opacity': 0.6}],

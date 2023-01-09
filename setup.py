@@ -5,7 +5,7 @@ parent_dir = Path(__file__).resolve().parent
 
 setup(
     name='factorioBlueprintVisualizer',
-    version='1.0.0',
+    version='1.1.0',
     
     description="A python library to artfully visualize Factorio Blueprints.",
     url="https://github.com/piebro/factorio-blueprint-visualizers",

@@ -62,8 +62,10 @@ To easily convert all SVGs in a folder, you can use a terminal and Inkscape like
 
 ## Contribute
 
-Contributions to this project are welcome. Feel free to report bugs or post ideas you have.
+Contributions to this project are welcome. Feel free to report bugs or post ideas.
 
 To update the python code for the website, you have to update the python wheel in the website folder. To update it, just run: ```python setup.py bdist_wheel --universal --dist-dir=website```
+
+To update the installed version while developing you can use ```python setup.py bdist_wheel --universal --dist-dir=website && pip uninstall factorioBlueprintVisualizer -y && pip install website/factorioBlueprintVisualizer-1.1.0-py2.py3-none-any.whl```
 
 If you use an external api on localhost (e.g. for getting the blueprint from factorio.school) you need to disable CORS. To start Chrome on Ubuntu with CORS disable you can use ```google-chrome --disable-web-security --user-data-dir=temp http://0.0.0.0:8000/```.

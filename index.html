@@ -47,7 +47,7 @@ async function setup_pyodide(){
   await pyodide.loadPackage(['numpy', 'micropip']);
   await pyodide.runPythonAsync(`
     import micropip    
-    await micropip.install('website/factorioBlueprintVisualizer-1.0.0-py2.py3-none-any.whl')
+    await micropip.install('website/factorioBlueprintVisualizer-1.1.0-py2.py3-none-any.whl')
     import factorioBlueprintVisualizer as bv
 
     settings_list = [bv.EXAMPLE_SETTINGS]
@@ -61,20 +61,47 @@ async function get_init_blueprint(params){
   return init_blueprint
 }
 
+function new_blueprint_string(blueprint_string){
+  pyodide.runPython(`
+    blueprint_names, blueprint_jsons = bv.get_blueprint_list(` + blueprint_string + `)
+    current_blueprint = bv.get_blueprint(blueprint_jsons[0])
+  `);
+
+  blueprint_names = pyodide.globals.get('blueprint_names').toJs();
+
+  prev_selection = document.getElementById('blueprint_selection');
+  if (prev_selection != null) {
+    prev_selection.remove();
+  }
+
+  if (blueprint_names.length > 1){
+    selection = document.createElement("select")
+    selection.classList.add("btn")
+    selection.setAttribute("id", "blueprint_selection")
+    selection.setAttribute("style", "width: 160px;")
+    selection.setAttribute("onChange", "blueprintSelectionOnChange(this)")
+    for (i in blueprint_names){
+      option = document.createElement("option")
+      option.setAttribute("value", i)
+      option.innerHTML = blueprint_names[i]
+      selection.appendChild(option)
+    }
+    document.getElementById("button-container").appendChild(selection)
+  }
+}
+
 async function setup(){
   let params = (new URL(document.location)).searchParams;
   if (params.has("source") && params.get("source").substring(0,28) == "https://www.factorio.school/"){
     let [, init_blueprint] = await Promise.all([setup_pyodide(), get_init_blueprint(params)]);
-    pyodide.globals.set("init_blueprint", init_blueprint);
-    pyodide.runPython("blueprint_cache = bv.get_blueprint_cache(init_blueprint, blueprint_name_or_number=0, bbox_border=3)");
+    new_blueprint_string("\"" + init_blueprint + "\"")
   } else {
     const elem = document.createElement("img");
     elem.setAttribute("src", "website/start.svg");
     document.getElementById("svg-container").appendChild(elem);
-
     await setup_pyodide();
-    pyodide.runPython("blueprint_cache = bv.get_blueprint_cache(bv.EXAMPLE_BLUEPRINT, blueprint_name_or_number=0, bbox_border=3)");
-  } 
+    new_blueprint_string("bv.EXAMPLE_BLUEPRINT")
+  }
 
   draw_blueprint()
 
@@ -90,7 +117,7 @@ async function setup(){
 
 function draw_blueprint(){
   document.getElementById("svg-container").innerHTML = pyodide.runPython(`
-    bv.draw_blueprint(blueprint_cache, settings_list[current_setting_index], svg_max_size_in_mm=300)
+    bv.draw_blueprint(current_blueprint, settings_list[current_setting_index])
   `)
 }
 
@@ -107,10 +134,15 @@ async function saveBtnClick(){
   document.body.removeChild(element);
 }
 
+function blueprintSelectionOnChange(selectObject){
+  pyodide.runPython("current_blueprint = bv.get_blueprint(blueprint_jsons[" + selectObject.value + "])");
+  draw_blueprint()
+}
+
 function uploadBtnClick(){
   input = window.prompt("paste blueprint here")
   if (input != null && input != ""){
-    pyodide.runPython(`blueprint_cache = bv.get_blueprint_cache("`+input+`", blueprint_name_or_number=0, bbox_border=3)`)
+    new_blueprint_string("\"" + input + "\"")
     draw_blueprint()
   }
 }
@@ -148,7 +180,7 @@ pyodide = null
 </script>
 <body onload="setup()">
 
-<div class="button-container">
+<div class="button-container" id="button-container">
   <button class="btn" id="nextSettingBtn">Loading</button>
   <button class="btn" id="saveBtn">Loading</button>
   <button class="btn" id="uploadBtn">Loading</button>
