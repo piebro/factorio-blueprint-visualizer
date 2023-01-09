@@ -7,136 +7,125 @@ SOUTH_WEST = 5
 WEST = 6
 NORTH_WEST = 7
 
-BUILDING_SIZES = {
-    # first tab: Logistics
-    "wooden-chest": (1,1),
-    "iron-chest": (1,1),
-    "steel-chest": (1,1),
-    "storage-tank": (3,3),
 
-    "transport-belt": (1,1),
-    "fast-transport-belt": (1,1),
-    "express-transport-belt": (1,1),
-    "underground-belt": (1,1),
-    "fast-underground-belt": (1,1),
-    "express-underground-belt": (1,1),
-    "splitter": (2,1),
-    "fast-splitter": (2,1),
-    "express-splitter": (2,1),
+entity_name_to_properties = {
+  # first tab: Logistics
+  "wooden-chest": {"size":(1,1), "generic_terms": ["chests"]},
+  "iron-chest": {"size":(1,1), "generic_terms": ["chests"]},
+  "steel-chest": {"size":(1,1), "generic_terms": ["chests"]},
+  "storage-tank": {"size":(3,3), "generic_terms": []},
 
-    "burner-inserter": (1,1),
-    "inserter": (1,1),
-    "long-handed-inserter": (1,1),
-    "fast-inserter": (1,1),
-    "filter-inserter": (1,1),
-    "stack-inserter": (1,1),
-    "stack-filter-inserter": (1,1),
+  "transport-belt": {"size":(1,1), "generic_terms": ["belts", "transportation"]},
+  "fast-transport-belt": {"size":(1,1), "generic_terms": ["belts", "transportation"]},
+  "express-transport-belt": {"size":(1,1), "generic_terms": ["belts", "transportation"]},
+  "underground-belt": {"size":(1,1), "generic_terms": ["belts", "transportation"]},
+  "fast-underground-belt": {"size":(1,1), "generic_terms": ["belts", "transportation"]},
+  "express-underground-belt": {"size":(1,1), "generic_terms": ["belts", "transportation"]},
+  "splitter": {"size":(2,1), "generic_terms": ["belts", "transportation"]},
+  "fast-splitter": {"size":(2,1), "generic_terms": ["belts", "transportation"]},
+  "express-splitter": {"size":(2,1), "generic_terms": ["belts", "transportation"]},
 
-    "small-electric-pole": (1,1),
-    "medium-electric-pole": (1,1),
-    "big-electric-pole": (2,2),
-    "substation": (2,2),
-    "pipe": (1,1),
-    "pipe-to-ground": (1,1),
-    "pump": (1,2),
+  "burner-inserter": {"size":(1,1), "generic_terms": ["inserters", "transportation"]},
+  "inserter": {"size":(1,1), "generic_terms": ["inserters", "transportation"]},
+  "long-handed-inserter": {"size":(1,1), "generic_terms": ["inserters", "transportation"]},
+  "fast-inserter": {"size":(1,1), "generic_terms": ["inserters", "transportation"]},
+  "filter-inserter": {"size":(1,1), "generic_terms": ["inserters", "transportation"]},
+  "stack-inserter": {"size":(1,1), "generic_terms": ["inserters", "transportation"]},
+  "stack-filter-inserter": {"size":(1,1), "generic_terms": ["inserters", "transportation"]},
 
-    "straight-rail": (2,2),
-    "curved-rail": (2,2),
-    "train-stop": (2,2),
-    "rail-signal": (1,1),
-    "rail-chain-signal": (1,1),
+  "small-electric-pole": {"size":(1,1), "generic_terms": ["electricity"]},
+  "medium-electric-pole": {"size":(1,1), "generic_terms": ["electricity"]},
+  "big-electric-pole": {"size":(2,2), "generic_terms": ["electricity"]},
+  "substation": {"size":(2,2), "generic_terms": ["electricity"]},
+  "pipe": {
+    "size":(1,1),
+    "generic_terms": ["transportation"],
+    "pipe_connection": [{"pos":(0,0), "direction": NORTH}, {"pos":(0,0), "direction": EAST}, {"pos":(0,0), "direction": SOUTH}, {"pos":(0,0), "direction": WEST}]
+  },
+  "pipe-to-ground": {"size":(1,1), "generic_terms": ["transportation"], "pipe_connection": [{"pos":(0,0), "direction": NORTH}]},
+  "pump": {"size":(1,2), "generic_terms": ["transportation"], "pipe_connection": [{"pos":(0,0.5), "direction": SOUTH}, {"pos":(0,-0.5), "direction": NORTH}]},
 
-    "logistic-chest-active-provider": (1,1),
-    "logistic-chest-passive-provider": (1,1),
-    "logistic-chest-storage": (1,1),
-    "logistic-chest-buffer": (1,1),
-    "logistic-chest-requester": (1,1),
-    "roboport": (4,4),
+  "straight-rail": {"size":(2,2), "generic_terms": ["rails", "transportation"]},
+  "curved-rail": {"size":(2,2), "generic_terms": ["rails", "transportation"]},
+  "train-stop": {"size":(2,2), "generic_terms": ["rails"]},
+  "rail-signal": {"size":(1,1), "generic_terms": ["rails"]},
+  "rail-chain-signal": {"size":(1,1), "generic_terms": ["rails"]},
 
-    "small-lamp": (1,1),
-    "arithmetic-combinator": (1,2),
-    "decider-combinator": (1,2),
-    "constant-combinator": (1,1),
-    "power-switch": (2,2),
-    "programmable-speaker": (1,1),
+  "logistic-chest-active-provider": {"size":(1,1), "generic_terms": ["chests", "logistic_chests"]},
+  "logistic-chest-passive-provider": {"size":(1,1), "generic_terms": ["chests", "logistic_chests"]},
+  "logistic-chest-storage": {"size":(1,1), "generic_terms": ["chests", "logistic_chests"]},
+  "logistic-chest-buffer": {"size":(1,1), "generic_terms": ["chests", "logistic_chests"]},
+  "logistic-chest-requester": {"size":(1,1), "generic_terms": ["chests", "logistic_chests"]},
+  "roboport": {"size":(4,4), "generic_terms": []},
 
-    # tab 2
-    "boiler": (3, 2),
-    "steam-engine": (3,5),
-    "solar-panel": (3,3),
-    "accumulator": (2,2),
-    "nuclear-reactor": (5,5),
-    "heat-pipe": (1,1),
-    "heat-exchanger": (3,2),
-    "steam-turbine": (3,5),
+  # tab 2
+  "small-lamp": {"size":(1,1), "generic_terms": []},
+  "arithmetic-combinator": {"size":(1,2), "generic_terms": ["programming"]},
+  "decider-combinator": {"size":(1,2), "generic_terms": ["programming"]},
+  "constant-combinator": {"size":(1,1), "generic_terms": ["programming"]},
+  "power-switch": {"size":(2,2), "generic_terms": ["programming"]},
+  "programmable-speaker": {"size":(1,1), "generic_terms": ["programming"]},
 
-    "burner-mining-drill": (2,2),
-    "electric-mining-drill": (3,3),
-    "offshore-pump": (1, 2),
-    "pumpjack": (3,3),
+  "boiler": {"size":(3,2), "generic_terms": [], "pipe_connection": [{"pos":(0,-0.5), "direction": NORTH}, {"pos":(1,0.5), "direction": EAST}, {"pos":(-1,0.5), "direction": WEST}]},
+  "steam-engine": {"size":(3,5), "generic_terms": ["electricity-generators"], "pipe_connection": [{"pos":(0,-2), "direction": NORTH}, {"pos":(0,2), "direction": SOUTH}]},
+  "solar-panel": {"size":(3,3), "generic_terms": ["electricity-generators"]},
+  "accumulator": {"size":(2,2), "generic_terms": []},
+  "nuclear-reactor": {"size":(5,5), "generic_terms": ["nuclear"]},
+  "heat-pipe": {"size":(1,1), "generic_terms": ["nuclear"]},
+  "heat-exchanger": {"size":(3,2), "generic_terms": ["nuclear"]},
+  "steam-turbine": {"size":(3,5), "generic_terms": ["electricity-generators"]},
 
-    "stone-furnace": (2,2),
-    "steel-furnace": (2,2),
-    "electric-furnace": (3,3),
+  "burner-mining-drill": {"size":(2,2), "generic_terms": ["drills"]},
+  "electric-mining-drill": {"size":(3,3), "generic_terms": ["drills"]},
+  "offshore-pump": {"size":(1,2), "generic_terms": [], "pipe_connection": [{"pos":(0,0.5), "direction": SOUTH}]},
+  "pumpjack": {"size":(3,3), "generic_terms": ["drills"]},
 
-    "assembling-machine-1": (3,3),
-    "assembling-machine-2": (3,3),
-    "assembling-machine-3": (3,3),
-    "oil-refinery": (5,5),
-    "chemical-plant": (3,3),
-    "centrifuge": (3,3),
-    "lab": (3,3),
+  "stone-furnace": {"size":(2,2), "generic_terms": ["furnaces"]},
+  "steel-furnace": {"size":(2,2), "generic_terms": ["furnaces"]},
+  "electric-furnace": {"size":(3,3), "generic_terms": ["furnaces"]},
 
-    "beacon": (3,3),
-    "rocket-silo": (9,9),
+  "assembling-machine-1": {"size":(3,3), "generic_terms": ["assembling-machines", "producing-machines"], "pipe_connection": [{"pos":(0,-1), "direction": NORTH}]},
+  "assembling-machine-2": {"size":(3,3), "generic_terms": ["assembling-machines", "producing-machines"], "pipe_connection": [{"pos":(0,-1), "direction": NORTH}]},
+  "assembling-machine-3": {"size":(3,3), "generic_terms": ["assembling-machines", "producing-machines"], "pipe_connection": [{"pos":(0,-1), "direction": NORTH}]},
+  "oil-refinery": {
+    "size":(5,5),
+    "generic_terms": ["producing-machines"], 
+    "pipe_connection": [{"pos":(-2,-2), "direction": NORTH}, {"pos":(0,-2), "direction": NORTH}, {"pos":(2,-2), "direction": NORTH}, {"pos":(-1,2), "direction": SOUTH}, {"pos":(1,2), "direction": SOUTH}]
+  },
+  "chemical-plant": {
+    "size":(3,3),
+    "generic_terms": ["producing-machines"],
+    "pipe_connection": [{"pos":(-1,-1), "direction": NORTH}, {"pos":(1,-1), "direction": NORTH}, {"pos":(-1,1), "direction": SOUTH}, {"pos":(1,1), "direction": SOUTH}]
+  },
+  "centrifuge": {"size":(3,3), "generic_terms": ["producing-machines"]},
+  "lab": {"size":(3,3), "generic_terms": ["science"]},
 
-    # tab 3
-    "stone-wall": (1,1),
-    "gate": (1,1),
-    "gun-turret": (2,2),
-    "laser-turret": (2,2),
-    "flamethrower-turret": (2,3),
-    "artillery-turret": (3,3),
-    "radar": (3,3), 
+  "beacon": {"size":(3,3), "generic_terms": []},
+  "rocket-silo": {"size":(9,9), "generic_terms": ["science"]},
 
-    ### MODS
-    # Factorissimo2
-    "factory-1":(8,8),
-    "factory-2":(12,12),
-    "factory-3":(16,16),
-    "factory-circuit-input": (1,1),
-    "factory-circuit-output": (1,1),
-    "factory-input-pipe": (1,1),
-    "factory-output-pipe": (1,1),
-    "factory-requester-chest": (1,1),
+  # tab 3
+  "stone-wall": {"size":(1,1), "generic_terms": ["military"]},
+  "gate": {"size":(1,1), "generic_terms": ["military"]},
+  "gun-turret": {"size":(2,2), "generic_terms": ["military", "turret"]},
+  "laser-turret": {"size":(2,2), "generic_terms": ["military", "turret"]},
+  "flamethrower-turret": {"size":(2,3), "generic_terms": ["military", "turret"]},
+  "artillery-turret": {"size":(3,3), "generic_terms": ["military", "turret"]},
+  "radar": {"size":(3,3), "generic_terms": ["military"]},
+
 }
 
-BUILDING_GENERIC_TERMS = {
-    "assembling-machines": ["assembling-machine-1", "assembling-machine-2", "assembling-machine-3"],
-    "producing-machines": ["assembling-machine-1", "assembling-machine-2", "assembling-machine-3", "oil-refinery",
-                           "chemical-plant", "centrifuge"],            
-    "belts": ["transport-belt", "fast-transport-belt", "express-transport-belt", "underground-belt", "fast-underground-belt",
-             "express-underground-belt", "splitter", "fast-splitter", "express-splitter"],
-    "electricity": ["small-electric-pole", "medium-electric-pole", "big-electric-pole", "substation"],
-    "furnaces": ["stone-furnace", "steel-furnace", "electric-furnace"],
-    "drills": ["burner-mining-drill", "electric-mining-drill", "pumpjack"],
-    "electricity-generators": ["steam-engine", "solar-panel", "steam-turbine"],
-    "military": ["stone-wall", "gate", "gun-turret", "laser-turret", "flamethrower-turret", "artillery-turret", "radar"],
-    "inserters": ["burner-inserter", "inserter", "long-handed-inserter", "fast-inserter", "filter-inserter", "stack-inserter", "stack-filter-inserter"],
-    "chests": ["wooden-chest", "iron-chest", "steel-chest", "logistic-chest-active-provider",
-               "logistic-chest-passive-provider", "logistic-chest-storage", "logistic-chest-buffer",
-               "logistic-chest-requester"],
-    "rails": ["straight-rail", "curved-rail", "train-stop", "rail-signal", "rail-chain-signal"],
-    "transportation": ["transport-belt", "fast-transport-belt", "express-transport-belt", "underground-belt",
-                  "fast-underground-belt", "express-underground-belt", "splitter", "fast-splitter", "express-splitter",
-                  "straight-rail", "curved-rail", "pipe", "pipe-to-ground", "burner-inserter", "inserter",
-                  "long-handed-inserter", "fast-inserter", "filter-inserter", "stack-inserter",
-                  "stack-filter-inserter"],
+BUILDING_SIZES = {name: properties["size"] for name, properties in entity_name_to_properties.items() if "size" in properties}
+BUILDING_PIPE_CONNECTIONS = {name: properties["pipe_connection"] for name, properties in entity_name_to_properties.items() if "pipe_connection" in properties}
 
-    ### MODS
-    # Factorissimo2
-    "factorissimo2": ["factory-1", "factory-2", "factory-3", "factory-circuit-input", "factory-circuit-output", "factory-input-pipe", "factory-output-pipe", "factory-requester-chest"],
-}
+
+BUILDING_GENERIC_TERMS = {}
+for name, properties in entity_name_to_properties.items():
+  if "generic_terms" in properties:
+    for generic_term in properties["generic_terms"]:
+      if generic_term not in BUILDING_GENERIC_TERMS:
+        BUILDING_GENERIC_TERMS[generic_term] = []
+      BUILDING_GENERIC_TERMS[generic_term].append(name)
+
 
 ASSEMBLY_MACHINE_RECIPE_TO_DIR_CHANGE = {
   "electric-engine-unit": NORTH,
@@ -160,54 +149,3 @@ ASSEMBLY_MACHINE_RECIPE_TO_DIR_CHANGE = {
   "fill-water-barrel": NORTH,
   "empty-water-barrel": SOUTH,
 }
-
-BUILDING_PIPE_CONNECTIONS = {
-    "pipe":[
-      {"pos":(0,0), "direction": NORTH},
-      {"pos":(0,0), "direction": EAST},
-      {"pos":(0,0), "direction": SOUTH},
-      {"pos":(0,0), "direction": WEST}      
-    ],
-    "pump":[
-      {"pos":(0,0.5), "direction": SOUTH},
-      {"pos":(0,-0.5), "direction": NORTH},
-    ],
-    "assembling-machine-1":[
-      {"pos":(0,-1), "direction": NORTH}
-    ],
-    "assembling-machine-2":[
-      {"pos":(0,-1), "direction": NORTH}
-    ],
-    "assembling-machine-3":[
-      {"pos":(0,-1), "direction": NORTH}
-    ],
-    "boiler":[
-      {"pos":(0,-0.5), "direction": NORTH},
-      {"pos":(1,0.5), "direction": EAST},
-      {"pos":(-1,0.5), "direction": WEST}
-    ],
-    "pipe-to-ground":[
-      {"pos":(0,0), "direction": NORTH}
-    ],
-    "offshore-pump":[
-      {"pos":(0,0.5), "direction": SOUTH}
-    ],
-    "steam-engine":[
-      {"pos":(0,-2), "direction": NORTH},
-      {"pos":(0,2), "direction": SOUTH}
-    ],
-    "oil-refinery":[
-      {"pos":(-2,-2), "direction": NORTH},
-      {"pos":(0,-2), "direction": NORTH},
-      {"pos":(2,-2), "direction": NORTH},
-      {"pos":(-1,2), "direction": SOUTH},
-      {"pos":(1,2), "direction": SOUTH}
-    ],
-    "chemical-plant":[
-      {"pos":(-1,-1), "direction": NORTH},
-      {"pos":(1,-1), "direction": NORTH},
-      {"pos":(-1,1), "direction": SOUTH},
-      {"pos":(1,1), "direction": SOUTH}
-    ],
-}
-
