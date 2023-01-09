@@ -126,7 +126,7 @@ BUILDING_GENERIC_TERMS = {
     "chests": ["wooden-chest", "iron-chest", "steel-chest", "logistic-chest-active-provider",
                "logistic-chest-passive-provider", "logistic-chest-storage", "logistic-chest-buffer",
                "logistic-chest-requester"],
-    "rails": ["straight-rail", "curved-rail"],
+    "rails": ["straight-rail", "curved-rail", "train-stop", "rail-signal", "rail-chain-signal"],
     "transportation": ["transport-belt", "fast-transport-belt", "express-transport-belt", "underground-belt",
                   "fast-underground-belt", "express-underground-belt", "splitter", "fast-splitter", "express-splitter",
                   "straight-rail", "curved-rail", "pipe", "pipe-to-ground", "burner-inserter", "inserter",

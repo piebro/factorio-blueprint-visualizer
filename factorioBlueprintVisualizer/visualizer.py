@@ -46,6 +46,7 @@ def get_blueprint(blueprint_json, bbox_border_NWSE=[3,3,3,3]):
 
 
 def get_simplified_entities(blueprint_json):
+  blueprint_json = copy.deepcopy(blueprint_json)
   if "entities" not in blueprint_json:
     return []
 

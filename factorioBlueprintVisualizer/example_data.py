@@ -1,6 +1,7 @@
 EXAMPLE_SETTINGS = [
   ['background', '#a2aebb'],
   ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
+  ['rails', {}],
   ['belts', {}],
   ['underground-belts', {'stroke-opacity': 0.6}],
   ['pipes', {}],
