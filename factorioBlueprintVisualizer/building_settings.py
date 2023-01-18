@@ -111,7 +111,6 @@ entity_name_to_properties = {
   "flamethrower-turret": {"size":(2,3), "generic_terms": ["military", "turret"]},
   "artillery-turret": {"size":(3,3), "generic_terms": ["military", "turret"]},
   "radar": {"size":(3,3), "generic_terms": ["military"]},
-
 }
 
 BUILDING_SIZES = {name: properties["size"] for name, properties in entity_name_to_properties.items() if "size" in properties}
