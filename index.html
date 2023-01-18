@@ -57,8 +57,8 @@ async function setup_pyodide(){
 
 async function get_init_blueprint(params){
   const blueprint_id = params.get("source").split("/").at(-1);
-  const init_blueprint = await fetch("https://www.factorio.school/api/blueprintString/" + blueprint_id).then(response => response.text());
-  return init_blueprint
+  const init_blueprint_json = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://www.factorio.school/api/blueprintString/" + blueprint_id)).then(r => r.json());
+  return init_blueprint_json["contents"]
 }
 
 function new_blueprint_string(blueprint_string){
