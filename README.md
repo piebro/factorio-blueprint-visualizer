@@ -69,3 +69,7 @@ To update the python code for the website, you have to update the python wheel i
 To update the installed version while developing you can use ```python setup.py bdist_wheel --universal --dist-dir=website && pip uninstall factorioBlueprintVisualizer -y && pip install website/factorioBlueprintVisualizer-1.1.0-py2.py3-none-any.whl```
 
 If you use an external api on localhost (e.g. for getting the blueprint from factorio.school) you need to disable CORS. To start Chrome on Ubuntu with CORS disable you can use ```google-chrome --disable-web-security --user-data-dir=temp http://0.0.0.0:8000/```.
+
+## Statistics
+
+There is lightweight tracking with [Plausible](https://plausible.io/about) for the [website](https://piebro.github.io/factorio-blueprint-visualizer/) to get infos about how many people are visiting. Everyone who is interested can look at these stats here: https://plausible.io/piebro.github.io%2Ffactorio-blueprint-visualizer?period=all
