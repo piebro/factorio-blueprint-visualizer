@@ -62,11 +62,26 @@ async function get_init_blueprint(params){
   return init_blueprint_json["contents"]
 }
 
+function get_current_blueprint_entity_count(){
+  pyodide.runPython(`
+    current_blueprint_entity_count = {}
+    for e in current_blueprint["entities"]:
+      if e["name"] not in current_blueprint_entity_count:
+        current_blueprint_entity_count[e["name"]] = 0
+      else:
+        current_blueprint_entity_count[e["name"]] += 1
+    current_blueprint_entity_count = sorted(current_blueprint_entity_count.items(), key=lambda item: item[1], reverse=True)
+  `);
+  console.log(pyodide.globals.get('current_blueprint_entity_count').toJs())
+
+}
+
 function new_blueprint_string(blueprint_string){
   pyodide.runPython(`
     blueprint_names, blueprint_jsons = bv.get_blueprint_list(` + blueprint_string + `)
     current_blueprint = bv.get_blueprint(blueprint_jsons[0])
   `);
+  get_current_blueprint_entity_count()
 
   blueprint_names = pyodide.globals.get('blueprint_names').toJs();
 
