@@ -39,6 +39,10 @@ Furthermore, you can define the style of each drawing command or set a new defau
 
 Every visualization has the used drawing settings and blueprint saved with it, so you can check out the drawing settings of the examples blueprints inspiration.
 
+### Text to Image
+
+I created a [dataset](https://huggingface.co/datasets/piebro/factorio-blueprint-visualizations) with images generated using this tool to finetune [SDXL](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0) (a text-to-image neural network). The model with examples can be found here: https://huggingface.co/piebro/factorio-blueprint-visualizations-sdxl-lora
+
 ### Pen Plotting
 
 I have a pen plotter, and one of my initial ideas was also to be able to plot my factories. You can create visualizations you can easily draw. I recommend using https://github.com/abey79/vpype for merging lines together before plotting. An example of a visualization for plotting is here:
