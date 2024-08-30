@@ -51,6 +51,8 @@ I have a pen plotter, and one of my initial ideas was also to be able to plot my
     <img src="example_svgs/example_25.svg" width="70%" style="padding: 1% 1% 1% 1%">
 </p>
 
+Another way to create plots from your factories is to use: https://github.com/drawscape-labs/factorio-cli.
+
 ### verilog2factorio
 
 It's possible to use https://github.com/redcrafter/verilog2factorio to create factorio verilog blueprints and visualize the buildings and wire connections like this.
