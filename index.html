@@ -6,8 +6,14 @@
   <meta name="description" content="Online tool to artfully visualize Factorio Blueprints.">
   <title>Factorio Blueprint Visualizer</title>
   <link rel='shortcut icon' type='image/x-icon' href='website/favicon.ico'/>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.1/full/pyodide.js"></script>
-  <script defer data-domain="piebro.github.io/factorio-blueprint-visualizer" src="https://plausible.io/js/plausible.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+  <!-- <script defer data-domain="piebro.github.io/factorio-blueprint-visualizer" src="https://plausible.io/js/plausible.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <script src="startExampleBlueprintString.js"></script>
+  <script src="buildingSettings.js"></script>
+  <script src="drawingSettings.js"></script>
+  <script src="blueprintVisualizer.js"></script>
+  
 </head>
 
 <style>
@@ -42,64 +48,38 @@ img, svg {
 
 <script>
 
-async function setup_pyodide(){
-  pyodide = await loadPyodide({indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.1/pyc/"});
-  await pyodide.loadPackage(['numpy', 'micropip']);
-  await pyodide.runPythonAsync(`
-    import micropip    
-    await micropip.install('website/factorioBlueprintVisualizer-1.1.0-py2.py3-none-any.whl')
-    import factorioBlueprintVisualizer as bv
-
-    settings_list = [bv.EXAMPLE_SETTINGS]
-    current_setting_index = 0
-  `)
-}
-
-async function get_init_blueprint(params){
-  const blueprint_id = params.get("source").split("/").at(-1);
-  const cors_proxy_url = "https://api.allorigins.win/get?url="
-  const init_blueprint_json = await fetch(cors_proxy_url + encodeURIComponent("https://www.factorio.school/api/blueprintString/" + blueprint_id)).then(r => r.json());
-  return init_blueprint_json["contents"]
-}
-
-function get_current_blueprint_entity_count(){
-  pyodide.runPython(`
-    current_blueprint_entity_count = {}
-    for e in current_blueprint["entities"]:
-      if e["name"] not in current_blueprint_entity_count:
-        current_blueprint_entity_count[e["name"]] = 0
-      else:
-        current_blueprint_entity_count[e["name"]] += 1
-    current_blueprint_entity_count = sorted(current_blueprint_entity_count.items(), key=lambda item: item[1], reverse=True)
-  `);
-  console.log(pyodide.globals.get('current_blueprint_entity_count').toJs())
-
+async function loadDefaultBlueprint() {
+  try {
+    const response = await fetch('test_blueprint_book.txt');
+    const blueprintString = await response.text();
+    return blueprintString;
+  } catch (error) {
+    console.error('Error loading default blueprint:', error);
+    return START_EXAMPLE_BLUEPRINT; // Fallback to example if load fails
+  }
 }
 
 function new_blueprint_string(blueprint_string){
-  pyodide.runPython(`
-    blueprint_names, blueprint_jsons = bv.get_blueprint_list(` + blueprint_string + `)
-    current_blueprint = bv.get_blueprint(blueprint_jsons[0])
-  `);
-  get_current_blueprint_entity_count()
+  [currentBlueprintNames, currentBlueprintJsons] = getBlueprintList(blueprint_string);
+  current_blueprint = getBlueprint(currentBlueprintJsons[0])
 
-  blueprint_names = pyodide.globals.get('blueprint_names').toJs();
+  get_current_blueprint_entity_count()
 
   prev_selection = document.getElementById('blueprint_selection');
   if (prev_selection != null) {
     prev_selection.remove();
   }
 
-  if (blueprint_names.length > 1){
+  if (currentBlueprintNames.length > 1){
     selection = document.createElement("select")
     selection.classList.add("btn")
     selection.setAttribute("id", "blueprint_selection")
     selection.setAttribute("style", "width: 160px;")
     selection.setAttribute("onChange", "blueprintSelectionOnChange(this)")
-    for (i in blueprint_names){
+    for (i in currentBlueprintNames){
       option = document.createElement("option")
       option.setAttribute("value", i)
-      option.innerHTML = blueprint_names[i]
+      option.innerHTML = currentBlueprintNames[i]
       selection.appendChild(option)
     }
     document.getElementById("button-container").appendChild(selection)
@@ -107,34 +87,19 @@ function new_blueprint_string(blueprint_string){
 }
 
 async function setup(){
-  let params = (new URL(document.location)).searchParams;
-  if (params.has("source") && params.get("source").substring(0,28) == "https://www.factorio.school/"){
-    let [, init_blueprint] = await Promise.all([setup_pyodide(), get_init_blueprint(params)]);
-    new_blueprint_string("\"" + init_blueprint + "\"")
-  } else {
-    const elem = document.createElement("img");
-    elem.setAttribute("src", "website/start.svg");
-    document.getElementById("svg-container").appendChild(elem);
-    await setup_pyodide();
-    new_blueprint_string("bv.EXAMPLE_BLUEPRINT")
-  }
+  const elem = document.createElement("img");
+  elem.setAttribute("src", "website/start.svg");
+  document.getElementById("svg-container").appendChild(elem);
+  
+  const defaultBlueprint = await loadDefaultBlueprint();
+  new_blueprint_string(defaultBlueprint);
+  draw_blueprint();
 
-  draw_blueprint()
-
-  document.getElementById("uploadBtn").onclick = uploadBtnClick
-  document.getElementById("uploadBtn").innerText = "Upload Blueprint"
-  document.getElementById("saveBtn").onclick = saveBtnClick
-  document.getElementById("saveBtn").innerText = "Save"
-  document.getElementById("nextSettingBtn").onclick = nextSetting
-  document.getElementById("nextSettingBtn").innerText = "Random Drawing Setting"
   document.addEventListener('keyup', onKeyUp);
-  console.log("finished setup")
 }
 
 function draw_blueprint(){
-  document.getElementById("svg-container").innerHTML = pyodide.runPython(`
-    bv.draw_blueprint(current_blueprint, settings_list[current_setting_index], svg_width_in_mm=300)
-  `)
+  document.getElementById("svg-container").innerHTML = drawBlueprint(current_blueprint, settings_list[current_setting_index], svg_width_in_mm=300)
 }
 
 async function saveBtnClick(){
@@ -151,35 +116,32 @@ async function saveBtnClick(){
 }
 
 function blueprintSelectionOnChange(selectObject){
-  pyodide.runPython("current_blueprint = bv.get_blueprint(blueprint_jsons[" + selectObject.value + "])");
+  current_blueprint = getBlueprint(currentBlueprintJsons[selectObject.value])
   draw_blueprint()
 }
 
 function uploadBtnClick(){
   input = window.prompt("paste blueprint here")
   if (input != null && input != ""){
-    new_blueprint_string("\"" + input + "\"")
+    new_blueprint_string(input)
     draw_blueprint()
   }
 }
 
 function nextSetting(){
-  pyodide.runPython(`
-    current_setting_index += 1
-    if len(settings_list) == current_setting_index:
-      settings_list.append(bv.get_random_settings())
-  `)
+  current_setting_index += 1;
+  if (settings_list.length == current_setting_index) {
+    settings_list.push(getRandomSettings());
+  }
   draw_blueprint()
 }
 
 function previousSetting(){
-  pyodide.runPython(`
-    if current_setting_index > 0:
-      current_setting_index -= 1
-  `)
-  draw_blueprint()
+  if (current_setting_index > 0) {
+    current_setting_index -= 1;
+    draw_blueprint()
+  }
 }
-
 
 function onKeyUp(e){
   if (e.code == "ArrowRight"){
@@ -189,18 +151,22 @@ function onKeyUp(e){
   }
 }
 
-settings_list = []
-current_setting_index = 0
-pyodide = null
+let settings_list = []
+let current_setting_index = 0
+let current_blueprint = null
+let currentBlueprintJsons = null
+let currentBlueprintNames = null
+settings_list.push(EXAMPLE_SETTINGS)
 
 </script>
 <body onload="setup()">
 
 <div class="button-container" id="button-container">
-  <button class="btn" id="nextSettingBtn">Loading</button>
-  <button class="btn" id="saveBtn">Loading</button>
-  <button class="btn" id="uploadBtn">Loading</button>
-  <button class="btn" id="infoBtn" onclick="location.href='https://github.com/piebro/factorio-blueprint-visualizer';">Infos</button>
+  <button class="btn" id="nextSettingBtn" onclick="nextSetting()">Random Drawing Setting</button>
+  <button class="btn" id="saveBtn" onclick="saveBtnClick()">Save</button>
+  <button class="btn" id="uploadBtn" onclick="uploadBtnClick()">Upload Blueprint</button>
+  <button class="btn" id="infoBtn" onclick="location.href='https://github.com/piebro/factorio-blueprint-visualizer?ref=piebro.github.io/factorio-blueprint-visualizer';">About</button>
+  <button class="btn" id="infoBtn" onclick="location.href='https://piebro.github.io?ref=piebro.github.io/factorio-blueprint-visualizer';">Other Projects</button>
 </div>
 
 <div class="svg-container" id="svg-container"></div>
