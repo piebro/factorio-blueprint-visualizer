@@ -10,6 +10,7 @@
   <!-- <script defer data-domain="piebro.github.io/factorio-blueprint-visualizer" src="https://plausible.io/js/plausible.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
   <script src="startExampleBlueprintString.js"></script>
+  <script src="entity_properties.js"></script>
   <script src="buildingSettings.js"></script>
   <script src="drawingSettings.js"></script>
   <script src="blueprintVisualizer.js"></script>
@@ -50,7 +51,7 @@ img, svg {
 
 async function loadDefaultBlueprint() {
   try {
-    const response = await fetch('test_blueprint_book.txt');
+    const response = await fetch('test/test_blueprint_book.txt');
     const blueprintString = await response.text();
     return blueprintString;
   } catch (error) {
@@ -59,30 +60,32 @@ async function loadDefaultBlueprint() {
   }
 }
 
-function new_blueprint_string(blueprint_string){
-  [currentBlueprintNames, currentBlueprintJsons] = getBlueprintList(blueprint_string);
-  current_blueprint = getBlueprint(currentBlueprintJsons[0])
+function newBlueprintString(blueprintString){
+  [currentBlueprintNames, currentBlueprintJsons] = getBlueprintList(blueprintString);
+  currentBlueprint = getBlueprint(currentBlueprintJsons[0])
 
-  get_current_blueprint_entity_count()
+  getCurrentBlueprintEntityCount(currentBlueprint)
 
-  prev_selection = document.getElementById('blueprint_selection');
-  if (prev_selection != null) {
-    prev_selection.remove();
+  prevSelection = document.getElementById('blueprintSelection');
+  if (prevSelection != null) {
+    prevSelection.remove();
   }
 
   if (currentBlueprintNames.length > 1){
     selection = document.createElement("select")
     selection.classList.add("btn")
-    selection.setAttribute("id", "blueprint_selection")
+    selection.setAttribute("id", "blueprintSelection")
     selection.setAttribute("style", "width: 160px;")
     selection.setAttribute("onChange", "blueprintSelectionOnChange(this)")
     for (i in currentBlueprintNames){
       option = document.createElement("option")
       option.setAttribute("value", i)
-      option.innerHTML = currentBlueprintNames[i]
+      option.innerHTML = currentBlueprintNames[i] || "unnamed"
       selection.appendChild(option)
     }
     document.getElementById("button-container").appendChild(selection)
+    selection.selectedIndex = 2;
+    blueprintSelectionOnChange(selection);
   }
 }
 
@@ -92,14 +95,15 @@ async function setup(){
   document.getElementById("svg-container").appendChild(elem);
   
   const defaultBlueprint = await loadDefaultBlueprint();
-  new_blueprint_string(defaultBlueprint);
-  draw_blueprint();
+  newBlueprintString(defaultBlueprint);
+  showBlueprint();
+  console.log(getCurrentBlueprintEntityCount(currentBlueprint))
 
   document.addEventListener('keyup', onKeyUp);
 }
 
-function draw_blueprint(){
-  document.getElementById("svg-container").innerHTML = drawBlueprint(current_blueprint, settings_list[current_setting_index], svg_width_in_mm=300)
+function showBlueprint(){
+  document.getElementById("svg-container").innerHTML = drawBlueprint(currentBlueprint, settingsList[currentSettingIndex], svgWidthInMm=300)
 }
 
 async function saveBtnClick(){
@@ -116,30 +120,30 @@ async function saveBtnClick(){
 }
 
 function blueprintSelectionOnChange(selectObject){
-  current_blueprint = getBlueprint(currentBlueprintJsons[selectObject.value])
-  draw_blueprint()
+  currentBlueprint = getBlueprint(currentBlueprintJsons[selectObject.value])
+  showBlueprint()
 }
 
 function uploadBtnClick(){
   input = window.prompt("paste blueprint here")
   if (input != null && input != ""){
-    new_blueprint_string(input)
-    draw_blueprint()
+    newBlueprintString(input)
+    showBlueprint()
   }
 }
 
 function nextSetting(){
-  current_setting_index += 1;
-  if (settings_list.length == current_setting_index) {
-    settings_list.push(getRandomSettings());
+  currentSettingIndex += 1;
+  if (settingsList.length == currentSettingIndex) {
+    settingsList.push(getRandomSettings());
   }
-  draw_blueprint()
+  showBlueprint()
 }
 
 function previousSetting(){
-  if (current_setting_index > 0) {
-    current_setting_index -= 1;
-    draw_blueprint()
+  if (currentSettingIndex > 0) {
+    currentSettingIndex -= 1;
+    showBlueprint()
   }
 }
 
@@ -151,12 +155,12 @@ function onKeyUp(e){
   }
 }
 
-let settings_list = []
-let current_setting_index = 0
-let current_blueprint = null
+let settingsList = []
+let currentSettingIndex = 0
+let currentBlueprint = null
 let currentBlueprintJsons = null
 let currentBlueprintNames = null
-settings_list.push(EXAMPLE_SETTINGS)
+settingsList.push(EXAMPLE_SETTINGS)
 
 </script>
 <body onload="setup()">

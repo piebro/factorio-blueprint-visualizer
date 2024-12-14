@@ -1,3 +1,10 @@
+const DIRECTION_OFFSET = [
+    [0, -1], [1, -1], [1, 0], [1, 1], 
+    [0, 1], [-1, 1], [-1, 0], [-1, -1]
+];
+
+const DIRECTION_4_TO_OFFSET = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+
 function getBlueprintList(encodedBlueprintStr) {
   // Remove the initial "0" character from the blueprint string
   const strippedStr = encodedBlueprintStr.slice(1);
@@ -39,12 +46,6 @@ function getLabelAndBlueprint(blueprintNames, blueprintJsons, rawBlueprintJson) 
   }
 }
 
-// Constants
-const DIRECTION_OFFSET = [
-    [0, -1], [1, -1], [1, 0], [1, 1], 
-    [0, 1], [-1, 1], [-1, 0], [-1, -1]
-];
-
 function getBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {
     // Convert blueprint to string and encode
     const blueprintJsonStr = JSON.stringify({ blueprint: blueprintJson });
@@ -56,12 +57,13 @@ function getBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {
     );
     
     const entities = getSimplifiedEntities(blueprintJson);
-    const [bboxWidth, bboxHeight] = getSizeAndNormalizeEntities(entities, bboxBorderNWSE);
+    const [bboxWidth, bboxHeight, posOffset] = getSizeAndNormalizeEntities(entities, bboxBorderNWSE);
     
     return {
         entities: entities,
         bboxWidth: bboxWidth,
         bboxHeight: bboxHeight,
+        posOffset: posOffset,
         encodedBlueprintStr: encodedBlueprintStr,
         cache: {}
     };
@@ -75,21 +77,36 @@ function getSimplifiedEntities(blueprintJson) {
         return [];
     }
 
+    directions = {}
     for (const e of blueprintJson.entities) {
         // Set default direction if not present
         if (!("direction" in e)) {
             e.direction = 0;
         }
         e.direction = parseInt(e.direction);
+        
+        // Count directions
+        directions[e.direction] = (directions[e.direction] || 0) + 1;
 
         // Convert position to array format
         e.pos = [parseFloat(e.position.x), parseFloat(e.position.y)];
         
-        // Special case for offshore pump
-        if (e.name === "offshore-pump") {
-            e.pos = e.pos.map((coord, i) => 
-                coord + 0.5 * DIRECTION_OFFSET[e.direction][i]
-            );
+        if (e.name in entityNameToProperties) {
+            let [sizeX, sizeY] = entityNameToProperties[e.name].size;
+            const angleRad = (e.direction * Math.PI) / 8;
+            const cos = Math.cos(angleRad);
+            const sin = Math.sin(angleRad);
+            
+            // Calculate rotated corners relative to center
+            e.bbox = [
+                [-sizeX/2, -sizeY/2], // top-left
+                [sizeX/2, -sizeY/2],  // top-right
+                [sizeX/2, sizeY/2],   // bottom-right
+                [-sizeX/2, sizeY/2]   // bottom-left
+            ].map(([x, y]) => [
+                x * cos - y * sin + e.pos[0],
+                x * sin + y * cos + e.pos[1]
+            ]);
         }
     }
 
@@ -101,28 +118,14 @@ function getSizeAndNormalizeEntities(entities, bboxBorderNWSE) {
         return [1, 1];
     }
 
-    const entityBboxes = [];
-    for (const e of entities) {
-        if (e.name in BUILDING_SIZES) {
-            let [sizeX, sizeY] = BUILDING_SIZES[e.name];
-            if (e.direction % 2 !== 0) {
-                [sizeX, sizeY] = [sizeY, sizeX];
-            }
-            entityBboxes.push([
-                e.pos[0] - sizeX/2, 
-                e.pos[1] - sizeY/2,
-                e.pos[0] + sizeX/2, 
-                e.pos[1] + sizeY/2
-            ]);
-        }
-    }
+    const entityBboxes = entities.filter(e => "bbox" in e).map(e => e.bbox);
 
-    // Calculate bounding box
+    // Calculate bounding box from 4-point polygons
     const bbox = [
-        Math.min(...entityBboxes.map(box => box[0])),
-        Math.min(...entityBboxes.map(box => box[1])),
-        Math.max(...entityBboxes.map(box => box[2])),
-        Math.max(...entityBboxes.map(box => box[3]))
+        Math.min(...entityBboxes.flatMap(box => box.map(point => point[0]))), // minX
+        Math.min(...entityBboxes.flatMap(box => box.map(point => point[1]))), // minY
+        Math.max(...entityBboxes.flatMap(box => box.map(point => point[0]))), // maxX
+        Math.max(...entityBboxes.flatMap(box => box.map(point => point[1])))  // maxY
     ];
 
     // Apply border
@@ -135,19 +138,28 @@ function getSizeAndNormalizeEntities(entities, bboxBorderNWSE) {
     const bboxHeight = bbox[3] - bbox[1];
 
     // Normalize entity positions
-    for (const e of entities) {
-        if ("pos" in e) {
-            e.pos[0] -= bbox[0];
-            e.pos[1] -= bbox[1];
-        }
-    }
+    // for (const e of entities) {
+    //     if ("pos" in e) {
+    //         e.pos[0] = Math.round((e.pos[0] - bbox[0]) * 10000) / 10000;
+    //         e.pos[1] = Math.round((e.pos[1] - bbox[1]) * 10000) / 10000;
+    //     }
+    //     if ("bbox" in e) {
+    //         // Update each point of the bbox
+    //         e.bbox = e.bbox.map(point => [
+    //             point[0] - bbox[0],
+    //             point[1] - bbox[1]
+    //         ]);
+    //     }
+    // }
 
-    return [bboxWidth, bboxHeight];
+    const posOffset = [-bbox[0], -bbox[1]];
+
+    return [bboxWidth, bboxHeight, posOffset];
 }
 
-function get_current_blueprint_entity_count(){
+function getCurrentBlueprintEntityCount(currentBlueprint){
     const entityCount = {};
-    for (const entity of current_blueprint.entities) {
+    for (const entity of currentBlueprint.entities) {
       entityCount[entity.name] = (entityCount[entity.name] || 0) + 1;
     }
     return Object.entries(entityCount).sort((a, b) => b[1] - a[1]);
@@ -182,70 +194,70 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
         }
 
         else if (settingName === "bbox") {
-            drawEntitiesBbox(dwg, blueprint.entities, settingOptions, defaultBboxProp);
+            drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, settingOptions, defaultBboxProp);
         }
 
         else if (settingName === "belts") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesBelt(blueprint.entities);
             }
-            drawLines(dwg, blueprint.cache[settingName], settingOptions);
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
         else if (settingName === "underground-belts") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesUndergroundBelt(blueprint.entities);
             }
-            drawLines(dwg, blueprint.cache[settingName], settingOptions);
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
         else if (settingName === "pipes") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesPipes(blueprint.entities);
             }
-            drawLines(dwg, blueprint.cache[settingName], settingOptions);
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
         else if (settingName === "underground-pipes") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesUndergroundPipes(blueprint.entities);
             }
-            drawLines(dwg, blueprint.cache[settingName], settingOptions);
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
         else if (settingName === "inserters") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesInserter(blueprint.entities);
             }
-            drawLines(dwg, blueprint.cache[settingName], settingOptions);
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
         else if (settingName === "rails") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesRails(blueprint.entities);
             }
-            drawLines(dwg, blueprint.cache[settingName], settingOptions);
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
         else if (settingName === "electricity") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesElectricity(blueprint.entities);
             }
-            drawLines(dwg, blueprint.cache[settingName], settingOptions);
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
         else if (settingName === "red-circuits") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesCircuit(blueprint.entities, "red");
             }
-            drawLines(dwg, blueprint.cache[settingName], settingOptions);
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
         else if (settingName === "green-circuits") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesCircuit(blueprint.entities, "green");
             }
-            drawLines(dwg, blueprint.cache[settingName], settingOptions);
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
         else {
@@ -339,12 +351,12 @@ function appendGroup(dwg, svgSetting, denyList = []) {
     dwg.groupsToClose += 1;
 }
 
-function drawLines(dwg, lines, svgSetting) {
+function drawLines(dwg, lines, posOffset, svgSetting) {
     dwg.parts.push('<path');
     appendSvgSetting(dwg, svgSetting);
     dwg.parts.push(' d="');
     for (const [p1, p2] of lines) {
-        dwg.parts.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
+        dwg.parts.push(`M${p1[0] + posOffset[0]} ${p1[1] + posOffset[1]} ${p2[0] + posOffset[0]} ${p2[1] + posOffset[1]}`);
     }
     dwg.parts.push('"/>');
 }
@@ -357,24 +369,32 @@ function appendSvgSetting(dwg, svgSetting, denyList = []) {
     }
 }
 
-function drawRect(dwg, mid, size, scale, rx, ry) {
+function drawRect(dwg, bbox, posOffset, scale, rx, ry) {
     if (scale !== null) {
-        size = [size[0] * scale, size[1] * scale];
+        // Calculate center point
+        const centerX = bbox.reduce((sum, point) => sum + point[0], 0) / 4;
+        const centerY = bbox.reduce((sum, point) => sum + point[1], 0) / 4;
+        
+        // Scale points around center
+        bbox = bbox.map(point => [
+            centerX + (point[0] - centerX) * scale,
+            centerY + (point[1] - centerY) * scale
+        ]);
     }
 
-    dwg.parts.push(`<rect height="${size[1]}" width="${size[0]}" x="${mid[0] - size[0]/2}" y="${mid[1] - size[1]/2}"`);
+    // Create SVG polygon points string
+    const pointsStr = bbox.map(point => `${point[0] + posOffset[0]},${point[1] + posOffset[1]}`).join(' ');
     
-    if (rx !== null) {
-        dwg.parts.push(` rx="${rx}" `);
-    }
-    if (ry !== null) {
-        dwg.parts.push(` ry="${ry}" `);
+    dwg.parts.push(`<polygon points="${pointsStr}"`);
+    
+    if (rx !== null || ry !== null) {
+        console.warn('rx and ry are not supported for rotated rectangles');
     }
 
     dwg.parts.push('/>');
 }
 
-function drawEntitiesBbox(dwg, entities, settings, defaultBboxProp) {
+function drawEntitiesBbox(dwg, entities, posOffset, settings, defaultBboxProp) {
     let bboxEntities;
     if ("allow" in settings) {
         bboxEntities = entities.filter(e => settings.allow.includes(e.name));
@@ -393,139 +413,138 @@ function drawEntitiesBbox(dwg, entities, settings, defaultBboxProp) {
 
     appendGroup(dwg, settings, ["bbox-scale", "bbox-rx", "bbox-ry", "allow", "deny"]);
     for (const e of bboxEntities) {
-        if (e.name in BUILDING_SIZES) {
-            let sizeX, sizeY;
-            if (e.direction % 4 === 0) {
-                [sizeX, sizeY] = BUILDING_SIZES[e.name];
-            } else {
-                [sizeY, sizeX] = BUILDING_SIZES[e.name];
-            }
-            drawRect(dwg, e.pos, [sizeX, sizeY], bboxProp.scale, bboxProp.rx, bboxProp.ry);
+        if ("bbox" in e) {
+            drawRect(dwg, e.bbox, posOffset, bboxProp.scale, bboxProp.rx, bboxProp.ry);
         }
     }
     dwg.groupsToClose -= 1;
     dwg.parts.push('</g>');
 }
 
-function getLinesBelt(entities) {
-    const nodes = {};
-    const connectConditions = [];
-
-    // First pass: collect nodes and connection conditions
-    for (const e of entities) {
-        if (["transport-belt", "fast-transport-belt", "express-transport-belt", 
-             "underground-belt", "fast-underground-belt", "express-underground-belt"].includes(e.name)) {
-            
-            const pos = `${e.pos[0]},${e.pos[1]}`; // Use string as object key
-            const dir = e.direction;
-
-            // Initialize node if not exists
-            if (!(pos in nodes)) {
-                nodes[pos] = [false, false, false, false, false, false, false, false];
-            }
-            nodes[pos][dir] = true;
-
-            // Skip if underground belt input
-            if (e.type === "input") continue;
-            
-            console.log(e.name, e.pos, e.direction);
-            console.log(DIRECTION_OFFSET[dir][0], DIRECTION_OFFSET[dir][1]);
-            // Calculate target position
-            const targetPos = [
-                e.pos[0] + DIRECTION_OFFSET[dir][0],
-                e.pos[1] + DIRECTION_OFFSET[dir][1]
-            ];
-            const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
-
-            // Add connection conditions for three possible directions
-            for (const targetDir of [(dir - 2 + 8) % 8, dir, (dir + 2) % 8]) {
-                connectConditions.push([pos, dir, targetPosKey, targetDir]);
-            }
-        }
+function getLinesUndergroundBelt(entities) {
+    const nodesInput = {};
+    const nodesOutput = {};
+    for (const entityName of ["underground-belt", "fast-underground-belt", "express-underground-belt", "turbo-underground-belt"]) {
+        nodesInput[entityName] = {};
+        nodesOutput[entityName] = {};
     }
 
-    // Get initial lines from nodes and connection conditions
-    const lines = getLinesNodesAndConnectConditions(nodes, connectConditions, false, false, false, false);
-
-    // Handle splitters
     for (const e of entities) {
-        if (["splitter", "fast-splitter", "express-splitter"].includes(e.name)) {
-            const dir = e.direction;
-            const offset = [
-                0.5 * DIRECTION_OFFSET[(dir + 2) % 8][0],
-                0.5 * DIRECTION_OFFSET[(dir + 2) % 8][1]
-            ];
-
-            // Calculate positions
-            const pos12 = [
-                [e.pos[0] - offset[0], e.pos[1] - offset[1]],
-                [e.pos[0] + offset[0], e.pos[1] + offset[1]]
-            ];
-            const fromPos12 = pos12.map(pos => [
-                pos[0] - DIRECTION_OFFSET[dir][0],
-                pos[1] - DIRECTION_OFFSET[dir][1]
-            ]);
-            const toPos12 = pos12.map(pos => [
-                pos[0] + DIRECTION_OFFSET[dir][0],
-                pos[1] + DIRECTION_OFFSET[dir][1]
-            ]);
-
-            // Check node existence and conditions
-            const toPosInNodes = toPos12.map((pos, i) => {
-                const key = `${pos[0]},${pos[1]}`;
-                return key in nodes && !nodes[key][(dir - 4 + 8) % 8];
-            });
-            const fromPosInNodes = fromPos12.map((pos, i) => {
-                const key = `${pos[0]},${pos[1]}`;
-                return key in nodes && nodes[key][dir];
-            });
-
-            // Add lines based on conditions
-            for (let i = 0; i < 2; i++) {
-                if (toPosInNodes[i] && (!fromPosInNodes[(i + 1) % 2] || fromPosInNodes[i])) {
-                    lines.push([pos12[i], toPos12[i]]);
-                }
-
-                if (fromPosInNodes[i]) {
-                    lines.push([fromPos12[i], pos12[i]]);
-
-                    if (toPosInNodes[(i + 1) % 2]) {
-                        lines.push([pos12[i], toPos12[(i + 1) % 2]]);
-                    }
-                }
+        if (e.name === "underground-belt" || e.name === "fast-underground-belt" || e.name === "express-underground-belt" || e.name === "turbo-underground-belt") {
+            const posKey = `${e.pos[0]},${e.pos[1]}`;
+            if (e.type === "input") {
+                nodesInput[e.name][posKey] = e.direction;
+            } else {
+                nodesOutput[e.name][posKey] = e.direction;
             }
         }
-    }
-
-    return lines;
-}
-
-function getLinesNodesAndConnectConditions(nodes, connectConditions, drawNodes = false, drawTargetPos = false, setSelfFalse = true, setTargetFalse = true) {
-    if (drawNodes) {
-        const lines = Object.keys(nodes).map(pos => {
-            const [x, y] = pos.split(',').map(Number);
-            return [[x, y], [x, y]];
-        });
-        if (drawTargetPos) {
-            lines.push(...connectConditions.map(([_, __, targetPos]) => {
-                const [x, y] = targetPos.split(',').map(Number);
-                return [[x, y], [x, y]];
-            }));
-        }
-        return lines;
     }
 
     const lines = [];
-    for (const [srcPos, srcDir, targetPos, targetDir] of connectConditions) {
-        if (nodes[srcPos][srcDir] && targetPos in nodes && nodes[targetPos][targetDir]) {
-            const [x1, y1] = srcPos.split(',').map(Number);
-            const [x2, y2] = targetPos.split(',').map(Number);
-            lines.push([[x1, y1], [x2, y2]]);
+    for (const [entityName, maxLength] of [["underground-belt", 6], ["fast-underground-belt", 8], ["express-underground-belt", 10], ["turbo-underground-belt", 12]]) {
+        for (const [posKey, dir] of Object.entries(nodesInput[entityName])) {
             
-            if (setSelfFalse) nodes[targetPos][targetDir] = false;
-            if (setTargetFalse) nodes[srcPos][srcDir] = false;
+            if (dir === 0) {
+                offset = [0, 1];
+            } else if (dir === 4) {
+                offset = [1, 0];
+            } else if (dir === 8) {
+                offset = [0, -1];
+            } else if (dir === 12) {
+                offset = [-1, 0];
+            }
+
+            const [x, y] = posKey.split(',').map(Number);
+            for (let i = 1; i < maxLength; i++) {
+                const targetPos = [
+                    x + i * offset[0],
+                    y + i * offset[1]
+                ];
+                const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
+                if (targetPosKey in nodesOutput[entityName] && nodesOutput[entityName][targetPosKey] === dir) {
+                    lines.push([[x, y], targetPos]);
+                    break;
+                }
+            }
         }
     }
+    return lines;
+}
+
+function getLinesBelt(entities) {
+    const nodes = {};
+
+    // collect nodes
+    for (const e of entities) {
+        if (e.name === "transport-belt" || e.name === "fast-transport-belt" || e.name === "express-transport-belt" || e.name === "turbo-transport-belt"
+            || e.name === "underground-belt" || e.name === "fast-underground-belt" || e.name === "express-underground-belt" || e.name === "turbo-underground-belt"
+        ) {
+            const posKey = `${e.pos[0]},${e.pos[1]}`;
+            const dir = Math.floor(e.direction / 4);
+            const offset = DIRECTION_4_TO_OFFSET[dir];
+            const targetPos = [e.pos[0] + offset[0], e.pos[1] + offset[1]];
+            if (e.type === "input") {
+                nodes[posKey] = [e.pos, null];
+            } else {
+                nodes[posKey] = [e.pos, targetPos];
+            }
+        }
+        
+    }
+    
+    // create lines
+    const lines = [];
+    for (const [pos, targetPos] of Object.values(nodes)) {   
+        if (targetPos === null) continue;
+        const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
+        if (targetPosKey in nodes) {
+            lines.push([pos, targetPos]);
+        }
+    }
+
+    // Handle splitters
+    for (const e of entities) {
+        if (e.name === "splitter" || e.name === "fast-splitter" || e.name === "express-splitter" || e.name === "turbo-splitter") {
+            const dir = Math.floor(e.direction / 4);
+            const offset = DIRECTION_4_TO_OFFSET[dir];
+            const offset90 = DIRECTION_4_TO_OFFSET[(dir + 1) % 4];
+            const offset270 = DIRECTION_4_TO_OFFSET[(dir + 3) % 4];
+            const pos1 = [e.pos[0] + offset90[0]/2, e.pos[1] + offset90[1]/2];
+            const pos2 = [e.pos[0] + offset270[0]/2, e.pos[1] + offset270[1]/2];
+
+            const inputPos1 = [pos1[0] - offset[0], pos1[1] - offset[1]];
+            const inputPos2 = [pos2[0] - offset[0], pos2[1] - offset[1]];
+
+            const inputPos1Key = `${inputPos1[0]},${inputPos1[1]}`;
+            const inputPos2Key = `${inputPos2[0]},${inputPos2[1]}`;
+
+            if (inputPos1Key in nodes) {
+                lines.push([inputPos1, pos1]);
+                lines.push([inputPos1, pos2]);
+            }
+
+            if (inputPos2Key in nodes) {
+                lines.push([inputPos2, pos1]);
+                lines.push([inputPos2, pos2]);
+            }
+
+            const outputPos1 = [pos1[0] + offset[0], pos1[1] + offset[1]];
+            const outputPos2 = [pos2[0] + offset[0], pos2[1] + offset[1]];
+
+            const outputPos1Key = `${outputPos1[0]},${outputPos1[1]}`;
+            const outputPos2Key = `${outputPos2[0]},${outputPos2[1]}`;
+
+            if (outputPos1Key in nodes) {
+                lines.push([pos1, outputPos1]);
+            }
+
+            if (outputPos2Key in nodes) {
+                lines.push([pos2, outputPos2]);
+            }
+
+        }
+    }
+
     return lines;
 }
 
@@ -558,82 +577,105 @@ function getLinesInserter(entities) {
     return lines;
 }
 
+function orderPoints(pos1, pos2) {
+    // Sort the positions by comparing first x then y
+    if (pos1[0] < pos2[0]) {
+        return [pos1, pos2];
+    } else if (pos1[0] > pos2[0]) {
+        return [pos2, pos1];
+    } else {
+        // x coordinates are equal, compare y
+        return pos1[1] <= pos2[1] ? [pos1, pos2] : [pos2, pos1];
+    }
+}
+
 function getLinesPipes(entities) {
     const nodes = {};
-    const connectConditions = [];
 
     for (const e of entities) {
-        if (!(e.name in BUILDING_PIPE_CONNECTIONS)) {
+        if (!(e.name in itemToPipeTargetPositions)) {
             continue;
-        }
+        } 
 
-        let recipeDirectionChange = 0;
-        if (["assembling-machine-1", "assembling-machine-2", "assembling-machine-3"].includes(e.name)) {
-            if (!("recipe" in e)) {
-                continue;
-            }
-
-            if (e.recipe in ASSEMBLY_MACHINE_RECIPE_TO_DIR_CHANGE) {
-                recipeDirectionChange = ASSEMBLY_MACHINE_RECIPE_TO_DIR_CHANGE[e.recipe];
-            } else {
-                continue;
-            }
-        }
-
-        for (const connection of BUILDING_PIPE_CONNECTIONS[e.name]) {
-            const rotatedPos = rotate((e.direction + recipeDirectionChange) % 8, connection.pos);
-            const pos = [
-                e.pos[0] + rotatedPos[0],
-                e.pos[1] + rotatedPos[1]
-            ];
-            const dir = (e.direction + connection.direction + recipeDirectionChange) % 8;
+        for (let [connectionPos, targetPos] of itemToPipeTargetPositions[e.name]) {
             
-            const posKey = `${pos[0]},${pos[1]}`;
-            if (!(posKey in nodes)) {
-                nodes[posKey] = [false, false, false, false, false, false, false, false];
+            if (e.name === "assembling-machine-2" || e.name === "assembling-machine-3" || e.name === "biochamber") {
+                if (!(e.recipe in fluidRecipes)) {
+                    continue;
+                }
             }
-            nodes[posKey][dir] = true;
 
-            const targetPos = [
-                pos[0] + DIRECTION_OFFSET[dir][0],
-                pos[1] + DIRECTION_OFFSET[dir][1]
+
+            const dir = Math.floor(e.direction / 4)
+            connectionPos = rotate(dir, connectionPos);
+            targetPos = rotate(dir, targetPos);
+            
+
+            connectionPos = [
+                e.pos[0] + connectionPos[0],
+                e.pos[1] + connectionPos[1]
             ];
-            const targetDir = (dir + 4) % 8;
-            connectConditions.push([posKey, dir, `${targetPos[0]},${targetPos[1]}`, targetDir]);
+            targetPos = [
+                e.pos[0] + targetPos[0],
+                e.pos[1] + targetPos[1]
+            ];
+            
+            const connectionPosKey = `${connectionPos[0]},${connectionPos[1]}`;
+            if (!(connectionPosKey in nodes)) {
+                nodes[connectionPosKey] = [connectionPos, [targetPos]];
+            } else {
+                nodes[connectionPosKey][1].push(targetPos);
+            }
         }
     }
 
-    return getLinesNodesAndConnectConditions(nodes, connectConditions);
+    // create lines
+    const lines = [];
+    const linesCache = {};
+    for (const [pos, targetPosList] of Object.values(nodes)) {   
+        if (targetPosList === null) continue;
+        for (const targetPos of targetPosList) {
+            // Use the new orderPoints function
+            const [p1, p2] = orderPoints(pos, targetPos);
+            
+            // Create a unique key for the line 
+            const lineKey = `${p1[0]},${p1[1]}-${p2[0]},${p2[1]}`;
+            const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
+            
+            if (targetPosKey in nodes && !(lineKey in linesCache)) {
+                linesCache[lineKey] = true;
+                lines.push([p1, p2]);
+            }
+        }
+    }
+
+    return lines;
 }
 
 function getLinesUndergroundPipes(entities, maxLength = 11) {
     const nodes = {};
     for (const e of entities) {
         if (e.name === "pipe-to-ground") {
+            const dirOpposite = (Math.floor(e.direction / 4) + 2) % 4
             const posKey = `${e.pos[0]},${e.pos[1]}`;
-            nodes[posKey] = (e.direction + 4) % 8;
+            nodes[posKey] = [e.pos, dirOpposite]
         }
     }
 
     const lines = [];
-    for (const [posKey, dir] of Object.entries(nodes)) {
-        if (dir < 4) {
-            const [x, y] = posKey.split(',').map(Number);
-            const dirOffset = DIRECTION_OFFSET[dir];
-            
-            for (let i = 1; i < maxLength; i++) {
-                const targetPos = [
-                    x + i * dirOffset[0],
-                    y + i * dirOffset[1]
-                ];
-                const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
-                
-                if (targetPosKey in nodes && nodes[targetPosKey] === (dir + 4) % 8) {
-                    lines.push([[x, y], targetPos]);
-                    break;
-                }
+    for (const [pos, dirOpposite] of Object.values(nodes)) {
+        const offset = DIRECTION_4_TO_OFFSET[dirOpposite];
+        for (let i = 1; i < maxLength; i++) {
+            const targetPos = [
+                pos[0] + i * offset[0], 
+                pos[1] + i * offset[1]
+            ];
+            const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
+            if (targetPosKey in nodes && nodes[targetPosKey][1] === (dirOpposite + 2) % 4) {
+                lines.push([pos, targetPos]);
+                break;
             }
-        }
+        }   
     }
     return lines;
 }
@@ -641,75 +683,101 @@ function getLinesUndergroundPipes(entities, maxLength = 11) {
 function rotate(angle, pos) {
     if (angle === 0) {
         return pos;
-    } else if (angle === 2) {
+    } else if (angle === 1) {
         return [-pos[1], pos[0]];
-    } else if (angle === 4) {
+    } else if (angle === 2) {
         return [-pos[0], -pos[1]];
-    } else if (angle === 6) {
+    } else if (angle === 3) {
         return [pos[1], -pos[0]];
     }
+}
+
+function mirrorOffsetsVertical(offsets) {
+    return [[-offsets[0][0], offsets[0][1]], [-offsets[1][0], offsets[1][1]]];
+}
+
+function mirrorOffsetsHorizontal(offsets) {
+    return [[offsets[0][0], -offsets[0][1]], [offsets[1][0], -offsets[1][1]]];
+}
+
+function rotateOffsets90Degrees(offsets, numTimes = 1) {
+    for (let i = 0; i < numTimes; i++) {
+        offsets = [[-offsets[0][1], offsets[0][0]], [-offsets[1][1], offsets[1][0]]];
+    }
+    return offsets;
 }
 
 function getLinesRails(entities) {
     const lines = [];
     for (const e of entities) {
-        if (e.name === "straight-rail") {
+        if (e.name === "straight-rail" || e.name === "elevated-straight-rail") {
             const dir = e.direction;
-            if (dir % 2 === 0) {
-                const p0 = [
-                    e.pos[0] + DIRECTION_OFFSET[dir][0],
-                    e.pos[1] + DIRECTION_OFFSET[dir][1]
-                ];
-                const p1 = [
-                    e.pos[0] - DIRECTION_OFFSET[dir][0],
-                    e.pos[1] - DIRECTION_OFFSET[dir][1]
-                ];
-                lines.push([p0, p1]);
-            } else {
-                const p0 = [
-                    e.pos[0] + DIRECTION_OFFSET[(dir - 1 + 8) % 8][0],
-                    e.pos[1] + DIRECTION_OFFSET[(dir - 1 + 8) % 8][1]
-                ];
-                const p1 = [
-                    e.pos[0] + DIRECTION_OFFSET[(dir + 1) % 8][0],
-                    e.pos[1] + DIRECTION_OFFSET[(dir + 1) % 8][1]
-                ];
-                lines.push([p0, p1]);
+            let offsets = [[0, 1], [0, -1]];
+            if (dir === 2) {
+                offsets = [[-1, 1], [1, -1]];
             }
-        } 
-        else if (e.name === "curved-rail") {
+            else if (dir === 4) {
+                offsets = [[1, 0], [-1, 0]];
+            }
+            else if (dir === 6) {
+                offsets = [[1, 1], [-1, -1]];
+            }
+            lines.push([
+                [e.pos[0]+offsets[0][0], e.pos[1]+offsets[0][1]],
+                [e.pos[0]+offsets[1][0], e.pos[1]+offsets[1][1]]
+            ]);
+        } else if (e.name === "curved-rail-a" || e.name === "curved-rail-b" || e.name === "half-diagonal-rail" || e.name === "elevated-curved-rail-a" || e.name === "elevated-curved-rail-b" || e.name === "elevated-half-diagonal-rail") {
             const dir = e.direction;
-            if (dir % 2 === 0) {
-                lines.push([
-                    [
-                        e.pos[0] + rotate(dir, [-2, -3])[0],
-                        e.pos[1] + rotate(dir, [-2, -3])[1]
-                    ],
-                    e.pos
-                ]);
-                lines.push([
-                    e.pos,
-                    [
-                        e.pos[0] + rotate(dir, [1, 4])[0],
-                        e.pos[1] + rotate(dir, [1, 4])[1]
-                    ]
-                ]);
-            } else {
-                lines.push([
-                    [
-                        e.pos[0] + rotate(dir - 1, [2, -3])[0],
-                        e.pos[1] + rotate(dir - 1, [2, -3])[1]
-                    ],
-                    e.pos
-                ]);
-                lines.push([
-                    e.pos,
-                    [
-                        e.pos[0] + rotate(dir - 1, [-1, 4])[0],
-                        e.pos[1] + rotate(dir - 1, [-1, 4])[1]
-                    ]
-                ]);
+            let offsets;
+            if (e.name === "curved-rail-a" || e.name === "elevated-curved-rail-a") {
+                offsets = [[0, 3], [-1, -3]];
+            } else if (e.name === "curved-rail-b" || e.name === "elevated-curved-rail-b") {
+                offsets = [[1, 2], [-2, -2]];
+            } else if (e.name === "half-diagonal-rail" || e.name === "elevated-half-diagonal-rail") {
+                offsets = [[1, 2], [-1, -2]];
             }
+
+            let offsetsMirrorVertical = mirrorOffsetsVertical(offsets);
+            if (dir === 2) {
+                offsets = offsetsMirrorVertical;
+            }
+            else if (dir === 4) {
+                offsets = rotateOffsets90Degrees(offsets, 1);
+            }
+            else if (dir === 6) {
+                offsets = rotateOffsets90Degrees(offsetsMirrorVertical, 1);
+            }
+            else if (dir === 8) {
+                offsets = rotateOffsets90Degrees(offsets, 2);
+            }
+            else if (dir === 10) {
+                offsets = rotateOffsets90Degrees(offsetsMirrorVertical, 2);
+            }
+            else if (dir === 12) {
+                offsets = rotateOffsets90Degrees(offsets, 3);
+            }
+            else if (dir === 14) {
+                offsets = rotateOffsets90Degrees(offsetsMirrorVertical, 3);
+            }
+            lines.push([
+                [e.pos[0]+offsets[0][0], e.pos[1]+offsets[0][1]],
+                e.pos
+            ]);
+            lines.push([
+                e.pos,
+                [e.pos[0]+offsets[1][0], e.pos[1]+offsets[1][1]]
+            ]);
+        }
+        else if (e.name === "rail-ramp") {
+            const dir = e.direction;
+            let offsets = [[-8, 0], [8, 0]];
+            if (dir % 8 === 0) {
+                offsets = [[0, -8], [0, 8]];
+            }
+            lines.push([
+                [e.pos[0]+offsets[0][0], e.pos[1]+offsets[0][1]],
+                [e.pos[0]+offsets[1][0], e.pos[1]+offsets[1][1]]
+            ]);
         }
     }
     return lines;
@@ -742,46 +810,4 @@ function getLinesElectricity(entities) {
     return lines;
 }
 
-function getLinesUndergroundBelt(entities, entityName = null, maxLength = null) {
-    if (entityName === null && maxLength === null) {
-        const lines = getLinesUndergroundBelt(entities, "underground-belt", 6);
-        lines.push(...getLinesUndergroundBelt(entities, "fast-underground-belt", 8));
-        lines.push(...getLinesUndergroundBelt(entities, "express-underground-belt", 10));
-        return lines;
-    }
 
-    const nodesInput = {};
-    const nodesOutput = {};
-    
-    for (const e of entities) {
-        if (e.name === entityName) {
-            const posKey = `${e.pos[0]},${e.pos[1]}`;
-            if (e.type === "input") {
-                nodesInput[posKey] = e.direction;
-            } else {
-                nodesOutput[posKey] = e.direction;
-            }
-        }
-    }
-
-    const lines = [];
-    for (const [posKey, dir] of Object.entries(nodesInput)) {
-        const [x, y] = posKey.split(',').map(Number);
-        const dirOffset = DIRECTION_OFFSET[dir];
-        
-        for (let i = 1; i < maxLength; i++) {
-            const targetPos = [
-                x + i * dirOffset[0],
-                y + i * dirOffset[1]
-            ];
-            const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
-            
-            if (targetPosKey in nodesOutput && nodesOutput[targetPosKey] === dir) {
-                lines.push([[x, y], targetPos]);
-                break;
-            }
-        }
-    }
-
-    return lines;
-}

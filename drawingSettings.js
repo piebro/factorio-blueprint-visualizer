@@ -1,16 +1,21 @@
 const EXAMPLE_SETTINGS = [
     ['background', '#a2aebb'],
-    ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['rails', {}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['pipes', {}],
+    ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
+    ['bbox', {'bbox-scale': 1, 'deny': [], 'fill': 'none', 'stroke': '#ffba08'}],
+    
+    ['pipes', {'stroke-opacity': 0.8}],
     ['underground-pipes', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['drills'], 'fill': '#ffba08', 'stroke': 'none'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#d00000', 'stroke': 'none'}],
-    ['bbox', {'allow': ['furnaces', 'electricity-generators', 'boiler'], 'fill': '#1c3144', 'stroke': 'none'}],
-    ['bbox', {'allow': ['lab'], 'fill': '#1c3144', 'stroke': 'none'}],
-    ['bbox', {'deny': ['transportation', 'electricity', 'inserters'], 'fill': 'none'}],
+    // ['bbox', {'bbox-scale': 1, 'allow': ['transportation'], 'fill': 'none', 'stroke': '#ffba08', 'stroke-width': 0.1}],
+    // ['belts', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
+    // ['rails', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
+    // ['underground-belts', {'stroke-opacity': 0.6}],
+    
+    // ['underground-pipes', {'stroke-opacity': 0.6}],
+    
+    
+    // ['bbox', {'allow': ['furnaces', 'electricity-generators', 'boiler'], 'fill': '#1c3144', 'stroke': 'none'}],
+    // ['bbox', {'allow': ['lab'], 'fill': '#1c3144', 'stroke': 'none'}],
+    // ['bbox', {'deny': ['transportation', 'electricity', 'inserters'], 'fill': 'none'}],
 ];
 
 const PREDEFINED_COLOR_PALETTES = [
