@@ -301,8 +301,8 @@ function preProcessSettings(settings) {
 function resolveBuildingGenericNames(buildNameList) {
     const buildingNameListWithoutGenericTerms = [];
     for (const name of buildNameList) {
-        if (name in BUILDING_GENERIC_TERMS) {
-            buildingNameListWithoutGenericTerms.push(...BUILDING_GENERIC_TERMS[name]);
+        if (name in buildingGenericTerms) {
+            buildingNameListWithoutGenericTerms.push(...buildingGenericTerms[name]);
         } else {
             buildingNameListWithoutGenericTerms.push(name);
         }
@@ -698,11 +698,7 @@ function getLinesUndergroundPipes(entities, maxLength = 11) {
 
 
 
-
-
-
 function getLinesRails(entities) {
-
     function mirrorOffsetsVertical(offsets) {
         return [[-offsets[0][0], offsets[0][1]], [-offsets[1][0], offsets[1][1]]];
     }

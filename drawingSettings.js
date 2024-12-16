@@ -1,7 +1,7 @@
 const EXAMPLE_SETTINGS = [
     ['background', '#a2aebb'],
     ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
-    ['bbox', {'bbox-scale': 1, 'deny': [], 'fill': 'none', 'stroke': '#ffba08'}],
+    ['bbox', {'bbox-scale': 1, 'deny': ["labs"], 'fill': 'none', 'stroke': '#ffba08'}],
     
     ['pipes', {'stroke-opacity': 0.8}],
     ['heat-pipes', {'stroke-opacity': 0.8}],
