@@ -174,6 +174,14 @@ const itemToPipeTargetPositions = {
 }
 
 
+const itemToHeatTargetPositions = {
+    "heat-exchanger": [[[0, 0.5], [0, 1.5]]],
+    "heat-pipe": [[[0, 0], [0, -1]], [[0, 0], [1, 0]], [[0, 0], [0, 1]], [[0, 0], [-1, 0]]],
+    "heating-tower": [[[0, -1], [0, -2]], [[1, 0], [2, 0]], [[0, 1], [0, 2]], [[-1, 0], [-2, 0]]],
+    "nuclear-reactor": [[[-2, -2], [-2, -3]], [[0, -2], [0, -3]], [[2, -2], [2, -3]], [[2, -2], [3, -2]], [[2, 0], [3, 0]], [[2, 2], [3, 2]], [[2, 2], [2, 3]], [[0, 2], [0, 3]], [[-2, 2], [-2, 3]], [[-2, 2], [-3, 2]], [[-2, 0], [-3, 0]], [[-2, -2], [-3, -2]]],
+}
+
+
 const fluidRecipes = {
     "acid-neutralisation": true,
     "advanced-oil-processing": true,

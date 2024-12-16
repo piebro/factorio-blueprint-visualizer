@@ -43,6 +43,7 @@ for extra_item in ["straight-rail", "half-diagonal-rail", "curved-rail-a", "curv
 DIRECTION_4_TO_OFFSET = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
 item_to_pipe_target_positions = {}
+item_to_heat_target_positions = {}
 
 # Create a dictionary of all available items from factorio_data (all nested keys with their values)
 for key1, data1 in factorio_json.items():
@@ -67,17 +68,29 @@ for key1, data1 in factorio_json.items():
                 
                 if key2 not in item_to_pipe_target_positions:
                     item_to_pipe_target_positions[key2] = []
-                # if "pipe_connection_target_positions" not in items[key2]:
-                #     items[key2]["pipe_connection_target_positions"] = []
+
                 for pipe_connection in pipe_connections:
-                    if key2 == "pumpjack": # this is a special case, I'm not sure why pumpjack has multiple positions
+                    if key2 == "pumpjack": # TODO: this is a special case, I'm not sure why pumpjack has multiple positions
                         pipe_connection["position"] = pipe_connection["positions"][0]
 
                     offset = DIRECTION_4_TO_OFFSET[pipe_connection["direction"]//4]
                     pos = pipe_connection["position"]
                     target_position = [pos[0] + offset[0], pos[1] + offset[1]]
-                    # items[key2]["pipe_connection_target_positions"].append(target_position)
                     item_to_pipe_target_positions[key2].append([pos, target_position])
+
+            # Process heat connections from both energy_source and heat_buffer
+            for heat_source in ['energy_source', 'heat_buffer']:
+                if (heat_source in data2 and isinstance(data2[heat_source], dict) and 
+                    "connections" in data2[heat_source]):
+                    heat_connections = data2[heat_source]["connections"]
+                    if key2 not in item_to_heat_target_positions:
+                        item_to_heat_target_positions[key2] = []
+                    
+                    for connection in heat_connections:
+                        offset = DIRECTION_4_TO_OFFSET[connection["direction"]//4]
+                        pos = connection["position"]
+                        target_position = [pos[0] + offset[0], pos[1] + offset[1]]
+                        item_to_heat_target_positions[key2].append([pos, target_position])
 
 # Remove items without collision box
 items = {name: data for name, data in items.items() if "collision_box" in data}
@@ -118,6 +131,12 @@ js_output.append("}")
 # Add item_to_pipe_target_positions to js_output
 js_output.append("\n\nconst itemToPipeTargetPositions = {")
 for item_name, positions in sorted(item_to_pipe_target_positions.items()):
+    js_output.append(f'    "{item_name}": {str(positions)},')
+js_output.append("}")
+
+# Add item_to_heat_target_positions to js_output
+js_output.append("\n\nconst itemToHeatTargetPositions = {")
+for item_name, positions in sorted(item_to_heat_target_positions.items()):
     js_output.append(f'    "{item_name}": {str(positions)},')
 js_output.append("}")
 

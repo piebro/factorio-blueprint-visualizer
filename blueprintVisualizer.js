@@ -213,7 +213,7 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
 
         else if (settingName === "pipes") {
             if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesPipes(blueprint.entities);
+                blueprint.cache[settingName] = getLinesPipesOrHeatPipes(blueprint.entities, itemToPipeTargetPositions);
             }
             drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
@@ -221,6 +221,13 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
         else if (settingName === "underground-pipes") {
             if (!(settingName in blueprint.cache)) {
                 blueprint.cache[settingName] = getLinesUndergroundPipes(blueprint.entities);
+            }
+            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
+        }
+
+        else if (settingName === "heat-pipes") {
+            if (!(settingName in blueprint.cache)) {
+                blueprint.cache[settingName] = getLinesPipesOrHeatPipes(blueprint.entities, itemToHeatTargetPositions);
             }
             drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
@@ -589,28 +596,37 @@ function orderPoints(pos1, pos2) {
     }
 }
 
-function getLinesPipes(entities) {
+function getLinesPipesOrHeatPipes(entities, targetPositionsMap) {
+    function rotate(angle, pos) {
+        if (angle === 0) {
+            return pos;
+        } else if (angle === 1) {
+            return [-pos[1], pos[0]];
+        } else if (angle === 2) {
+            return [-pos[0], -pos[1]];
+        } else if (angle === 3) {
+            return [pos[1], -pos[0]];
+        }
+    }
+
     const nodes = {};
 
     for (const e of entities) {
-        if (!(e.name in itemToPipeTargetPositions)) {
+        if (!(e.name in targetPositionsMap)) {
             continue;
         } 
-
-        for (let [connectionPos, targetPos] of itemToPipeTargetPositions[e.name]) {
+        for (let [connectionPos, targetPos] of targetPositionsMap[e.name]) {
             
+            // Special check for assembling machines with fluid recipes
             if (e.name === "assembling-machine-2" || e.name === "assembling-machine-3" || e.name === "biochamber") {
                 if (!(e.recipe in fluidRecipes)) {
                     continue;
                 }
             }
-
-
             const dir = Math.floor(e.direction / 4)
             connectionPos = rotate(dir, connectionPos);
             targetPos = rotate(dir, targetPos);
             
-
             connectionPos = [
                 e.pos[0] + connectionPos[0],
                 e.pos[1] + connectionPos[1]
@@ -680,34 +696,24 @@ function getLinesUndergroundPipes(entities, maxLength = 11) {
     return lines;
 }
 
-function rotate(angle, pos) {
-    if (angle === 0) {
-        return pos;
-    } else if (angle === 1) {
-        return [-pos[1], pos[0]];
-    } else if (angle === 2) {
-        return [-pos[0], -pos[1]];
-    } else if (angle === 3) {
-        return [pos[1], -pos[0]];
-    }
-}
 
-function mirrorOffsetsVertical(offsets) {
-    return [[-offsets[0][0], offsets[0][1]], [-offsets[1][0], offsets[1][1]]];
-}
 
-function mirrorOffsetsHorizontal(offsets) {
-    return [[offsets[0][0], -offsets[0][1]], [offsets[1][0], -offsets[1][1]]];
-}
 
-function rotateOffsets90Degrees(offsets, numTimes = 1) {
-    for (let i = 0; i < numTimes; i++) {
-        offsets = [[-offsets[0][1], offsets[0][0]], [-offsets[1][1], offsets[1][0]]];
-    }
-    return offsets;
-}
+
 
 function getLinesRails(entities) {
+
+    function mirrorOffsetsVertical(offsets) {
+        return [[-offsets[0][0], offsets[0][1]], [-offsets[1][0], offsets[1][1]]];
+    }
+    
+    function rotateOffsets90Degrees(offsets, numTimes = 1) {
+        for (let i = 0; i < numTimes; i++) {
+            offsets = [[-offsets[0][1], offsets[0][0]], [-offsets[1][1], offsets[1][0]]];
+        }
+        return offsets;
+    }
+
     const lines = [];
     for (const e of entities) {
         if (e.name === "straight-rail" || e.name === "elevated-straight-rail") {

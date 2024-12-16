@@ -4,6 +4,7 @@ const EXAMPLE_SETTINGS = [
     ['bbox', {'bbox-scale': 1, 'deny': [], 'fill': 'none', 'stroke': '#ffba08'}],
     
     ['pipes', {'stroke-opacity': 0.8}],
+    ['heat-pipes', {'stroke-opacity': 0.8}],
     ['underground-pipes', {'stroke-opacity': 0.6}],
     // ['bbox', {'bbox-scale': 1, 'allow': ['transportation'], 'fill': 'none', 'stroke': '#ffba08', 'stroke-width': 0.1}],
     // ['belts', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
