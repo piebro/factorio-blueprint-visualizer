@@ -5,6 +5,13 @@ const DIRECTION_OFFSET = [
 
 const DIRECTION_4_TO_OFFSET = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
+const WireType = {
+    GREEN_WIRE: 1,
+    RED_WIRE: 2, 
+    COPPER_WIRE: 5
+};
+
+
 function getBlueprintList(encodedBlueprintStr) {
   // Remove the initial "0" character from the blueprint string
   const strippedStr = encodedBlueprintStr.slice(1);
@@ -46,21 +53,27 @@ function getLabelAndBlueprint(blueprintNames, blueprintJsons, rawBlueprintJson) 
   }
 }
 
-function getBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {
-    // Convert blueprint to string and encode
+function getBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {   
     const blueprintJsonStr = JSON.stringify({ blueprint: blueprintJson });
     const compressedData = pako.deflate(blueprintJsonStr, { level: 9 });
-    
-    // Convert to base64
-    const encodedBlueprintStr = btoa(
-        String.fromCharCode.apply(null, compressedData)
-    );
-    
-    const entities = getSimplifiedEntities(blueprintJson);
-    const [bboxWidth, bboxHeight, posOffset] = getSizeAndNormalizeEntities(entities, bboxBorderNWSE);
-    
+    const encodedBlueprintStr =  btoa(String.fromCharCode.apply(null, compressedData));
+
+    if (!("entities" in blueprintJson)) {
+        blueprintJson.entities = []
+    }
+    if (!("wires" in blueprintJson)) {
+        blueprintJson.wires = [];
+    }
+    if (!("tiles" in blueprintJson)) {
+        blueprintJson.tiles = [];
+    }
+    getSimplifiedEntities(blueprintJson.entities);
+    const [bboxWidth, bboxHeight, posOffset] = getSvgSizeAndPosOffset(blueprintJson.entities, bboxBorderNWSE);
+
     return {
-        entities: entities,
+        entities: blueprintJson.entities,
+        wires: blueprintJson.wires,
+        tiles: blueprintJson.tiles,
         bboxWidth: bboxWidth,
         bboxHeight: bboxHeight,
         posOffset: posOffset,
@@ -69,24 +82,14 @@ function getBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {
     };
 }
 
-function getSimplifiedEntities(blueprintJson) {
-    // Create deep copy of blueprint
-    blueprintJson = JSON.parse(JSON.stringify(blueprintJson));
-    
-    if (!("entities" in blueprintJson)) {
-        return [];
-    }
-
-    directions = {}
-    for (const e of blueprintJson.entities) {
+function getSimplifiedEntities(blueprintJsonEntities) {
+    for (const e of blueprintJsonEntities) {
         // Set default direction if not present
         if (!("direction" in e)) {
             e.direction = 0;
+        } else {
+            e.direction = parseInt(e.direction);
         }
-        e.direction = parseInt(e.direction);
-        
-        // Count directions
-        directions[e.direction] = (directions[e.direction] || 0) + 1;
 
         // Convert position to array format
         e.pos = [parseFloat(e.position.x), parseFloat(e.position.y)];
@@ -102,18 +105,16 @@ function getSimplifiedEntities(blueprintJson) {
                 [-sizeX/2, -sizeY/2], // top-left
                 [sizeX/2, -sizeY/2],  // top-right
                 [sizeX/2, sizeY/2],   // bottom-right
-                [-sizeX/2, sizeY/2]   // bottom-left
+                [-sizeX/2, sizeY/2]    // bottom-left
             ].map(([x, y]) => [
                 x * cos - y * sin + e.pos[0],
                 x * sin + y * cos + e.pos[1]
             ]);
         }
     }
-
-    return blueprintJson.entities;
 }
 
-function getSizeAndNormalizeEntities(entities, bboxBorderNWSE) {
+function getSvgSizeAndPosOffset(entities, bboxBorderNWSE) {
     if (entities.length === 0) {
         return [1, 1];
     }
@@ -136,24 +137,7 @@ function getSizeAndNormalizeEntities(entities, bboxBorderNWSE) {
 
     const bboxWidth = bbox[2] - bbox[0];
     const bboxHeight = bbox[3] - bbox[1];
-
-    // Normalize entity positions
-    // for (const e of entities) {
-    //     if ("pos" in e) {
-    //         e.pos[0] = Math.round((e.pos[0] - bbox[0]) * 10000) / 10000;
-    //         e.pos[1] = Math.round((e.pos[1] - bbox[1]) * 10000) / 10000;
-    //     }
-    //     if ("bbox" in e) {
-    //         // Update each point of the bbox
-    //         e.bbox = e.bbox.map(point => [
-    //             point[0] - bbox[0],
-    //             point[1] - bbox[1]
-    //         ]);
-    //     }
-    // }
-
     const posOffset = [-bbox[0], -bbox[1]];
-
     return [bboxWidth, bboxHeight, posOffset];
 }
 
@@ -180,96 +164,51 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
     const dwg = getDrawing(blueprint.bboxWidth, blueprint.bboxHeight, background, metadataStr, svgWidthInMm, aspectRatio);
 
     for (const [settingName, settingOptions] of settings) {
-        if (settingName === "background") {
-            continue;
-        }
-
-        else if (settingName === "svg") {
-            appendGroup(dwg, settingOptions, ["bbox-scale", "bbox-rx", "bbox-ry"]);
-            for (const bboxPropKey of ["bbox-scale", "bbox-rx", "bbox-ry"]) {
-                if (bboxPropKey in settingOptions) {
-                    defaultBboxProp[bboxPropKey.slice(5)] = settingOptions[bboxPropKey];
+        if (settingName === "background" || settingName === "svg" || settingName === "bbox") {
+            if (settingName === "svg") {
+                appendGroup(dwg, settingOptions, ["bbox-scale", "bbox-rx", "bbox-ry"]);
+                for (const bboxPropKey of ["bbox-scale", "bbox-rx", "bbox-ry"]) {
+                    if (bboxPropKey in settingOptions) {
+                        defaultBboxProp[bboxPropKey.slice(5)] = settingOptions[bboxPropKey];
+                    }
+                }
+            } else if (settingName === "bbox") {
+                drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, settingOptions, defaultBboxProp);
+            }
+        } else {
+            let lines;
+            if (!(settingName in blueprint.cache)) {
+                if (settingName === "belts") {
+                    lines = getLinesBelt(blueprint.entities);
+                } else if (settingName === "underground-belts") {
+                    lines = getLinesUndergroundBelt(blueprint.entities);
+                } else if (settingName === "pipes") {
+                    lines = getLinesPipesOrHeatPipes(blueprint.entities, itemToPipeTargetPositions);
+                } else if (settingName === "underground-pipes") {
+                    lines = getLinesUndergroundPipes(blueprint.entities);
+                } else if (settingName === "heat-pipes") {
+                    lines = getLinesPipesOrHeatPipes(blueprint.entities, itemToHeatTargetPositions);
+                } else if (settingName === "inserters") {
+                    lines = getLinesInserter(blueprint.entities);
+                } else if (settingName === "rails") {
+                    lines = getLinesRails(blueprint.entities);
+                } else if (settingName === "power-lines") {
+                    lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.COPPER_WIRE);
+                } else if (settingName === "green-wire-lines") {
+                    lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.GREEN_WIRE);
+                } else if (settingName === "red-wire-lines") {
+                    lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.RED_WIRE);
+                } else if (settingName === "tiles") {
+                    lines = drawLinesTiles(blueprint.tiles);
+                } else {
+                    console.log("unknown setting name:", settingName);
+                    continue
                 }
             }
-        }
-
-        else if (settingName === "bbox") {
-            drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, settingOptions, defaultBboxProp);
-        }
-
-        else if (settingName === "belts") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesBelt(blueprint.entities);
-            }
+            blueprint.cache[settingName] = lines;
             drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
         }
 
-        else if (settingName === "underground-belts") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesUndergroundBelt(blueprint.entities);
-            }
-            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-        }
-
-        else if (settingName === "pipes") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesPipesOrHeatPipes(blueprint.entities, itemToPipeTargetPositions);
-            }
-            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-        }
-
-        else if (settingName === "underground-pipes") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesUndergroundPipes(blueprint.entities);
-            }
-            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-        }
-
-        else if (settingName === "heat-pipes") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesPipesOrHeatPipes(blueprint.entities, itemToHeatTargetPositions);
-            }
-            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-        }
-
-        else if (settingName === "inserters") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesInserter(blueprint.entities);
-            }
-            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-        }
-
-        else if (settingName === "rails") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesRails(blueprint.entities);
-            }
-            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-        }
-
-        else if (settingName === "electricity") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesElectricity(blueprint.entities);
-            }
-            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-        }
-
-        else if (settingName === "red-circuits") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesCircuit(blueprint.entities, "red");
-            }
-            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-        }
-
-        else if (settingName === "green-circuits") {
-            if (!(settingName in blueprint.cache)) {
-                blueprint.cache[settingName] = getLinesCircuit(blueprint.entities, "green");
-            }
-            drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-        }
-
-        else {
-            console.log("unknown setting name:", settingName);
-        }
     }
 
     for (let i = 0; i < dwg.groupsToClose; i++) {
@@ -558,42 +497,17 @@ function getLinesBelt(entities) {
 function getLinesInserter(entities) {
     const lines = [];
     for (const e of entities) {
-        if (["burner-inserter", "inserter", "fast-inserter", "filter-inserter", "stack-inserter", "stack-filter-inserter"].includes(e.name)) {
-            const p0 = [
-                e.pos[0] + DIRECTION_OFFSET[e.direction][0],
-                e.pos[1] + DIRECTION_OFFSET[e.direction][1]
-            ];
-            const p1 = [
-                e.pos[0] - DIRECTION_OFFSET[e.direction][0],
-                e.pos[1] - DIRECTION_OFFSET[e.direction][1]
-            ];
-            lines.push([p0, p1]);
-        } 
-        else if (e.name === "long-handed-inserter") {
-            const p0 = [
-                e.pos[0] + 2 * DIRECTION_OFFSET[e.direction][0],
-                e.pos[1] + 2 * DIRECTION_OFFSET[e.direction][1]
-            ];
-            const p1 = [
-                e.pos[0] - 2 * DIRECTION_OFFSET[e.direction][0],
-                e.pos[1] - 2 * DIRECTION_OFFSET[e.direction][1]
-            ];
-            lines.push([p0, p1]);
+        if (["bulk-inserter", "burner-inserter", "fast-inserter", "inserter", "long-handed-inserter", "stack-inserter"].includes(e.name)) {
+            const dir = Math.floor(e.direction / 4);
+            const offset = DIRECTION_4_TO_OFFSET[dir];
+            const inserterLength = (e.name === "long-handed-inserter" ? 2 : 1);
+            lines.push([
+                [e.pos[0] + inserterLength * offset[0], e.pos[1] + inserterLength * offset[1]],
+                [e.pos[0] + inserterLength * -offset[0], e.pos[1] + inserterLength * -offset[1]]
+            ]);
         }
     }
     return lines;
-}
-
-function orderPoints(pos1, pos2) {
-    // Sort the positions by comparing first x then y
-    if (pos1[0] < pos2[0]) {
-        return [pos1, pos2];
-    } else if (pos1[0] > pos2[0]) {
-        return [pos2, pos1];
-    } else {
-        // x coordinates are equal, compare y
-        return pos1[1] <= pos2[1] ? [pos1, pos2] : [pos2, pos1];
-    }
 }
 
 function getLinesPipesOrHeatPipes(entities, targetPositionsMap) {
@@ -606,6 +520,18 @@ function getLinesPipesOrHeatPipes(entities, targetPositionsMap) {
             return [-pos[0], -pos[1]];
         } else if (angle === 3) {
             return [pos[1], -pos[0]];
+        }
+    }
+
+    function orderPoints(pos1, pos2) {
+        // Sort the positions by comparing first x then y
+        if (pos1[0] < pos2[0]) {
+            return [pos1, pos2];
+        } else if (pos1[0] > pos2[0]) {
+            return [pos2, pos1];
+        } else {
+            // x coordinates are equal, compare y
+            return pos1[1] <= pos2[1] ? [pos1, pos2] : [pos2, pos1];
         }
     }
 
@@ -696,8 +622,6 @@ function getLinesUndergroundPipes(entities, maxLength = 11) {
     return lines;
 }
 
-
-
 function getLinesRails(entities) {
     function mirrorOffsetsVertical(offsets) {
         return [[-offsets[0][0], offsets[0][1]], [-offsets[1][0], offsets[1][1]]];
@@ -785,31 +709,29 @@ function getLinesRails(entities) {
     return lines;
 }
 
-function getLinesCircuit(entities, circuitColor) {
+function getLinesWire(entities, wires, wireType) {
     const lines = [];
-    for (const e of entities) {
-        if ("connections" in e) {
-            const connectedEntityIds = [];
-            if ("1" in e.connections && circuitColor in e.connections["1"]) {
-                connectedEntityIds.push(...e.connections["1"][circuitColor].map(i => i.entity_id));
-            }
-            if ("2" in e.connections && circuitColor in e.connections["2"]) {
-                connectedEntityIds.push(...e.connections["2"][circuitColor].map(i => i.entity_id));
-            }
-            lines.push(...connectedEntityIds.map(n => [e.pos, entities[n-1].pos]));
+    for (const [w1, w2, w3, w4] of wires) {
+        console.log(w1, w2, w3, w4)
+        if (w2 === wireType || w4 === wireType) {
+            lines.push([entities[w1-1].pos, entities[w3-1].pos]);
         }
     }
     return lines;
 }
 
-function getLinesElectricity(entities) {
-    const lines = [];
-    for (const e of entities) {
-        if ("neighbours" in e) {
-            lines.push(...e.neighbours.map(n => [e.pos, entities[n-1].pos]));
+function drawLinesTiles(tiles) {
+    console.log(tiles[0])
+    const lines = []    
+    for (const tile of tiles) {
+        // console.log(tile)
+        if (tile.name === "space-platform-foundation") {
+            const x = tile.position.x
+            const y = tile.position.y
+            lines.push([[x, y], [x+1, y+1]])
         }
     }
-    return lines;
+    return lines
 }
 
 

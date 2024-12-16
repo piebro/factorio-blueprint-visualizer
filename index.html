@@ -6,9 +6,8 @@
   <meta name="description" content="Online tool to artfully visualize Factorio Blueprints.">
   <title>Factorio Blueprint Visualizer</title>
   <link rel='shortcut icon' type='image/x-icon' href='website/favicon.ico'/>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
   <!-- <script defer data-domain="piebro.github.io/factorio-blueprint-visualizer" src="https://plausible.io/js/plausible.js"></script> -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>  <!-- for deflating the blueprint string -->
   <script src="startExampleBlueprintString.js"></script>
   <script src="entityProperties.js"></script>
   <script src="drawingSettings.js"></script>
@@ -61,7 +60,7 @@ async function loadDefaultBlueprint() {
 
 function newBlueprintString(blueprintString){
   [currentBlueprintNames, currentBlueprintJsons] = getBlueprintList(blueprintString);
-  currentBlueprint = getBlueprint(currentBlueprintJsons[0])
+  currentBlueprint = getBlueprint(currentBlueprintJsons[7])
 
   getCurrentBlueprintEntityCount(currentBlueprint)
 
@@ -83,8 +82,6 @@ function newBlueprintString(blueprintString){
       selection.appendChild(option)
     }
     document.getElementById("button-container").appendChild(selection)
-    selection.selectedIndex = 3;
-    blueprintSelectionOnChange(selection);
   }
 }
 
@@ -96,7 +93,7 @@ async function setup(){
   const defaultBlueprint = await loadDefaultBlueprint();
   newBlueprintString(defaultBlueprint);
   showBlueprint();
-  console.log(getCurrentBlueprintEntityCount(currentBlueprint))
+  // console.log(getCurrentBlueprintEntityCount(currentBlueprint))
 
   document.addEventListener('keyup', onKeyUp);
 }

@@ -1,4 +1,5 @@
 import json
+from math import ceil
 
 DIRECTION_4_TO_OFFSET = [[0, -1], [1, 0], [0, 1], [-1, 0]]
 
@@ -202,8 +203,8 @@ def format_item_entry(item_name, item_data):
     
     props = {
         "size": [
-            round(item_data['collision_box'][1][0] - item_data['collision_box'][0][0]),
-            round(item_data['collision_box'][1][1] - item_data['collision_box'][0][1])
+            ceil(item_data['collision_box'][1][0] - item_data['collision_box'][0][0]),
+            ceil(item_data['collision_box'][1][1] - item_data['collision_box'][0][1])
         ],
         "selection_size": [
             item_data['selection_box'][1][0] - item_data['selection_box'][0][0],

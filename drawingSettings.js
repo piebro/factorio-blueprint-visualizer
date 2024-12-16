@@ -6,6 +6,11 @@ const EXAMPLE_SETTINGS = [
     ['pipes', {'stroke-opacity': 0.8}],
     ['heat-pipes', {'stroke-opacity': 0.8}],
     ['underground-pipes', {'stroke-opacity': 0.6}],
+    ['power-lines', {'stroke-opacity': 0.8}],
+    ['green-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#00ff08'}],
+    ['red-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#ff0008'}],
+    ['inserters', {}],
+    ['tiles', {}],
     // ['bbox', {'bbox-scale': 1, 'allow': ['transportation'], 'fill': 'none', 'stroke': '#ffba08', 'stroke-width': 0.1}],
     // ['belts', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
     // ['rails', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
@@ -258,12 +263,10 @@ const RANDOM_SETTING_LIST = [
   ]
 ];
 
-// Helper function to deep clone objects/arrays
 function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
-// Convert Python's settings_change_property
 function settingsChangeProperty(settings, propertyName, changeFunc) {
   settings = deepCopy(settings);
   for (let s of settings) {
@@ -275,7 +278,6 @@ function settingsChangeProperty(settings, propertyName, changeFunc) {
   return settings;
 }
 
-// Convert Python's settings_change_colors
 function settingsChangeColors(settings, colorCount = null, changeBackground = true) {
   settings = deepCopy(settings);
   const originalColors = {};
@@ -331,7 +333,6 @@ function settingsChangeColors(settings, colorCount = null, changeBackground = tr
   return settings;
 }
 
-// Convert Python's get_random_settings
 function getRandomSettings() {
   let settings = deepCopy(RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)]);
 
@@ -365,7 +366,6 @@ function getRandomSettings() {
   return settings;
 }
 
-// Helper function to shuffle arrays (equivalent to numpy.random.shuffle)
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
