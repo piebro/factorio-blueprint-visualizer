@@ -1,6 +1,7 @@
 const EXAMPLE_SETTINGS = [
     ['background', '#a2aebb'],
     ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
+    ['tiles', {'fill': '#a2aefb', 'stroke-width': 1}],
     ['bbox', {'bbox-scale': 1, 'deny': ["labs"], 'fill': 'none', 'stroke': '#ffba08'}],
     
     ['pipes', {'stroke-opacity': 0.8}],
@@ -13,7 +14,7 @@ const EXAMPLE_SETTINGS = [
     ['green-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#00ff08'}],
     ['red-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#ff0008'}],
     ['inserters', {}],
-    ['tiles', {}],
+    
     // ['bbox', {'bbox-scale': 1, 'allow': ['transportation'], 'fill': 'none', 'stroke': '#ffba08', 'stroke-width': 0.1}],
     // ['belts', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
     // ['rails', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
