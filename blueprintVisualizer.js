@@ -1,8 +1,3 @@
-const DIRECTION_OFFSET = [
-    [0, -1], [1, -1], [1, 0], [1, 1], 
-    [0, 1], [-1, 1], [-1, 0], [-1, -1]
-];
-
 const DIRECTION_4_TO_OFFSET = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
 const WireType = {
@@ -11,49 +6,47 @@ const WireType = {
     COPPER_WIRE: 5
 };
 
-
 function getBlueprintList(encodedBlueprintStr) {
-  // Remove the initial "0" character from the blueprint string
-  const strippedStr = encodedBlueprintStr.slice(1);
-  
-  // Decode base64 to bytes
-  const decodedData = atob(strippedStr);
-  
-  // Convert decoded string to Uint8Array for decompression
-  const byteArray = new Uint8Array(decodedData.length);
-  for (let i = 0; i < decodedData.length; i++) {
-    byteArray[i] = decodedData.charCodeAt(i);
-  }
-  
-  // Decompress using pako (zlib implementation)
-  const decompressedData = pako.inflate(byteArray, { to: 'string' });
-  
-  // Parse JSON
-  const rawBlueprintJson = JSON.parse(decompressedData);
-  
-  const blueprintNames = [];
-  const blueprintJsons = [];
-  
-  getLabelAndBlueprint(blueprintNames, blueprintJsons, rawBlueprintJson);
-  
-  return [blueprintNames, blueprintJsons];
-}
-
-function getLabelAndBlueprint(blueprintNames, blueprintJsons, rawBlueprintJson) {
-  if ("blueprint" in rawBlueprintJson) {
-    blueprintNames.push(
-      rawBlueprintJson.blueprint.label || ""
-    );
-    blueprintJsons.push(rawBlueprintJson.blueprint);
-  } 
-  else if ("blueprint_book" in rawBlueprintJson) {
-    for (const rawBlueprint of rawBlueprintJson.blueprint_book.blueprints) {
-      getLabelAndBlueprint(blueprintNames, blueprintJsons, rawBlueprint);
+    // Remove the initial "0" character from the blueprint string
+    const strippedStr = encodedBlueprintStr.slice(1);
+    
+    // Decode base64 to bytes
+    const decodedData = atob(strippedStr);
+    
+    // Convert decoded string to Uint8Array for decompression
+    const byteArray = new Uint8Array(decodedData.length);
+    for (let i = 0; i < decodedData.length; i++) {
+        byteArray[i] = decodedData.charCodeAt(i);
     }
-  }
+    
+    // Decompress using pako (zlib implementation)
+    const decompressedData = pako.inflate(byteArray, { to: 'string' });
+    
+    // Parse JSON
+    const rawBlueprintJson = JSON.parse(decompressedData);
+    
+    const blueprintNames = [];
+    const blueprintJsons = [];
+    getLabelsAndBlueprints(blueprintNames, blueprintJsons, rawBlueprintJson);
+    
+    return [blueprintNames, blueprintJsons];
 }
 
-function getBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {   
+function getLabelsAndBlueprints(blueprintNames, blueprintJsons, rawBlueprintJson) {
+    if ("blueprint" in rawBlueprintJson) {
+      blueprintNames.push(
+        rawBlueprintJson.blueprint.label || ""
+      );
+      blueprintJsons.push(rawBlueprintJson.blueprint);
+    } 
+    else if ("blueprint_book" in rawBlueprintJson) {
+      for (const rawBlueprint of rawBlueprintJson.blueprint_book.blueprints) {
+        getLabelsAndBlueprints(blueprintNames, blueprintJsons, rawBlueprint);
+      }
+    }
+}
+
+function processBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {   
     const blueprintJsonStr = JSON.stringify({ blueprint: blueprintJson });
     const compressedData = pako.deflate(blueprintJsonStr, { level: 9 });
     const encodedBlueprintStr =  btoa(String.fromCharCode.apply(null, compressedData));
@@ -149,6 +142,47 @@ function getCurrentBlueprintEntityCount(currentBlueprint){
     return Object.entries(entityCount).sort((a, b) => b[1] - a[1]);
 }
 
+function getSVG(bboxWidth, bboxHeight, backgroundColor = "#dddddd", metadataStr = null, svgWidthInMm = 300, aspectRatio = null) {
+    if (aspectRatio !== null) {
+        const realRatio = bboxWidth / bboxHeight;
+        const targetRatio = aspectRatio[0] / aspectRatio[1];
+
+        let newBboxWidth = bboxWidth;
+        let newBboxHeight = bboxHeight;
+        let translate;
+
+        if (realRatio < targetRatio) {
+            newBboxWidth = targetRatio * bboxHeight;
+            translate = [(newBboxWidth - bboxWidth) / 2, 0];
+        } else {
+            newBboxHeight = (1 / targetRatio) * bboxWidth;
+            translate = [0, (newBboxHeight - bboxHeight) / 2];
+        }
+
+        bboxWidth = newBboxWidth;
+        bboxHeight = newBboxHeight;
+    }
+
+    const dwg = {
+        groupsToClose: 0,
+        parts: [`<svg baseProfile="tiny" height="${svgWidthInMm * bboxHeight / bboxWidth}mm" version="1.2" viewBox="0,0,${bboxWidth},${bboxHeight}" width="${svgWidthInMm}mm" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">`]
+    };
+
+    if (metadataStr !== null) {
+        dwg.parts.push(metadataStr);
+    }
+
+    if (aspectRatio !== null) {
+        appendGroup(dwg, { transform: `translate(${translate[0]} ${translate[1]})` });
+    }
+
+    if (backgroundColor !== null) {
+        dwg.parts.push(`<rect fill="${backgroundColor}" height="10000" width="10000" x="-100" y="-100" />`);
+    }
+
+    return dwg;
+}
+
 function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = null) {
     const metadataStr = `<metadata generated_with="https://piebro.github.io/factorio-blueprint-visualizer"><settings>${JSON.stringify(settings)}</settings><blueprint>${blueprint.encodedBlueprintStr}</blueprint></metadata>`;
 
@@ -161,9 +195,10 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
         ry: null
     };
 
-    const dwg = getDrawing(blueprint.bboxWidth, blueprint.bboxHeight, background, metadataStr, svgWidthInMm, aspectRatio);
+    const dwg = getSVG(blueprint.bboxWidth, blueprint.bboxHeight, background, metadataStr, svgWidthInMm, aspectRatio);
 
-    for (const [settingName, settingOptions] of settings) {
+    for (let [settingName, settingOptions] of settings) {
+        if (!settingOptions) settingOptions = {};
         if (settingName === "background" || settingName === "svg" || settingName === "bbox") {
             if (settingName === "svg") {
                 appendGroup(dwg, settingOptions, ["bbox-scale", "bbox-rx", "bbox-ry"]);
@@ -216,78 +251,6 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
     }
     dwg.parts.push('</svg>');
     return dwg.parts.join('');
-}
-
-function preProcessSettings(settings) {
-    settings = JSON.parse(JSON.stringify(settings)); // Deep copy
-    if (settings[0][0] !== "background") {
-        settings.unshift(["background", "#E6E6E6"]);
-    }
-
-    for (const [settingName, settingOptions] of settings) {
-        if (settingName === "bbox") {
-            if ("allow" in settingOptions) {
-                settingOptions.allow = resolveBuildingGenericNames(settingOptions.allow);
-            } else if ("deny" in settingOptions) {
-                settingOptions.deny = resolveBuildingGenericNames(settingOptions.deny);
-            }
-        }
-    }
-
-    return settings;
-}
-
-function resolveBuildingGenericNames(buildNameList) {
-    const buildingNameListWithoutGenericTerms = [];
-    for (const name of buildNameList) {
-        if (name in buildingGenericTerms) {
-            buildingNameListWithoutGenericTerms.push(...buildingGenericTerms[name]);
-        } else {
-            buildingNameListWithoutGenericTerms.push(name);
-        }
-    }
-    return buildingNameListWithoutGenericTerms;
-}
-
-function getDrawing(bboxWidth, bboxHeight, backgroundColor = "#dddddd", metadataStr = null, svgWidthInMm = 300, aspectRatio = null) {
-    if (aspectRatio !== null) {
-        const realRatio = bboxWidth / bboxHeight;
-        const targetRatio = aspectRatio[0] / aspectRatio[1];
-
-        let newBboxWidth = bboxWidth;
-        let newBboxHeight = bboxHeight;
-        let translate;
-
-        if (realRatio < targetRatio) {
-            newBboxWidth = targetRatio * bboxHeight;
-            translate = [(newBboxWidth - bboxWidth) / 2, 0];
-        } else {
-            newBboxHeight = (1 / targetRatio) * bboxWidth;
-            translate = [0, (newBboxHeight - bboxHeight) / 2];
-        }
-
-        bboxWidth = newBboxWidth;
-        bboxHeight = newBboxHeight;
-    }
-
-    const dwg = {
-        groupsToClose: 0,
-        parts: [`<svg baseProfile="tiny" height="${svgWidthInMm * bboxHeight / bboxWidth}mm" version="1.2" viewBox="0,0,${bboxWidth},${bboxHeight}" width="${svgWidthInMm}mm" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">`]
-    };
-
-    if (metadataStr !== null) {
-        dwg.parts.push(metadataStr);
-    }
-
-    if (aspectRatio !== null) {
-        appendGroup(dwg, { transform: `translate(${translate[0]} ${translate[1]})` });
-    }
-
-    if (backgroundColor !== null) {
-        dwg.parts.push(`<rect fill="${backgroundColor}" height="10000" width="10000" x="-100" y="-100" />`);
-    }
-
-    return dwg;
 }
 
 function appendGroup(dwg, svgSetting, denyList = []) {
@@ -367,56 +330,6 @@ function drawEntitiesBbox(dwg, entities, posOffset, settings, defaultBboxProp) {
     dwg.parts.push('</g>');
 }
 
-function getLinesUndergroundBelt(entities) {
-    const nodesInput = {};
-    const nodesOutput = {};
-    for (const entityName of ["underground-belt", "fast-underground-belt", "express-underground-belt", "turbo-underground-belt"]) {
-        nodesInput[entityName] = {};
-        nodesOutput[entityName] = {};
-    }
-
-    for (const e of entities) {
-        if (e.name === "underground-belt" || e.name === "fast-underground-belt" || e.name === "express-underground-belt" || e.name === "turbo-underground-belt") {
-            const posKey = `${e.pos[0]},${e.pos[1]}`;
-            if (e.type === "input") {
-                nodesInput[e.name][posKey] = e.direction;
-            } else {
-                nodesOutput[e.name][posKey] = e.direction;
-            }
-        }
-    }
-
-    const lines = [];
-    for (const [entityName, maxLength] of [["underground-belt", 6], ["fast-underground-belt", 8], ["express-underground-belt", 10], ["turbo-underground-belt", 12]]) {
-        for (const [posKey, dir] of Object.entries(nodesInput[entityName])) {
-            
-            if (dir === 0) {
-                offset = [0, 1];
-            } else if (dir === 4) {
-                offset = [1, 0];
-            } else if (dir === 8) {
-                offset = [0, -1];
-            } else if (dir === 12) {
-                offset = [-1, 0];
-            }
-
-            const [x, y] = posKey.split(',').map(Number);
-            for (let i = 1; i < maxLength; i++) {
-                const targetPos = [
-                    x + i * offset[0],
-                    y + i * offset[1]
-                ];
-                const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
-                if (targetPosKey in nodesOutput[entityName] && nodesOutput[entityName][targetPosKey] === dir) {
-                    lines.push([[x, y], targetPos]);
-                    break;
-                }
-            }
-        }
-    }
-    return lines;
-}
-
 function getLinesBelt(entities) {
     const nodes = {};
 
@@ -494,17 +407,47 @@ function getLinesBelt(entities) {
     return lines;
 }
 
-function getLinesInserter(entities) {
-    const lines = [];
+function getLinesUndergroundBelt(entities) {
+    const nodesInput = {};
+    const nodesOutput = {};
+    const beltTypes = {
+        "underground-belt": 6,
+        "fast-underground-belt": 8,
+        "express-underground-belt": 10,
+        "turbo-underground-belt": 12
+    };
+
+    for (const entityName of Object.keys(beltTypes)) {
+        nodesInput[entityName] = {};
+        nodesOutput[entityName] = {};
+    }
+
     for (const e of entities) {
-        if (["bulk-inserter", "burner-inserter", "fast-inserter", "inserter", "long-handed-inserter", "stack-inserter"].includes(e.name)) {
-            const dir = Math.floor(e.direction / 4);
+        if (e.name in beltTypes) {
+            const posKey = `${e.pos[0]},${e.pos[1]}`;
+            if (e.type === "input") {
+                nodesInput[e.name][posKey] = [e.pos, Math.floor(e.direction / 4)];
+            } else {
+                nodesOutput[e.name][posKey] = [e.pos, Math.floor(e.direction / 4)];
+            }
+        }
+    }
+
+    const lines = [];
+    for (const [entityName, maxLength] of Object.entries(beltTypes)) {
+        for (const [pos, dir] of Object.values(nodesInput[entityName])) {
             const offset = DIRECTION_4_TO_OFFSET[dir];
-            const inserterLength = (e.name === "long-handed-inserter" ? 2 : 1);
-            lines.push([
-                [e.pos[0] + inserterLength * offset[0], e.pos[1] + inserterLength * offset[1]],
-                [e.pos[0] + inserterLength * -offset[0], e.pos[1] + inserterLength * -offset[1]]
-            ]);
+            for (let i = 1; i < maxLength; i++) {
+                const targetPos = [
+                    pos[0] + i * offset[0],
+                    pos[1] + i * offset[1]
+                ];
+                const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
+                if (targetPosKey in nodesOutput[entityName] && nodesOutput[entityName][targetPosKey][1] === dir) {
+                    lines.push([pos, targetPos]);
+                    break;
+                }
+            }
         }
     }
     return lines;
@@ -622,6 +565,22 @@ function getLinesUndergroundPipes(entities, maxLength = 11) {
     return lines;
 }
 
+function getLinesInserter(entities) {
+    const lines = [];
+    for (const e of entities) {
+        if (["bulk-inserter", "burner-inserter", "fast-inserter", "inserter", "long-handed-inserter", "stack-inserter"].includes(e.name)) {
+            const dir = Math.floor(e.direction / 4);
+            const offset = DIRECTION_4_TO_OFFSET[dir];
+            const inserterLength = (e.name === "long-handed-inserter" ? 2 : 1);
+            lines.push([
+                [e.pos[0] + inserterLength * offset[0], e.pos[1] + inserterLength * offset[1]],
+                [e.pos[0] + inserterLength * -offset[0], e.pos[1] + inserterLength * -offset[1]]
+            ]);
+        }
+    }
+    return lines;
+}
+
 function getLinesRails(entities) {
     function mirrorOffsetsVertical(offsets) {
         return [[-offsets[0][0], offsets[0][1]], [-offsets[1][0], offsets[1][1]]];
@@ -712,7 +671,6 @@ function getLinesRails(entities) {
 function getLinesWire(entities, wires, wireType) {
     const lines = [];
     for (const [w1, w2, w3, w4] of wires) {
-        console.log(w1, w2, w3, w4)
         if (w2 === wireType || w4 === wireType) {
             lines.push([entities[w1-1].pos, entities[w3-1].pos]);
         }
@@ -721,7 +679,7 @@ function getLinesWire(entities, wires, wireType) {
 }
 
 function drawLinesTiles(tiles) {
-    console.log(tiles[0])
+    // console.log(tiles[0])
     const lines = []    
     for (const tile of tiles) {
         // console.log(tile)

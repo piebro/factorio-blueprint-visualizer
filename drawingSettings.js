@@ -4,8 +4,11 @@ const EXAMPLE_SETTINGS = [
     ['bbox', {'bbox-scale': 1, 'deny': ["labs"], 'fill': 'none', 'stroke': '#ffba08'}],
     
     ['pipes', {'stroke-opacity': 0.8}],
+    ['underground-pipes'],
+    ['belts'],
+    ['underground-belts'],
+
     ['heat-pipes', {'stroke-opacity': 0.8}],
-    ['underground-pipes', {'stroke-opacity': 0.6}],
     ['power-lines', {'stroke-opacity': 0.8}],
     ['green-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#00ff08'}],
     ['red-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#ff0008'}],
@@ -372,4 +375,35 @@ function shuffleArray(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
+}
+
+function preProcessSettings(settings) {
+  settings = JSON.parse(JSON.stringify(settings)); // Deep copy
+  if (settings[0][0] !== "background") {
+      settings.unshift(["background", "#E6E6E6"]);
+  }
+
+  for (const [settingName, settingOptions] of settings) {
+      if (settingName === "bbox") {
+          if ("allow" in settingOptions) {
+              settingOptions.allow = resolveBuildingGenericNames(settingOptions.allow);
+          } else if ("deny" in settingOptions) {
+              settingOptions.deny = resolveBuildingGenericNames(settingOptions.deny);
+          }
+      }
+  }
+
+  return settings;
+}
+
+function resolveBuildingGenericNames(buildNameList) {
+  const buildingNameListWithoutGenericTerms = [];
+  for (const name of buildNameList) {
+      if (name in buildingGenericTerms) {
+          buildingNameListWithoutGenericTerms.push(...buildingGenericTerms[name]);
+      } else {
+          buildingNameListWithoutGenericTerms.push(name);
+      }
+  }
+  return buildingNameListWithoutGenericTerms;
 }
