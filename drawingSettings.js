@@ -1,7 +1,7 @@
 const EXAMPLE_SETTINGS = [
     ['background', '#a2aebb'],
     ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
-    ['tiles', {'fill': '#a2fffb', 'stroke-width': 0.1}, {'allow': ['landfill']}],
+    ['tiles', {'fill': '#a2fffb', 'stroke-width': 0.1}, {'allow': ['landfill'], 'size': 0.7}],
     ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
     
 

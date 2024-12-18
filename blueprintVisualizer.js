@@ -675,7 +675,8 @@ function drawTiles(dwg, tiles, posOffset, svgSettings, otherSettings) {
             continue;
         }
         const [gridArray, offset] = tileNameToGridArrayAndOffset[tileName];
-        const lines = findBorderSegments(gridArray, offset);
+        const size = "size" in otherSettings ? otherSettings.size : 0.6;
+        const lines = findBorderSegments(gridArray, offset, size);
         const rawPolygons = extractPolygons(lines);
         const result = organizePolygonHierarchy(rawPolygons);
         drawPolygonWithHoles(dwg, result, posOffset, svgSettings);
@@ -739,9 +740,10 @@ function createTileGrid(tiles) {
     return tileNameToGridArrayAndOffset;
 }
 
-function findBorderSegments(gridArray, offset) {
-    const d = 0.3
-    const h = 1/2
+function findBorderSegments(gridArray, offset, size) {
+    const d = 0.5-size/2
+    // 1 => 0 and 0 => 0.5 
+    const h = 0.5
     const lines = [];
 
     // Iterate through grid array, skipping border cells
