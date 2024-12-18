@@ -1,10 +1,15 @@
 const EXAMPLE_SETTINGS = [
     ['background', '#a2aebb'],
     ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
-    ['tiles', {'fill': '#a2aefb', 'stroke-width': 1}],
-    ['bbox', {'bbox-scale': 1, 'deny': ["labs"], 'fill': 'none', 'stroke': '#ffba08'}],
+    ['tiles', {'fill': '#a2fffb', 'stroke-width': 0.1}, {'allow': ['landfill']}],
+    ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
     
-    ['pipes', {'stroke-opacity': 0.8}],
+
+    // ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
+
+    // ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
+    ['bbox', {'fill': '#ff0000', 'stroke': '#ffba08'}, {'bbox-scale': 1, 'deny': ["labs"]}],
+    ['pipes'],
     ['underground-pipes'],
     ['belts'],
     ['underground-belts'],
@@ -379,22 +384,23 @@ function shuffleArray(array) {
 }
 
 function preProcessSettings(settings) {
-  settings = JSON.parse(JSON.stringify(settings)); // Deep copy
-  if (settings[0][0] !== "background") {
-      settings.unshift(["background", "#E6E6E6"]);
-  }
-
-  for (const [settingName, settingOptions] of settings) {
-      if (settingName === "bbox") {
-          if ("allow" in settingOptions) {
-              settingOptions.allow = resolveBuildingGenericNames(settingOptions.allow);
-          } else if ("deny" in settingOptions) {
-              settingOptions.deny = resolveBuildingGenericNames(settingOptions.deny);
-          }
-      }
-  }
-
-  return settings;
+    settings = JSON.parse(JSON.stringify(settings)); // Deep copy
+    const processed_settings = [];
+    for (let [settingName, svgSettings, otherSettings] of settings) {
+        if (svgSettings === undefined) {
+            svgSettings = {};
+        }
+        if (otherSettings === undefined) {
+          otherSettings = {};
+        }
+        if ("allow" in otherSettings) {
+            otherSettings.allow = resolveBuildingGenericNames(otherSettings.allow);
+        } else if ("deny" in otherSettings) {
+            otherSettings.deny = resolveBuildingGenericNames(otherSettings.deny);
+        }
+        processed_settings.push([settingName, svgSettings, otherSettings]);
+    }
+    return processed_settings;
 }
 
 function resolveBuildingGenericNames(buildNameList) {

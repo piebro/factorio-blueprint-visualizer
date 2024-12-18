@@ -1,10 +1,6 @@
 const DIRECTION_4_TO_OFFSET = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
-const WireType = {
-    GREEN_WIRE: 1,
-    RED_WIRE: 2, 
-    COPPER_WIRE: 5
-};
+const WireType = {GREEN_WIRE: 1, RED_WIRE: 2,  COPPER_WIRE: 5};
 
 function getBlueprintList(encodedBlueprintStr) {
     // Remove the initial "0" character from the blueprint string
@@ -59,9 +55,13 @@ function processBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {
     }
     if (!("tiles" in blueprintJson)) {
         blueprintJson.tiles = [];
+    } else {
+        for (const tile of blueprintJson.tiles) {
+            tile.pos = [tile.position.x + 0.5, tile.position.y + 0.5];
+        }
     }
     getSimplifiedEntities(blueprintJson.entities);
-    const [bboxWidth, bboxHeight, posOffset] = getSvgSizeAndPosOffset(blueprintJson.entities, bboxBorderNWSE);
+    const [bboxWidth, bboxHeight, posOffset] = getSvgSizeAndPosOffset(blueprintJson.entities, blueprintJson.tiles, bboxBorderNWSE);
 
     return {
         entities: blueprintJson.entities,
@@ -85,7 +85,7 @@ function getSimplifiedEntities(blueprintJsonEntities) {
         }
 
         // Convert position to array format
-        e.pos = [parseFloat(e.position.x), parseFloat(e.position.y)];
+        e.pos = [e.position.x, e.position.y];
         
         if (e.name in entityNameToProperties) {
             let [sizeX, sizeY] = entityNameToProperties[e.name].size;
@@ -107,19 +107,23 @@ function getSimplifiedEntities(blueprintJsonEntities) {
     }
 }
 
-function getSvgSizeAndPosOffset(entities, bboxBorderNWSE) {
-    if (entities.length === 0) {
+function getSvgSizeAndPosOffset(entities, tiles, bboxBorderNWSE) {
+    if (entities.length === 0 && tiles.length === 0) {
         return [1, 1];
     }
 
     const entityBboxes = entities.filter(e => "bbox" in e).map(e => e.bbox);
+    const tilePositions = tiles.map(t => t.pos);
+    
+    const xValues = [...entityBboxes.flatMap(box => box.map(point => point[0])), ...tilePositions.map(pos => pos[0])];
+    const yValues = [...entityBboxes.flatMap(box => box.map(point => point[1])), ...tilePositions.map(pos => pos[1])];    
 
-    // Calculate bounding box from 4-point polygons
+    // Calculate bounding box from both entity bboxes and tile positions
     const bbox = [
-        Math.min(...entityBboxes.flatMap(box => box.map(point => point[0]))), // minX
-        Math.min(...entityBboxes.flatMap(box => box.map(point => point[1]))), // minY
-        Math.max(...entityBboxes.flatMap(box => box.map(point => point[0]))), // maxX
-        Math.max(...entityBboxes.flatMap(box => box.map(point => point[1])))  // maxY
+        Math.floor(Math.min(...xValues)), // minX
+        Math.floor(Math.min(...yValues)), // minY
+        Math.ceil(Math.max(...xValues)), // maxX
+        Math.ceil(Math.max(...yValues))  // maxY
     ];
 
     // Apply border
@@ -187,68 +191,51 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
     const metadataStr = `<metadata generated_with="https://piebro.github.io/factorio-blueprint-visualizer"><settings>${JSON.stringify(settings)}</settings><blueprint>${blueprint.encodedBlueprintStr}</blueprint></metadata>`;
 
     settings = preProcessSettings(settings);
-    const background = settings[0][1];
-
-    const defaultBboxProp = {
-        scale: null,
-        rx: null,
-        ry: null
-    };
-
+    const background = settings[0][0] === "background" ? settings[0][1] : "none";
     const dwg = getSVG(blueprint.bboxWidth, blueprint.bboxHeight, background, metadataStr, svgWidthInMm, aspectRatio);
 
-    for (let [settingName, settingOptions] of settings) {
-        if (!settingOptions) settingOptions = {};
-        if (settingName === "background" || settingName === "svg" || settingName === "bbox") {
-            if (settingName === "svg") {
-                appendGroup(dwg, settingOptions, ["bbox-scale", "bbox-rx", "bbox-ry"]);
-                for (const bboxPropKey of ["bbox-scale", "bbox-rx", "bbox-ry"]) {
-                    if (bboxPropKey in settingOptions) {
-                        defaultBboxProp[bboxPropKey.slice(5)] = settingOptions[bboxPropKey];
-                    }
-                }
-            } else if (settingName === "bbox") {
-                drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, settingOptions, defaultBboxProp);
-            }
-        } else {
-            let lines, polygons;
-            if (!(settingName in blueprint.cache)) {
-                if (settingName === "belts") {
-                    lines = getLinesBelt(blueprint.entities);
-                } else if (settingName === "underground-belts") {
-                    lines = getLinesUndergroundBelt(blueprint.entities);
-                } else if (settingName === "pipes") {
-                    lines = getLinesPipesOrHeatPipes(blueprint.entities, itemToPipeTargetPositions);
-                } else if (settingName === "underground-pipes") {
-                    lines = getLinesUndergroundPipes(blueprint.entities);
-                } else if (settingName === "heat-pipes") {
-                    lines = getLinesPipesOrHeatPipes(blueprint.entities, itemToHeatTargetPositions);
-                } else if (settingName === "inserters") {
-                    lines = getLinesInserter(blueprint.entities);
-                } else if (settingName === "rails") {
-                    lines = getLinesRails(blueprint.entities);
-                } else if (settingName === "power-lines") {
-                    lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.COPPER_WIRE);
-                } else if (settingName === "green-wire-lines") {
-                    lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.GREEN_WIRE);
-                } else if (settingName === "red-wire-lines") {
-                    lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.RED_WIRE);
-                } else if (settingName === "tiles") {
-                    polygons = getPolygonsTiles(blueprint.tiles);
-                } else {
-                    console.log("unknown setting name:", settingName);
-                    continue
-                }
-            }
-            if (lines !== undefined) {
-                blueprint.cache[settingName] = lines;
-                drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-            } else if (polygons !== undefined) {
-                blueprint.cache[settingName] = polygons;
-                drawPolygon(dwg, blueprint.cache[settingName], blueprint.posOffset, settingOptions);
-            }
+    for (let [settingName, svgSettings, otherSettings] of settings) {
+        if (settingName === "background") {
+            continue
+        } else if (settingName === "svg") {
+            appendGroup(dwg, svgSettings);
+            continue;
+        } else if (settingName === "bbox") {
+            drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, svgSettings, otherSettings);
+            continue;
+        } else if (settingName === "tiles") {
+            drawTiles(dwg, blueprint.tiles, blueprint.posOffset, svgSettings, otherSettings);
+            continue;
         }
-
+        if (!(settingName in blueprint.cache)) {
+            let lines = null;
+            if (settingName === "belts") {
+                lines = getLinesBelt(blueprint.entities);
+            } else if (settingName === "underground-belts") {
+                lines = getLinesUndergroundBelt(blueprint.entities);
+            } else if (settingName === "pipes") {
+                lines = getLinesPipesOrHeatPipes(blueprint.entities, itemToPipeTargetPositions);
+            } else if (settingName === "underground-pipes") {
+                lines = getLinesUndergroundPipes(blueprint.entities);
+            } else if (settingName === "heat-pipes") {
+                lines = getLinesPipesOrHeatPipes(blueprint.entities, itemToHeatTargetPositions);
+            } else if (settingName === "inserters") {
+                lines = getLinesInserter(blueprint.entities);
+            } else if (settingName === "rails") {
+                lines = getLinesRails(blueprint.entities);
+            } else if (settingName === "power-lines") {
+                lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.COPPER_WIRE);
+            } else if (settingName === "green-wire-lines") {
+                lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.GREEN_WIRE);
+            } else if (settingName === "red-wire-lines") {
+                lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.RED_WIRE);
+            } else {
+                console.log("unknown setting name:", settingName);
+                continue;
+            }
+            blueprint.cache[settingName] = lines;
+        }
+        drawLines(dwg, blueprint.cache[settingName], blueprint.posOffset, svgSettings);
     }
 
     for (let i = 0; i < dwg.groupsToClose; i++) {
@@ -258,9 +245,9 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
     return dwg.parts.join('');
 }
 
-function appendGroup(dwg, svgSetting, denyList = []) {
+function appendGroup(dwg, svgSetting) {
     dwg.parts.push('<g');
-    appendSvgSetting(dwg, svgSetting, denyList);
+    appendSvgSetting(dwg, svgSetting);
     dwg.parts.push('>');
     dwg.groupsToClose += 1;
 }
@@ -275,30 +262,14 @@ function drawLines(dwg, lines, posOffset, svgSetting) {
     dwg.parts.push('"/>');
 }
 
-function drawPolygon(dwg, polygons, posOffset, svgSetting) {
-    dwg.parts.push('<g');
-    appendSvgSetting(dwg, svgSetting);
-    dwg.parts.push('>');
-
-    for (const polygon of polygons) {
-        dwg.parts.push('<polygon');
-        const pointsStr = polygon.map(point => `${point[0] + posOffset[0]},${point[1] + posOffset[1]}`).join(' ');
-        dwg.parts.push(' points="' + pointsStr + '"');  
-        dwg.parts.push('/>');
-    }
-    dwg.parts.push('</g>');
-}
-
-function appendSvgSetting(dwg, svgSetting, denyList = []) {
+function appendSvgSetting(dwg, svgSetting) {
     for (const [key, value] of Object.entries(svgSetting)) {
-        if (!denyList.includes(key)) {
-            dwg.parts.push(` ${key}="${value}"`);
-        }
+        dwg.parts.push(` ${key}="${value}"`);
     }
 }
 
 function drawRect(dwg, bbox, posOffset, scale, rx, ry) {
-    if (scale !== null) {
+    if (scale !== undefined) {
         // Calculate center point
         const centerX = bbox.reduce((sum, point) => sum + point[0], 0) / 4;
         const centerY = bbox.reduce((sum, point) => sum + point[1], 0) / 4;
@@ -315,34 +286,27 @@ function drawRect(dwg, bbox, posOffset, scale, rx, ry) {
     
     dwg.parts.push(`<polygon points="${pointsStr}"`);
     
-    if (rx !== null || ry !== null) {
+    if (rx !== undefined || ry !== undefined) {
         console.warn('rx and ry are not supported for rotated rectangles');
     }
 
     dwg.parts.push('/>');
 }
 
-function drawEntitiesBbox(dwg, entities, posOffset, settings, defaultBboxProp) {
+function drawEntitiesBbox(dwg, entities, posOffset, svgSettings, otherSettings) {
     let bboxEntities;
-    if ("allow" in settings) {
-        bboxEntities = entities.filter(e => settings.allow.includes(e.name));
-    } else if ("deny" in settings) {
-        bboxEntities = entities.filter(e => !settings.deny.includes(e.name));
+    if ("allow" in otherSettings) {
+        bboxEntities = entities.filter(e => otherSettings.allow.includes(e.name));
+    } else if ("deny" in otherSettings) {
+        bboxEntities = entities.filter(e => !otherSettings.deny.includes(e.name));
     } else {
         bboxEntities = entities;
     }
-    
-    const bboxProp = {};
-    for (const bboxPropKey of ["bbox-scale", "bbox-rx", "bbox-ry"]) {
-        bboxProp[bboxPropKey.slice(5)] = bboxPropKey in settings 
-            ? settings[bboxPropKey] 
-            : defaultBboxProp[bboxPropKey.slice(5)];
-    }
 
-    appendGroup(dwg, settings, ["bbox-scale", "bbox-rx", "bbox-ry", "allow", "deny"]);
+    appendGroup(dwg, svgSettings);
     for (const e of bboxEntities) {
         if ("bbox" in e) {
-            drawRect(dwg, e.bbox, posOffset, bboxProp.scale, bboxProp.rx, bboxProp.ry);
+            drawRect(dwg, e.bbox, posOffset, otherSettings.scale, otherSettings.rx, otherSettings.ry);
         }
     }
     dwg.groupsToClose -= 1;
@@ -697,89 +661,361 @@ function getLinesWire(entities, wires, wireType) {
     return lines;
 }
 
-function getPolygonsTiles(tiles) {
-    const grid = {};
-    
-    // Create grid of tiles
-    for (const tile of tiles) {
-        if (tile.name === "space-platform-foundation") {
-            const key = `${tile.position.x+0.5},${tile.position.y+0.5}`;
-            grid[key] = [tile.position.x+0.5, tile.position.y+0.5];
+function drawTiles(dwg, tiles, posOffset, svgSettings, otherSettings) {
+    const tileNameToGridArrayAndOffset = createTileGrid(tiles);
+
+    for (const tileName of artificialTilesSortedByLayer) {
+        if (!(tileName in tileNameToGridArrayAndOffset)) {
+            continue;
         }
+        if ("allow" in otherSettings && !otherSettings.allow.includes(tileName)) {
+            continue;
+        }
+        if ("deny" in otherSettings && otherSettings.deny.includes(tileName)) {
+            continue;
+        }
+        const [gridArray, offset] = tileNameToGridArrayAndOffset[tileName];
+        const lines = findBorderSegments(gridArray, offset);
+        const rawPolygons = extractPolygons(lines);
+        const result = organizePolygonHierarchy(rawPolygons);
+        drawPolygonWithHoles(dwg, result, posOffset, svgSettings);
+        // debugginDrawLines(dwg, lines, posOffset, { "fill": "none", "stroke": "#ff0000", "stroke-width": 0.1 });
     }
-
-    // Find all border segments
-    const borderSegments = {};
-    
-    for (const key in grid) {
-        const pos = grid[key];
-
-        for (const dir of [0, 1, 2, 3]) {
-            const offset = DIRECTION_4_TO_OFFSET[dir];
-            const adjacentPos = [pos[0]+offset[0], pos[1]+offset[1]];
-            const adjacentPosKey = `${adjacentPos[0]},${adjacentPos[1]}`;
-            
-            // If adjacent tile doesn't exist, this is a border
-            if (!(adjacentPosKey in grid)) {
-                const offsetPlusOne = DIRECTION_4_TO_OFFSET[(dir+1)%4];
-                const point1 = [
-                    pos[0] + offset[0]/2 - offsetPlusOne[0]/2,
-                    pos[1] + offset[1]/2 - offsetPlusOne[1]/2
-                ];
-                const point2 = [
-                    pos[0] + offset[0]/2 + offsetPlusOne[0]/2,
-                    pos[1] + offset[1]/2 + offsetPlusOne[1]/2
-                ];
-                
-                // Store segments with points as keys for easy lookup
-                const key1 = `${point1[0]},${point1[1]}`;
-                const key2 = `${point2[0]},${point2[1]}`;
-                
-                if (!(key1 in borderSegments)) borderSegments[key1] = new Set();
-                if (!(key2 in borderSegments)) borderSegments[key2] = new Set();
-                
-                borderSegments[key1].add(key2);
-                borderSegments[key2].add(key1);
-            }
-        }
-    }
-
-    // Convert segments to polygons
-    const polygons = [];
-    const usedPoints = new Set();
-
-    while (Object.keys(borderSegments).length > 0) {
-        // Start with any point
-        const startKey = Object.keys(borderSegments)[0];
-        const polygon = [];
-        let currentKey = startKey;
-
-        while (true) {
-            polygon.push(currentKey.split(',').map(Number));
-            usedPoints.add(currentKey);
-
-            // Get connected points
-            const connections = borderSegments[currentKey];
-            delete borderSegments[currentKey];
-
-            // Find next unused point
-            const nextKey = Array.from(connections).find(key => !usedPoints.has(key));
-            
-            if (!nextKey || nextKey === startKey) {
-                // Close the polygon by returning to start
-                polygon.push(polygon[0]);
-                break;
-            }
-            
-            currentKey = nextKey;
-        }
-
-        if (polygon.length > 2) {
-            polygons.push(polygon);
-        }
-    }
-
-    return polygons;
 }
 
+function debugginDrawLines(dwg, lines, posOffset, svgSettings) {
+    for (const line of lines) {
+        dwg.parts.push('<path');
+        appendSvgSetting(dwg, svgSettings);
+        dwg.parts.push(` d="M${line[0][0] + posOffset[0]} ${line[0][1] + posOffset[1]}`);
+        for (const p of line.slice(1)) {
+            dwg.parts.push(` L${p[0] + posOffset[0]} ${p[1] + posOffset[1]}`);
+        }
+        dwg.parts.push('"/>');
+    }
+}
 
+function createTileGrid(tiles) {
+    const tileNameToGrid = {};
+    const minMaxPos = {}
+    for (const tile of tiles) {
+        if (!(tile.name in tileNameToGrid)) {
+            tileNameToGrid[tile.name] = {};
+            minMaxPos[tile.name] = {
+                min: [tile.pos[0], tile.pos[1]],
+                max: [tile.pos[0], tile.pos[1]]
+            }
+        }
+        const key = `${tile.pos[0]},${tile.pos[1]}`;
+        tileNameToGrid[tile.name][key] = tile.pos;
+        minMaxPos[tile.name].min = [Math.min(minMaxPos[tile.name].min[0], tile.pos[0]), Math.min(minMaxPos[tile.name].min[1], tile.pos[1])];
+        minMaxPos[tile.name].max = [Math.max(minMaxPos[tile.name].max[0], tile.pos[0]), Math.max(minMaxPos[tile.name].max[1], tile.pos[1])];
+    }
+
+    const tileNameToGridArrayAndOffset = {};
+    for (const [tileName, gridObject] of Object.entries(tileNameToGrid)) {
+        const minPos = minMaxPos[tileName].min;
+        const maxPos = minMaxPos[tileName].max;
+        const width = (maxPos[0] - minPos[0]) + 1 + 4; // +4 for border
+        const height = (maxPos[1] - minPos[1]) + 1 + 4
+        
+        // Create 2D array initialized with false
+        const gridArray = []
+        for (let x = 0; x < width; x++) {
+            gridArray[x] = new Array(height).fill(false);
+        }
+
+        // Fill in true values for existing tiles
+        for (const tile of Object.values(gridObject)) {
+            const x = tile[0] - minPos[0];
+            const y = tile[1] - minPos[1];
+            gridArray[x+2][y+2] = true;
+        }
+
+        const offset = [minPos[0] - 2, minPos[1] - 2];
+        tileNameToGridArrayAndOffset[tileName] = [gridArray, offset];
+    }
+
+    return tileNameToGridArrayAndOffset;
+}
+
+function findBorderSegments(gridArray, offset) {
+    const d = 0.3
+    const h = 1/2
+    const lines = [];
+
+    // Iterate through grid array, skipping border cells
+    for (let x = 1; x < gridArray.length - 1; x++) {
+        for (let y = 1; y < gridArray[x].length - 1; y++) {
+            if (gridArray[x][y]) {
+                continue
+            }
+            
+            const top_middle = gridArray[x][y-1]
+            const middle_left = gridArray[x-1][y]
+            const middle_right = gridArray[x+1][y]
+            const bottom_middle = gridArray[x][y+1]
+            
+            if (top_middle) {
+                if (middle_right) {
+                    if (bottom_middle) {
+                        if (middle_left) {
+                            // top_middle, middle_right, bottom_middle, middle_left
+                            lines.push([[x-d, y-d], [x+d, y-d], [x+d, y+d], [x-d, y+d], [x-d, y-d]]);
+                        } else {
+                            // top_middle, middle_right, bottom_middle
+                            lines.push([[x-h, y+d], [x+d, y+d]]);
+                            lines.push([[x+d, y+d], [x+d, y-d]]);
+                            lines.push([[x+d, y-d], [x-h, y-d]]);
+                        }
+                    } else {
+                        if (middle_left) {
+                            // top_middle, middle_right, middle_left
+                            lines.push([[x-d, y+h], [x-d, y-d]]);
+                            lines.push([[x-d, y-d], [x+d, y-d]]);
+                            lines.push([[x+d, y-d], [x+d, y+h]]);
+                        } else {
+                            // top_middle, middle_right
+                            lines.push([[x-h, y-d], [x+d, y+h]]);
+                        }
+                    }
+                } else {
+                    if (bottom_middle) {
+                        if (middle_left) {
+                            // top_middle, bottom_middle, middle_left
+                            lines.push([[x+h, y+d], [x-d, y+d]]);
+                            lines.push([[x-d, y+d], [x-d, y-d]]);
+                            lines.push([[x-d, y-d], [x+h, y-d]]);
+                        } else {
+                            // top_middle, bottom_middle
+                            lines.push([[x-h, y-d], [x+h, y-d]]);
+                            lines.push([[x-h, y+d], [x+h, y+d]]);
+                        }
+                    } else {
+                        if (middle_left) {
+                            // top_middle, middle_left
+                            lines.push([[x-d, y+h], [x+h, y-d]]);
+                        } else {
+                            // top_middle
+                            lines.push([[x-h, y-d], [x+h, y-d]]);
+                            
+                        }
+                    }
+                }
+            } else {
+                if (middle_right) {
+                    if (bottom_middle) {
+                        if (middle_left) {
+                            // middle_right, bottom_middle, middle_left
+                            lines.push([[x-d, y-h], [x-d, y+d]]);
+                            lines.push([[x-d, y+d], [x+d, y+d]]);
+                            lines.push([[x+d, y+d], [x+d, y-h]]);
+                        } else {
+                            // middle_right, bottom_middle
+                            lines.push([[x-h, y+d], [x+d, y-h]]);
+                        }
+                    } else {
+                        if (middle_left) {
+                            // middle_right, middle_left
+                            lines.push([[x-d, y-h], [x-d, y+h]]);
+                            lines.push([[x+d, y-h], [x+d, y+h]]);
+                        } else {
+                            // middle_right
+                            lines.push([[x+d, y-h], [x+d, y+h]]);
+                        }
+                    }
+                } else {
+                    if (bottom_middle) {
+                        if (middle_left) {
+                            // bottom_middle, middle_left
+                            lines.push([[x-d, y-h], [x+h, y+d]]);
+                        } else {
+                            // bottom_middle
+                            lines.push([[x+h, y+d], [x-h, y+d]]);
+                        }
+                    } else {
+                        if (middle_left) {
+                            // middle_left
+                            lines.push([[x-d, y-h], [x-d, y+h]]);
+                        } else {
+                            // -
+                        }
+                    }
+                }
+            }
+
+            // look at the corners now
+            const top_left = gridArray[x-1][y-1]
+            const top_right = gridArray[x+1][y-1]
+            const bottom_left = gridArray[x-1][y+1]
+            const bottom_right = gridArray[x+1][y+1]
+
+            if (top_left && !top_middle && !middle_left) {
+                lines.push([[x-h, y-d], [x-d, y-h]]);
+            }
+            if (top_right && !top_middle && !middle_right) {
+                lines.push([[x+d, y-h], [x+h, y-d]]);
+            }
+            if (bottom_left && !bottom_middle && !middle_left) {
+                lines.push([[x-h, y+d], [x-d, y+h]]);
+            }
+            if (bottom_right && !bottom_middle && !middle_right) {
+                lines.push([[x+h, y+d], [x+d, y+h]]);
+            }
+        }
+    }
+
+    lines.forEach(line => line.forEach(point => { point[0] += offset[0]; point[1] += offset[1]; }));
+    
+    return lines;
+}
+
+function extractPolygons(lines) {
+    const rawPolygons = [];
+    const connections = new Map();
+    
+    // Build the connection map (storing all possible connections for each point)
+    lines.forEach(line => {
+        const [x1, y1] = line[0];
+        const [x2, y2] = line[1];
+        const point1 = `${x1},${y1}`;
+        const point2 = `${x2},${y2}`;
+        
+        // Add both directions for each connection
+        if (!connections.has(point1)) connections.set(point1, new Set());
+        if (!connections.has(point2)) connections.set(point2, new Set());
+        connections.get(point1).add(point2);
+        connections.get(point2).add(point1);
+    });
+
+    const usedConnections = new Set();
+
+    // Process each point that has connections
+    for (const startPoint of connections.keys()) {
+        // Skip if all connections from this point have been used
+        if ([...connections.get(startPoint)].every(endPoint => 
+            usedConnections.has(`${startPoint}-${endPoint}`))) continue;
+
+        // Start a new polygon
+        const polygon = [];
+        let currentPoint = startPoint;
+        let firstPoint = startPoint;
+
+        while (true) {
+            // Add the current point to the polygon
+            const [x, y] = currentPoint.split(',').map(Number);
+            polygon.push([x, y]);
+
+            // Find an unused connection from the current point
+            const possibleConnections = connections.get(currentPoint);
+            const nextPoint = [...possibleConnections].find(endPoint => 
+                !usedConnections.has(`${currentPoint}-${endPoint}`));
+
+            if (!nextPoint || (nextPoint === firstPoint && polygon.length > 1)) {
+                // If we've reached the starting point or a dead end
+                if (nextPoint === firstPoint && polygon.length > 2) {
+                    rawPolygons.push(polygon);
+                }
+                break;
+            }
+
+            // Mark this connection as used (in both directions)
+            usedConnections.add(`${currentPoint}-${nextPoint}`);
+            usedConnections.add(`${nextPoint}-${currentPoint}`);
+
+            // Move to the next point
+            currentPoint = nextPoint;
+        }
+    }
+    return rawPolygons;
+}
+
+function organizePolygonHierarchy(rawPolygons) {
+    function isPointInPolygon(point, polygon) {
+        let inside = false;
+        for (let i = 0, j = polygon.length - 2; i < polygon.length - 1; j = i++) {
+            const xi = polygon[i][0], yi = polygon[i][1];
+            const xj = polygon[j][0], yj = polygon[j][1];
+            
+            const intersect = ((yi > point[1]) !== (yj > point[1]))
+                && (point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
+    
+    function containsPolygon(polyA, polyB) {
+        // Use any point from B to test if it's inside A
+        const testPoint = polyB[0];
+        return isPointInPolygon(testPoint, polyA);
+    }
+
+    const result = [];
+    const used = new Set();
+
+    for (let i = 0; i < rawPolygons.length; i++) {
+        if (used.has(i)) continue;
+
+        const currentPoly = rawPolygons[i];
+        const holes = [];
+
+        // Find all polygons that are directly contained by this polygon
+        for (let j = 0; j < rawPolygons.length; j++) {
+            if (i === j || used.has(j)) continue;
+
+            if (containsPolygon(currentPoly, rawPolygons[j])) {
+                // Check if this is a direct hole (not contained by any other hole)
+                let isDirectHole = true;
+                for (let k = 0; k < rawPolygons.length; k++) {
+                    if (k === i || k === j) continue;
+                    if (containsPolygon(rawPolygons[k], rawPolygons[j]) && 
+                        containsPolygon(currentPoly, rawPolygons[k])) {
+                        isDirectHole = false;
+                        break;
+                    }
+                }
+                if (isDirectHole) {
+                    holes.push(rawPolygons[j]);
+                    used.add(j);
+                }
+            }
+        }
+
+        result.push({
+            outer: currentPoly,
+            holes: holes
+        });
+        used.add(i);
+    }
+    return result;
+}
+
+function drawPolygonWithHoles(dwg, polygonHierarchies, posOffset, svgSetting) {
+    dwg.parts.push('<g');
+    appendSvgSetting(dwg, svgSetting);
+    dwg.parts.push('>');
+
+    // For each polygon with its holes
+    for (const {outer, holes} of polygonHierarchies) {
+        dwg.parts.push('<path fill-rule="evenodd"');
+        
+        // Start with the outer polygon
+        let pathData = 'M ' + outer.map(point => 
+            `${point[0] + posOffset[0]},${point[1] + posOffset[1]}`
+        ).join(' L ');
+        pathData += ' Z';
+
+        // Add each hole
+        for (const hole of holes) {
+            pathData += ' M ' + hole.map(point =>
+                `${point[0] + posOffset[0]},${point[1] + posOffset[1]}`
+            ).join(' L ');
+            pathData += ' Z';
+        }
+
+        dwg.parts.push(` d="${pathData}"`);
+        dwg.parts.push('/>');
+    }
+    
+    dwg.parts.push('</g>');
+}

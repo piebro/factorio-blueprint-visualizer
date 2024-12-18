@@ -316,3 +316,16 @@ const fluidRecipes = {
     "turbo-underground-belt": true,
     "water-barrel": true,
 }
+
+const artificialTilesSortedByLayer = [
+    "landfill",
+    "foundation",
+    "stone-path",
+    "concrete",
+    "hazard-concrete-left",
+    "hazard-concrete-right",
+    "space-platform-foundation",
+    "refined-concrete",
+    "refined-hazard-concrete-left",
+    "refined-hazard-concrete-right",
+]
