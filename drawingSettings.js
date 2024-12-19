@@ -8,7 +8,12 @@ const EXAMPLE_SETTINGS = [
     // ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
 
     // ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
-    ['bbox', {'fill': '#ff0000', 'stroke': '#ffba08'}, {'bbox-scale': 1, 'deny': ["labs"]}],
+    
+    
+    ['bbox', {'fill': '#ff0000', 'stroke': 'none'}, {'scale': 1}],
+    ['bbox-selection', {'fill': '#00ff00', 'stroke': 'none'}, {'scale': 1}],
+    // ['bbox-collision', {'fill': '#0000ff', 'stroke': 'none'}, {'scale': 1}],
+
     ['pipes'],
     ['underground-pipes'],
     ['belts'],

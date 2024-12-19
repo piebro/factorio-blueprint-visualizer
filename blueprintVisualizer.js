@@ -88,21 +88,19 @@ function getSimplifiedEntities(blueprintJsonEntities) {
         e.pos = [e.position.x, e.position.y];
         
         if (e.name in entityNameToProperties) {
-            let [sizeX, sizeY] = entityNameToProperties[e.name].size;
-            const angleRad = (e.direction * Math.PI) / 8;
-            const cos = Math.cos(angleRad);
-            const sin = Math.sin(angleRad);
-            
-            // Calculate rotated corners relative to center
-            e.bbox = [
-                [-sizeX/2, -sizeY/2], // top-left
-                [sizeX/2, -sizeY/2],  // top-right
-                [sizeX/2, sizeY/2],   // bottom-right
-                [-sizeX/2, sizeY/2]    // bottom-left
-            ].map(([x, y]) => [
-                x * cos - y * sin + e.pos[0],
-                x * sin + y * cos + e.pos[1]
-            ]);
+            const properties = entityNameToProperties[e.name];
+            for (const bboxType of ["size", "selection_size", "collision_size"]) {
+                const [sizeX, sizeY] = properties[bboxType];
+                e["bbox_" + bboxType] = [
+                    [e.pos[0] - sizeX/2, e.pos[1] - sizeY/2],
+                    [e.pos[0] + sizeX/2, e.pos[1] - sizeY/2],
+                    [e.pos[0] + sizeX/2, e.pos[1] + sizeY/2],
+                    [e.pos[0] - sizeX/2, e.pos[1] + sizeY/2]
+                ]
+            }
+            // if (e.name === "offshore-pump") { // special case for offshore pump
+            //     e.bbox_size.forEach(point => point[1] -= 0.5);
+            // }
         }
     }
 }
@@ -112,11 +110,11 @@ function getSvgSizeAndPosOffset(entities, tiles, bboxBorderNWSE) {
         return [1, 1];
     }
 
-    const entityBboxes = entities.filter(e => "bbox" in e).map(e => e.bbox);
+    const entityBboxes = entities.filter(e => "bbox_size" in e).map(e => e.bbox_size);
     const tilePositions = tiles.map(t => t.pos);
     
-    const xValues = [...entityBboxes.flatMap(box => box.map(point => point[0])), ...tilePositions.map(pos => pos[0])];
-    const yValues = [...entityBboxes.flatMap(box => box.map(point => point[1])), ...tilePositions.map(pos => pos[1])];    
+    const xValues = [...entityBboxes.flatMap(box_size => box_size.map(point => point[0])), ...tilePositions.map(pos => pos[0])];
+    const yValues = [...entityBboxes.flatMap(box_size => box_size.map(point => point[1])), ...tilePositions.map(pos => pos[1])];    
 
     // Calculate bounding box from both entity bboxes and tile positions
     const bbox = [
@@ -201,7 +199,13 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
             appendGroup(dwg, svgSettings);
             continue;
         } else if (settingName === "bbox") {
-            drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, svgSettings, otherSettings);
+            drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, svgSettings, otherSettings, "bbox_size");
+            continue;
+        } else if (settingName === "bbox-selection") {
+            drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, svgSettings, otherSettings, "bbox_selection_size");
+            continue;
+        } else if (settingName === "bbox-collision") {
+            drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, svgSettings, otherSettings, "bbox_collision_size");
             continue;
         } else if (settingName === "tiles") {
             drawTiles(dwg, blueprint.tiles, blueprint.posOffset, svgSettings, otherSettings);
@@ -293,7 +297,7 @@ function drawRect(dwg, bbox, posOffset, scale, rx, ry) {
     dwg.parts.push('/>');
 }
 
-function drawEntitiesBbox(dwg, entities, posOffset, svgSettings, otherSettings) {
+function drawEntitiesBbox(dwg, entities, posOffset, svgSettings, otherSettings, bboxType) {
     let bboxEntities;
     if ("allow" in otherSettings) {
         bboxEntities = entities.filter(e => otherSettings.allow.includes(e.name));
@@ -305,8 +309,8 @@ function drawEntitiesBbox(dwg, entities, posOffset, svgSettings, otherSettings) 
 
     appendGroup(dwg, svgSettings);
     for (const e of bboxEntities) {
-        if ("bbox" in e) {
-            drawRect(dwg, e.bbox, posOffset, otherSettings.scale, otherSettings.rx, otherSettings.ry);
+        if (bboxType in e) {
+            drawRect(dwg, e[bboxType], posOffset, otherSettings.scale, otherSettings.rx, otherSettings.ry);
         }
     }
     dwg.groupsToClose -= 1;
