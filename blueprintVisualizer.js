@@ -98,9 +98,6 @@ function getSimplifiedEntities(blueprintJsonEntities) {
                     [e.pos[0] - sizeX/2, e.pos[1] + sizeY/2]
                 ]
             }
-            // if (e.name === "offshore-pump") { // special case for offshore pump
-            //     e.bbox_size.forEach(point => point[1] -= 0.5);
-            // }
         }
     }
 }

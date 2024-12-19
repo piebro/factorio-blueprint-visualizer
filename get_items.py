@@ -235,9 +235,6 @@ def format_item_entry(item_name, item_data):
         ],
         "genericTerms": item_data['genericTerms']
     }
-
-    # if item_name == "offshore-pump":
-    #     props["size"] = [1, 2]
     
     if "pipe_connection_target_positions" in item_data:
         props["pipeConnectionTargetPositions"] = item_data['pipe_connection_target_positions']
