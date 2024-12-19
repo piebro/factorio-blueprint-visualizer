@@ -221,20 +221,21 @@ def format_item_entry(item_name, item_data):
     item_data['genericTerms'] = [item_data['group'], item_data['subgroup']]
     
     props = {
-        "size": [
-            ceil(item_data['collision_box'][1][0] - item_data['collision_box'][0][0]),
-            ceil(item_data['collision_box'][1][1] - item_data['collision_box'][0][1])
-        ],
-        "selection_size": [
-            item_data['selection_box'][1][0] - item_data['selection_box'][0][0],
-            item_data['selection_box'][1][1] - item_data['selection_box'][0][1]
-        ],
-        "collision_size": [
-            item_data['collision_box'][1][0] - item_data['collision_box'][0][0],
-            item_data['collision_box'][1][1] - item_data['collision_box'][0][1]
-        ],
         "genericTerms": item_data['genericTerms']
     }
+    if item_name not in ["curved-rail-a", "curved-rail-b", "elevated-curved-rail-a", "elevated-curved-rail-b", "elevated-half-diagonal-rail", "elevated-straight-rail", "half-diagonal-rail"]:
+        props["size"] = [
+            ceil(item_data['collision_box'][1][0] - item_data['collision_box'][0][0]),
+            ceil(item_data['collision_box'][1][1] - item_data['collision_box'][0][1])
+        ]
+        props["selection_size"] = [
+            item_data['selection_box'][1][0] - item_data['selection_box'][0][0],
+            item_data['selection_box'][1][1] - item_data['selection_box'][0][1]
+        ]
+        props["collision_size"] = [
+            item_data['collision_box'][1][0] - item_data['collision_box'][0][0],
+            item_data['collision_box'][1][1] - item_data['collision_box'][0][1]
+        ]
     
     if "pipe_connection_target_positions" in item_data:
         props["pipeConnectionTargetPositions"] = item_data['pipe_connection_target_positions']

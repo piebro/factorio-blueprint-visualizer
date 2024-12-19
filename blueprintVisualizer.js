@@ -90,13 +90,15 @@ function getSimplifiedEntities(blueprintJsonEntities) {
         if (e.name in entityNameToProperties) {
             const properties = entityNameToProperties[e.name];
             for (const bboxType of ["size", "selection_size", "collision_size"]) {
-                const [sizeX, sizeY] = properties[bboxType];
-                e["bbox_" + bboxType] = [
-                    [e.pos[0] - sizeX/2, e.pos[1] - sizeY/2],
-                    [e.pos[0] + sizeX/2, e.pos[1] - sizeY/2],
-                    [e.pos[0] + sizeX/2, e.pos[1] + sizeY/2],
-                    [e.pos[0] - sizeX/2, e.pos[1] + sizeY/2]
-                ]
+                if (bboxType in properties) {
+                    const [sizeX, sizeY] = properties[bboxType];
+                    e["bbox_" + bboxType] = [
+                        [e.pos[0] - sizeX/2, e.pos[1] - sizeY/2],
+                        [e.pos[0] + sizeX/2, e.pos[1] - sizeY/2],
+                        [e.pos[0] + sizeX/2, e.pos[1] + sizeY/2],
+                        [e.pos[0] - sizeX/2, e.pos[1] + sizeY/2]
+                    ]
+                }
             }
         }
     }
@@ -109,9 +111,18 @@ function getSvgSizeAndPosOffset(entities, tiles, bboxBorderNWSE) {
 
     const entityBboxes = entities.filter(e => "bbox_size" in e).map(e => e.bbox_size);
     const tilePositions = tiles.map(t => t.pos);
+    const entityPositions = entities.map(e => e.pos);
     
-    const xValues = [...entityBboxes.flatMap(box_size => box_size.map(point => point[0])), ...tilePositions.map(pos => pos[0])];
-    const yValues = [...entityBboxes.flatMap(box_size => box_size.map(point => point[1])), ...tilePositions.map(pos => pos[1])];    
+    const xValues = [
+        ...entityBboxes.flatMap(box_size => box_size.map(point => point[0])), 
+        ...tilePositions.map(pos => pos[0]),
+        ...entityPositions.map(pos => pos[0])
+    ];
+    const yValues = [
+        ...entityBboxes.flatMap(box_size => box_size.map(point => point[1])), 
+        ...tilePositions.map(pos => pos[1]),
+        ...entityPositions.map(pos => pos[1])
+    ];
 
     // Calculate bounding box from both entity bboxes and tile positions
     const bbox = [
@@ -282,13 +293,18 @@ function drawRect(dwg, bbox, posOffset, scale, rx, ry) {
         ]);
     }
 
-    // Create SVG polygon points string
-    const pointsStr = bbox.map(point => `${point[0] + posOffset[0]},${point[1] + posOffset[1]}`).join(' ');
+    const minX = Math.min(...bbox.map(point => point[0]));
+    const minY = Math.min(...bbox.map(point => point[1]));
+    const width = Math.abs(bbox[1][0] - bbox[0][0]);
+    const height = Math.abs(bbox[2][1] - bbox[1][1]);
+
+    dwg.parts.push(`<rect x="${minX + posOffset[0]}" y="${minY + posOffset[1]}" width="${width}" height="${height}"`);
     
-    dwg.parts.push(`<polygon points="${pointsStr}"`);
-    
-    if (rx !== undefined || ry !== undefined) {
-        console.warn('rx and ry are not supported for rotated rectangles');
+    if (rx !== undefined) {
+        dwg.parts.push(` rx="${rx}"`);
+    }
+    if (ry !== undefined) {
+        dwg.parts.push(` ry="${ry}"`);
     }
 
     dwg.parts.push('/>');

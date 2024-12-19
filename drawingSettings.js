@@ -10,8 +10,8 @@ const EXAMPLE_SETTINGS = [
     // ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
     
     
-    ['bbox', {'fill': '#ff0000', 'stroke': 'none'}, {'scale': 1}],
-    ['bbox-selection', {'fill': '#00ff00', 'stroke': 'none'}, {'scale': 1}],
+    ['bbox', {'fill': '#ff0000', 'stroke': 'none'}, {'scale': 1, 'rx': 0.4, 'ry': 0.4}],
+    // ['bbox-selection', {'fill': '#00ff00', 'stroke': 'none'}, {'scale': 1}],
     // ['bbox-collision', {'fill': '#0000ff', 'stroke': 'none'}, {'scale': 1}],
 
     ['pipes'],
@@ -24,10 +24,11 @@ const EXAMPLE_SETTINGS = [
     ['green-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#00ff08'}],
     ['red-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#ff0008'}],
     ['inserters', {}],
+    ['rails', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 1}],
     
     // ['bbox', {'bbox-scale': 1, 'allow': ['transportation'], 'fill': 'none', 'stroke': '#ffba08', 'stroke-width': 0.1}],
     // ['belts', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
-    // ['rails', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
+    // 
     // ['underground-belts', {'stroke-opacity': 0.6}],
     
     // ['underground-pipes', {'stroke-opacity': 0.6}],
