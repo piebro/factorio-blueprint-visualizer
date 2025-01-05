@@ -111,17 +111,14 @@ function getSvgSizeAndPosOffset(entities, tiles, bboxBorderNWSE) {
 
     const entityBboxes = entities.filter(e => "bbox_size" in e).map(e => e.bbox_size);
     const tilePositions = tiles.map(t => t.pos);
-    const entityPositions = entities.map(e => e.pos);
     
     const xValues = [
         ...entityBboxes.flatMap(box_size => box_size.map(point => point[0])), 
         ...tilePositions.map(pos => pos[0]),
-        ...entityPositions.map(pos => pos[0])
     ];
     const yValues = [
         ...entityBboxes.flatMap(box_size => box_size.map(point => point[1])), 
         ...tilePositions.map(pos => pos[1]),
-        ...entityPositions.map(pos => pos[1])
     ];
 
     // Calculate bounding box from both entity bboxes and tile positions

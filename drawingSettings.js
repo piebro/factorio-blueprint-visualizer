@@ -24,7 +24,7 @@ const EXAMPLE_SETTINGS = [
     ['green-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#00ff08'}],
     ['red-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#ff0008'}],
     ['inserters', {}],
-    ['rails', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 1}],
+    ['rails', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
     
     // ['bbox', {'bbox-scale': 1, 'allow': ['transportation'], 'fill': 'none', 'stroke': '#ffba08', 'stroke-width': 0.1}],
     // ['belts', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
