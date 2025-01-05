@@ -1,42 +1,22 @@
 const EXAMPLE_SETTINGS = [
-    ['background', '#a2aebb'],
-    ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
+    ['how to use: https://github.com/piebro/factorio-blueprint-visualizer/blob/master/draw_setting_documentation.md'],
+    ['default settings', {'background': '#a2aebb', 'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.3}],
     ['tiles', {'fill': '#a2fffb', 'stroke-width': 0.1}, {'allow': ['landfill'], 'size': 0.7}],
-    ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
-    
-
-    // ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
-
-    // ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill']}],
-    
-    
-    ['bbox', {'fill': '#ff0000', 'stroke': 'none'}, {'scale': 1, 'rx': 0.4, 'ry': 0.4}],
+    ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill'], 'size': 0.7}],
+    ['bbox', {'fill': '#ff0000', 'stroke': 'none'}, {'deny': ["pipes", "underground-pipes", "belts", "underground-belts"], 'scale': 0.75, 'rx': 0.1, 'ry': 0.1}],
     // ['bbox-selection', {'fill': '#00ff00', 'stroke': 'none'}, {'scale': 1}],
     // ['bbox-collision', {'fill': '#0000ff', 'stroke': 'none'}, {'scale': 1}],
 
-    ['pipes'],
-    ['underground-pipes'],
-    ['belts'],
-    ['underground-belts'],
-
-    ['heat-pipes', {'stroke-opacity': 0.8}],
-    ['power-lines', {'stroke-opacity': 0.8}],
-    ['green-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#00ff08'}],
-    ['red-wire-lines', {'stroke-opacity': 0.8, 'stroke': '#ff0008'}],
-    ['inserters', {}],
-    ['rails', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
-    
-    // ['bbox', {'bbox-scale': 1, 'allow': ['transportation'], 'fill': 'none', 'stroke': '#ffba08', 'stroke-width': 0.1}],
-    // ['belts', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
-    // 
-    // ['underground-belts', {'stroke-opacity': 0.6}],
-    
-    // ['underground-pipes', {'stroke-opacity': 0.6}],
-    
-    
-    // ['bbox', {'allow': ['furnaces', 'electricity-generators', 'boiler'], 'fill': '#1c3144', 'stroke': 'none'}],
-    // ['bbox', {'allow': ['lab'], 'fill': '#1c3144', 'stroke': 'none'}],
-    // ['bbox', {'deny': ['transportation', 'electricity', 'inserters'], 'fill': 'none'}],
+    ['pipes', {'stroke': '#ff0000'}],
+    ['underground-pipes', {'stroke': '#ff0000'}],
+    ['belts', {'stroke': '#00ff00'}],
+    ['underground-belts', {'stroke': '#00ff00'}],
+    ['heat-pipes', {'stroke': '#ff0000'}],
+    ['power-lines', {'stroke': '#ff0000'}],
+    // ['green-wire-lines', {'stroke': '#ff0000'}],
+    // ['red-wire-lines', {'stroke': '#ff0000'}],
+    ['inserters', {'stroke': '#ff0000', 'stroke-width': 0.1}],
+    ['rails', {'stroke': '#ff0000'}],
 ];
 
 const PREDEFINED_COLOR_PALETTES = [

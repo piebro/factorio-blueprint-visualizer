@@ -12,6 +12,14 @@
   <script src="entityProperties.js"></script>
   <script src="drawingSettings.js"></script>
   <script src="blueprintVisualizer.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/json-lint.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.0/jsonlint.min.js"></script>
   
 </head>
 
@@ -20,10 +28,11 @@ img, svg {
   width:auto;
   height:auto;
   max-width: 92vw;
-  max-height: 86vh;
+  max-height: 76vh;
   margin: auto;
   display: block;
   padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .button-container {
@@ -43,20 +52,81 @@ img, svg {
 .btn:hover{
   background-color: #3e8e41;
 }
+
+.header-links {
+  font-size: 20px;
+  text-align: right;
+  padding: 10px 20px;
+}
+
+.header-links a {
+  color: #04AA6D;
+  text-decoration: none;
+  margin-left: 20px;
+}
+
+.header-links a:hover {
+  text-decoration: underline;
+}
+
+.setting-window {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Allow clicks to pass through the overlay */
+  overflow: hidden; /* Hide scrollbar */
+}
+
+.setting-window-content {
+  padding: 0px 4px 0px 4px;
+  position: absolute;
+  width: 80%;
+  max-width: 600px;
+  cursor: move;
+  background-color: #04AA6D;
+  pointer-events: auto;
+  resize: both;
+  overflow: auto;
+  min-width: 300px;
+  min-height: 200px;
+  height: 60vh;
+}
+
+.close {
+  color: white;
+  position: absolute;
+  right: 10px;
+  top: 0px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.close:hover {
+  color: #ddd;
+}
+
+#settingsText {
+  width: 100%;
+  height: 60vh;
+  margin-top: 10px;
+  font-family: monospace;
+}
+
+.CodeMirror {
+  font-family: monospace;
+  font-size: 14px;
+  margin: 30px 0px 0px 0px;
+}
 </style>
 
 <script>
-
-async function loadDefaultBlueprint() {
-  try {
-    const response = await fetch('test/test_blueprint_book.txt');
-    const blueprintString = await response.text();
-    return blueprintString;
-  } catch (error) {
-    console.error('Error loading default blueprint:', error);
-    return START_EXAMPLE_BLUEPRINT; // Fallback to example if load fails
-  }
-}
 
 function newBlueprintString(blueprintString){
   [currentBlueprintNames, currentBlueprintJsons] = getBlueprintList(blueprintString);
@@ -89,13 +159,51 @@ async function setup(){
   const elem = document.createElement("img");
   elem.setAttribute("src", "start.svg");
   document.getElementById("svg-container").appendChild(elem);
-  
-  const defaultBlueprint = await loadDefaultBlueprint();
-  newBlueprintString(defaultBlueprint);
-  showBlueprint();
-  // console.log(getCurrentBlueprintEntityCount(currentBlueprint))
 
-  document.addEventListener('keyup', onKeyUp);
+  // Create window controllers after DOM is loaded
+  settingsWindow = createCodeEditorWindow({
+    windowId: "settingWindow",
+    buttonId: "settingsBtn",
+    buttonTextShow: "Modify Drawing Settings",
+    buttonTextHide: "Hide Drawing Settings",
+    editorOptions: {
+      mode: { name: "javascript", json: true },
+      lint: true,
+      gutters: ["CodeMirror-lint-markers"],
+      autoCloseBrackets: true,
+      matchBrackets: true,
+      indentUnit: 2,
+      tabSize: 2
+    },
+    onOpen: (editor) => {
+      editor.setValue(JSON.stringify(settingsList[currentSettingIndex], null, 2));
+      editor.on("change", validateAndApplySettings);
+    }
+  });
+
+  entityCountWindow = createCodeEditorWindow({
+    windowId: "entityCountWindow",
+    buttonId: "entityCountBtn",
+    buttonTextShow: "Show Entity Count",
+    buttonTextHide: "Hide Entity Count",
+    editorOptions: {
+      readOnly: true
+    },
+    initialPosition: { top: "18vh", left: "20px" },
+    heightOffset: 30,
+    onOpen: (editor) => {
+      const entityCounts = getCurrentBlueprintEntityCount(currentBlueprint);
+      const formattedCounts = entityCounts.map(([entity, count]) => 
+        `${entity}: ${count}`
+      ).join('\n');
+      editor.setValue(formattedCounts);
+    }
+  });
+  // document.getElementById("entityCountBtn").onclick = () => entityCountWindow.toggle();
+  
+
+  newBlueprintString(START_EXAMPLE_BLUEPRINT);
+  showBlueprint();
 }
 
 function showBlueprint(){
@@ -133,21 +241,161 @@ function nextSetting(){
   if (settingsList.length == currentSettingIndex) {
     settingsList.push(getRandomSettings());
   }
-  showBlueprint()
+  showBlueprint();
 }
 
 function previousSetting(){
   if (currentSettingIndex > 0) {
     currentSettingIndex -= 1;
-    showBlueprint()
+    showBlueprint();
   }
 }
 
-function onKeyUp(e){
-  if (e.code == "ArrowRight"){
-    nextSetting()
-  } else if (e.code == "ArrowLeft"){
-    previousSetting()
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  
+  // Move the element from anywhere inside it
+  elmnt.onmousedown = function(e) {
+    // Don't initiate drag if clicking on textarea, buttons, or the resize handle
+    if (e.target.tagName === 'TEXTAREA' || 
+        e.target.tagName === 'BUTTON' || 
+        e.offsetX > e.target.clientWidth - 20 && e.offsetY > e.target.clientHeight - 20) {
+      return;
+    }
+    dragMouseDown(e);
+  };
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+
+function createCodeEditorWindow(options) {
+  const {
+    windowId,
+    buttonId,
+    buttonTextShow = "Show Window",
+    buttonTextHide = "Hide Window",
+    editorOptions = {},
+    initialPosition = { top: "18vh", right: "20px" },
+    onOpen = () => {},
+    heightOffset = 60
+  } = options;
+
+  let editor;
+  
+  document.getElementById(buttonId).onclick = () => toggle();
+  
+  const window = document.getElementById(windowId);
+  const closeBtn = window.querySelector(".close");
+  closeBtn.onclick = () => {
+    close();
+    document.getElementById(buttonId).textContent = buttonTextShow;
+  };
+
+  function toggle() {
+    const window = document.getElementById(windowId);
+    const button = document.getElementById(buttonId);
+    
+    if (window.style.display === "block") {
+      close();
+      button.textContent = buttonTextShow;
+    } else {
+      open();
+      button.textContent = buttonTextHide;
+    }
+  }
+
+  function open() {
+    const window = document.getElementById(windowId);
+    const windowContent = window.querySelector(".setting-window-content");
+    const textArea = document.getElementById(`${windowId}Text`);
+    
+    if (!editor) {
+      editor = CodeMirror.fromTextArea(textArea, {
+        theme: "monokai",
+        lineNumbers: true,
+        lineWrapping: true,
+        ...editorOptions
+      });
+    }
+    
+    window.style.display = "block";
+    
+    // Set initial position if not already positioned
+    if (!windowContent.style.top) {
+      Object.assign(windowContent.style, initialPosition);
+    }
+    
+    // Make draggable
+    dragElement(windowContent);
+    
+    // Refresh editor after modal is visible
+    editor.refresh();
+    
+    // Add resize observer
+    const resizeObserver = new ResizeObserver(() => {
+      if (editor) {
+        editor.refresh();
+        editor.setSize(null, windowContent.clientHeight - heightOffset);
+      }
+    });
+    resizeObserver.observe(windowContent);
+
+    onOpen(editor);
+  }
+
+  function close() {
+    const window = document.getElementById(windowId);
+    window.style.display = "none";
+    
+    // Clean up resize observer
+    const windowContent = window.querySelector(".setting-window-content");
+    const resizeObserver = new ResizeObserver(() => {});
+    resizeObserver.unobserve(windowContent);
+  }
+
+  return {
+    toggle,
+    open,
+    close,
+    getEditor: () => editor
+  };
+}
+
+function validateAndApplySettings() {
+  try {
+    const editor = window.settingsWindow.getEditor();
+    const newSettings = JSON.parse(editor.getValue());
+    settingsList[currentSettingIndex] = newSettings;
+    showBlueprint();
+  } catch (e) {
+    // Invalid JSON - silently fail
   }
 }
 
@@ -161,15 +409,44 @@ settingsList.push(EXAMPLE_SETTINGS)
 </script>
 <body onload="setup()">
 
+<div class="header-links">
+  <a href="https://github.com/piebro/factorio-blueprint-visualizer?ref=piebro.github.io/factorio-blueprint-visualizer">About</a>
+  <a href="https://piebro.github.io?ref=piebro.github.io/factorio-blueprint-visualizer">Other Projects</a>
+</div>
+
+<h1 style="text-align: center; color: #04AA6D; margin: 20px 0;">Factorio Blueprint Visualizer</h1>
+
 <div class="button-container" id="button-container">
-  <button class="btn" id="nextSettingBtn" onclick="nextSetting()">Random Drawing Setting</button>
-  <button class="btn" id="saveBtn" onclick="saveBtnClick()">Save</button>
   <button class="btn" id="uploadBtn" onclick="uploadBtnClick()">Upload Blueprint</button>
-  <button class="btn" id="infoBtn" onclick="location.href='https://github.com/piebro/factorio-blueprint-visualizer?ref=piebro.github.io/factorio-blueprint-visualizer';">About</button>
-  <button class="btn" id="infoBtn" onclick="location.href='https://piebro.github.io?ref=piebro.github.io/factorio-blueprint-visualizer';">Other Projects</button>
+  <button class="btn" id="nextSettingBtn" onclick="nextSetting()">Random Drawing Setting</button>
+  
 </div>
 
 <div class="svg-container" id="svg-container"></div>
+
+<div class="button-container">
+  <button class="btn" id="entityCountBtn">Show Entity Count</button>
+  <button class="btn" id="settingsBtn">Modify Drawing Settings</button>
+  <button class="btn" id="randomColorPalletBtn">Random Color Pallet</button>
+  <button class="btn" id="saveBtn" onclick="saveBtnClick()">Save</button>
+</div>
+
+<div id="settingWindow" class="setting-window">
+  <div class="setting-window-content">
+    <span class="close">&times;</span>
+    <textarea id="settingWindowText"></textarea>
+  </div>
+</div>
+
+<div id="entityCountWindow" class="setting-window">
+  <div class="setting-window-content">
+    <span class="close">&times;</span>
+    <textarea id="entityCountWindowText"></textarea>
+  </div>
+</div>
+
+
+
 
 </body>
 </html>

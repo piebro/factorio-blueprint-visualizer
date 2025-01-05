@@ -5,10 +5,9 @@
 
 I love the game Factorio and I really like the look of factories after growing for many hours or blueprints after tweaking them for perfection. So I thought about visualizing the factories and blueprints.
 
-All factorio buildings with their bounding boxes and belt, pipe, inserter, wire and electricity connections can be visualized. Everything is drawn in vector graphics (SVG) to be able to view it in any resolution.
+All factorio buildings and tiles with their bounding boxes and belt, pipe, rail, inserter, wire and electricity connections can be visualized. Everything is drawn in vector graphics (SVG) to be able to view it in any resolution.
 
-The hardest part was writing the logic for connecting rails, belts and pipes. After many failed attempts with lots of bugs, I wrote a system that works pretty well. The next step was, to be able to be creative with drawing different connections and bounding boxes of buildings. Therefor, I created configurable drawing settings to experiment with and a random draw settings generator. After some tweaking, I got nice visualizations. To make the visualization tool easily accessible, I created an [online demo](https://piebro.github.io/factorio-blueprint-visualizer/) that uses the original python code with [pyodide](https://github.com/pyodide/pyodide) in the browser (that's why the website might take some time to load) and an easy-to-use notebook.
-
+Use the [online demo](https://piebro.github.io/factorio-blueprint-visualizer/) to visualize your own blueprints.
 
 ## Examples
 
@@ -25,7 +24,7 @@ The last three blueprints are by Josh Ventura and can be found [here](https://fa
 
 ## Usage
 
-You can visualize your own blueprint with random drawing settings at: [https://piebro.github.io/factorio-blueprint-visualizer](https://piebro.github.io/factorio-blueprint-visualizer/) (You can use the arrow keys for going through the visualization). You can find many blueprints at: https://www.factorio.school.
+<!-- TODO: add a few screenshots to visualize a new blueprint? or some text how this generally works? -->
 
 ### Drawing Settings
 

@@ -194,13 +194,18 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
     const metadataStr = `<metadata generated_with="https://piebro.github.io/factorio-blueprint-visualizer"><settings>${JSON.stringify(settings)}</settings><blueprint>${blueprint.encodedBlueprintStr}</blueprint></metadata>`;
 
     settings = preProcessSettings(settings);
-    const background = settings[0][0] === "background" ? settings[0][1] : "none";
+    let background = "none";
+    for (const [i, [settingName, svgSettings]] of settings.entries()) {
+        if (settingName === "default settings") {
+            background = svgSettings.background || background;
+            delete svgSettings.background;
+            break;
+        }
+    }
     const dwg = getSVG(blueprint.bboxWidth, blueprint.bboxHeight, background, metadataStr, svgWidthInMm, aspectRatio);
 
     for (let [settingName, svgSettings, otherSettings] of settings) {
-        if (settingName === "background") {
-            continue
-        } else if (settingName === "svg") {
+        if (settingName === "default settings") {
             appendGroup(dwg, svgSettings);
             continue;
         } else if (settingName === "bbox") {
