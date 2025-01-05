@@ -130,7 +130,7 @@ img, svg {
 
 function newBlueprintString(blueprintString){
   [currentBlueprintNames, currentBlueprintJsons] = getBlueprintList(blueprintString);
-  currentBlueprint = processBlueprint(currentBlueprintJsons[2])
+  currentBlueprint = processBlueprint(currentBlueprintJsons[0])
 
   getCurrentBlueprintEntityCount(currentBlueprint)
 
@@ -204,6 +204,12 @@ async function setup(){
 
   newBlueprintString(START_EXAMPLE_BLUEPRINT);
   showBlueprint();
+
+  // Add click handler for random color palette button
+  document.getElementById("randomColorPalletBtn").onclick = () => {
+    settingsList[currentSettingIndex] = settingsChangeColors(settingsList[currentSettingIndex], null, true);
+    showBlueprint();
+  };
 }
 
 function showBlueprint(){

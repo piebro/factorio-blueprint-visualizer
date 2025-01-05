@@ -203,10 +203,13 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
         }
     }
     const dwg = getSVG(blueprint.bboxWidth, blueprint.bboxHeight, background, metadataStr, svgWidthInMm, aspectRatio);
+    let currentDefaultOtherSettings = {};
 
     for (let [settingName, svgSettings, otherSettings] of settings) {
+        otherSettings = {...currentDefaultOtherSettings, ...otherSettings};
         if (settingName === "default settings") {
             appendGroup(dwg, svgSettings);
+            currentDefaultOtherSettings = otherSettings;
             continue;
         } else if (settingName === "bbox") {
             drawEntitiesBbox(dwg, blueprint.entities, blueprint.posOffset, svgSettings, otherSettings, "bbox_size");

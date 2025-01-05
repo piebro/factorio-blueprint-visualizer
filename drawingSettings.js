@@ -1,23 +1,24 @@
 const EXAMPLE_SETTINGS = [
-    ['how to use: https://github.com/piebro/factorio-blueprint-visualizer/blob/master/draw_setting_documentation.md'],
-    ['default settings', {'background': '#a2aebb', 'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.3}],
-    ['tiles', {'fill': '#a2fffb', 'stroke-width': 0.1}, {'allow': ['landfill'], 'size': 0.7}],
-    ['tiles', {'fill': '#a2aefb', 'stroke-width': 0.1}, {'deny': ['landfill'], 'size': 0.7}],
-    ['bbox', {'fill': '#ff0000', 'stroke': 'none'}, {'deny': ["pipes", "underground-pipes", "belts", "underground-belts"], 'scale': 0.75, 'rx': 0.1, 'ry': 0.1}],
-    // ['bbox-selection', {'fill': '#00ff00', 'stroke': 'none'}, {'scale': 1}],
-    // ['bbox-collision', {'fill': '#0000ff', 'stroke': 'none'}, {'scale': 1}],
-
-    ['pipes', {'stroke': '#ff0000'}],
-    ['underground-pipes', {'stroke': '#ff0000'}],
-    ['belts', {'stroke': '#00ff00'}],
-    ['underground-belts', {'stroke': '#00ff00'}],
-    ['heat-pipes', {'stroke': '#ff0000'}],
-    ['power-lines', {'stroke': '#ff0000'}],
-    // ['green-wire-lines', {'stroke': '#ff0000'}],
-    // ['red-wire-lines', {'stroke': '#ff0000'}],
-    ['inserters', {'stroke': '#ff0000', 'stroke-width': 0.1}],
-    ['rails', {'stroke': '#ff0000'}],
-];
+    ["how to use: https://github.com/piebro/factorio-blueprint-visualizer/blob/master/draw_setting_documentation.md"],
+    ["default settings", {'background': '#a2aebb', 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.3}, {'scale': 0.85, 'rx': 0.1, 'ry': 0.1}],
+    ["tiles", {'fill': '#420217', 'stroke': '#f3ffbd', 'stroke-width': 0.15}, {'deny': [], 'size': 0.7}],
+    
+    ["pipes", {'stroke': '#c84c09'}],
+    ["underground-pipes", {'stroke': '#c84c09'}],
+    ["belts", {'stroke': '#f3ffbd'}],
+    ["underground-belts", {'stroke': '#f3ffbd'}],
+    ["inserters", {'stroke': '#f3ffbd'}],
+    
+    ["bbox", {'fill': '#247ba0'}, {'deny': ["pipe", "pipe-to-ground", "belt", "inserter", "solar-panel", "accumulator", "asteroid-collector", "cargo-bay", "space-platform-hub", "thruster"]}],
+    ["bbox", {'fill': '#ff1654'}, {'allow': ["solar-panel"]}],
+    ["bbox", {'fill': '#436436'}, {'allow': ["accumulator"]}],
+    ["bbox", {'fill': '#70c1b3'}, {'allow': ["cargo-bay"]}],
+    ["bbox", {'fill': '#b2dbbf'}, {'allow': ["asteroid-collector", "thruster", "space-platform-hub"]}],
+    
+    ["heat-pipes", {'stroke': '#b2dbbf'}],
+    ["power-lines", {'stroke': '#70c1b3'}], 
+    ["rails", {'stroke': '#faa275'}],
+]
 
 const PREDEFINED_COLOR_PALETTES = [
     [
@@ -276,19 +277,12 @@ function settingsChangeProperty(settings, propertyName, changeFunc) {
 function settingsChangeColors(settings, colorCount = null, changeBackground = true) {
   settings = deepCopy(settings);
   const originalColors = {};
-  const keysThatHaveAColor = ["stroke", "fill"];
+  let keysThatHaveAColor = ["stroke", "fill"];
+  if (changeBackground) {
+    keysThatHaveAColor.push("background");
+  }
 
   for (let s of settings) {
-    // Handle background color
-    if (changeBackground && s[0] === "background") {
-      if (!(s[1] in originalColors)) {
-        originalColors[s[1]] = [[s, 1]];
-      } else {
-        originalColors[s[1]].push([s, 1]);
-      }
-      continue;
-    }
-
     // Only check for stroke/fill if s[1] is an object and not null
     if (typeof s[1] === 'object' && s[1] !== null) {
       for (let key of keysThatHaveAColor) {
