@@ -64,6 +64,12 @@ To easily convert all SVGs in a folder, you can use a terminal and Inkscape like
 
 ## Contribute
 
+```bash
+# install uv
+uv run ruff check --fix
+uv run ruff format
+```
+
 Contributions to this project are welcome. Feel free to report bugs or post ideas.
 
 To update the python code for the website, you have to update the python wheel in the website folder. To update it, just run: ```python setup.py bdist_wheel --universal --dist-dir=website```
