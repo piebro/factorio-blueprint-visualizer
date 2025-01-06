@@ -697,8 +697,8 @@ function drawTiles(dwg, tiles, posOffset, svgSettings, otherSettings) {
             continue;
         }
         const [gridArray, offset] = tileNameToGridArrayAndOffset[tileName];
-        const size = "size" in otherSettings ? otherSettings.size : 0.6;
-        const lines = findBorderSegments(gridArray, offset, size);
+        const scale = "scale" in otherSettings ? otherSettings.scale : 0.6;
+        const lines = findBorderSegments(gridArray, offset, scale);
         const rawPolygons = extractPolygons(lines);
         const result = organizePolygonHierarchy(rawPolygons);
         drawPolygonWithHoles(dwg, result, posOffset, svgSettings);

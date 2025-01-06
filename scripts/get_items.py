@@ -3,7 +3,7 @@ from math import ceil
 
 DIRECTION_4_TO_OFFSET = [[0, -1], [1, 0], [0, 1], [-1, 0]]
 
-CUSTOM_GENERIC_TERMS = new_categories = {
+CUSTOM_GENERIC_TERMS = {
     "power-generation": [
         "boiler",
         "steam-engine",
@@ -29,6 +29,11 @@ CUSTOM_GENERIC_TERMS = new_categories = {
         "requester-chest",
         "storage-chest",
     ],
+}
+
+CUSTOM_RENAME_GENERIC_TERMS = {
+    "inserter": "inserters",    # because inserter is also already an item name
+    "belt": "belts",
 }
 
 
@@ -197,6 +202,14 @@ def generate_js_output(sorted_items, pipe_positions, heat_positions, fluid_recip
 
     # Add generic terms
     generic_terms = collect_generic_terms(sorted_items)
+    
+    # Rename some generic terms
+    renamed_terms = {}
+    for key, terms in generic_terms.items():
+        new_key = CUSTOM_RENAME_GENERIC_TERMS.get(key, key)
+        renamed_terms[new_key] = sorted(list(terms))
+    generic_terms = renamed_terms
+
     generic_terms.update(CUSTOM_GENERIC_TERMS)
     js_output.extend(
         [

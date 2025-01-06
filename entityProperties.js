@@ -149,7 +149,7 @@ const entityNameToProperties = {
 
 const buildingGenericTerms = {
     "agriculture": ["agricultural-tower", "biochamber", "captive-biter-spawner"],
-    "belt": ["express-loader", "express-splitter", "express-transport-belt", "express-underground-belt", "fast-loader", "fast-splitter", "fast-transport-belt", "fast-underground-belt", "loader", "splitter", "transport-belt", "turbo-loader", "turbo-splitter", "turbo-transport-belt", "turbo-underground-belt", "underground-belt"],
+    "belts": ["express-loader", "express-splitter", "express-transport-belt", "express-underground-belt", "fast-loader", "fast-splitter", "fast-transport-belt", "fast-underground-belt", "loader", "splitter", "transport-belt", "turbo-loader", "turbo-splitter", "turbo-transport-belt", "turbo-underground-belt", "underground-belt"],
     "circuit-network": ["arithmetic-combinator", "constant-combinator", "decider-combinator", "display-panel", "power-switch", "programmable-speaker", "selector-combinator", "small-lamp"],
     "combat": ["artillery-turret", "flamethrower-turret", "gate", "gun-turret", "land-mine", "laser-turret", "radar", "railgun-turret", "rocket-turret", "stone-wall", "tesla-turret"],
     "defensive-structure": ["gate", "land-mine", "radar", "stone-wall"],
@@ -157,7 +157,7 @@ const buildingGenericTerms = {
     "energy-pipe-distribution": ["big-electric-pole", "medium-electric-pole", "pipe", "pipe-to-ground", "pump", "small-electric-pole", "substation"],
     "environmental-protection": ["heating-tower", "lightning-collector", "lightning-rod"],
     "extraction-machine": ["big-mining-drill", "burner-mining-drill", "electric-mining-drill", "offshore-pump", "pumpjack"],
-    "inserter": ["bulk-inserter", "burner-inserter", "fast-inserter", "inserter", "long-handed-inserter", "stack-inserter"],
+    "inserters": ["bulk-inserter", "burner-inserter", "fast-inserter", "inserter", "long-handed-inserter", "stack-inserter"],
     "labs": ["lab", "biolab"],
     "logistic-network": ["active-provider-chest", "buffer-chest", "construction-robot", "logistic-robot", "passive-provider-chest", "requester-chest", "roboport", "storage-chest"],
     "logistics": ["active-provider-chest", "arithmetic-combinator", "big-electric-pole", "buffer-chest", "bulk-inserter", "burner-inserter", "constant-combinator", "construction-robot", "curved-rail-a", "curved-rail-b", "decider-combinator", "display-panel", "elevated-curved-rail-a", "elevated-curved-rail-b", "elevated-half-diagonal-rail", "elevated-straight-rail", "express-loader", "express-splitter", "express-transport-belt", "express-underground-belt", "fast-inserter", "fast-loader", "fast-splitter", "fast-transport-belt", "fast-underground-belt", "half-diagonal-rail", "inserter", "iron-chest", "loader", "logistic-robot", "long-handed-inserter", "medium-electric-pole", "passive-provider-chest", "pipe", "pipe-to-ground", "power-switch", "programmable-speaker", "pump", "rail-chain-signal", "rail-ramp", "rail-signal", "rail-support", "requester-chest", "roboport", "selector-combinator", "small-electric-pole", "small-lamp", "splitter", "stack-inserter", "steel-chest", "storage-chest", "storage-tank", "straight-rail", "substation", "train-stop", "transport-belt", "turbo-loader", "turbo-splitter", "turbo-transport-belt", "turbo-underground-belt", "underground-belt", "wooden-chest"],

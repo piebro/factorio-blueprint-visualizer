@@ -160,6 +160,19 @@ async function setup(){
   elem.setAttribute("src", "start.svg");
   document.getElementById("svg-container").appendChild(elem);
 
+  // Add keyboard event listener for arrow keys
+  document.addEventListener('keydown', (event) => {
+    // Check if the active element is within a CodeMirror instance
+    const isInCodeMirror = event.target.closest('.CodeMirror');
+    if (isInCodeMirror) return;
+
+    if (event.key === 'ArrowLeft') {
+      previousSetting();
+    } else if (event.key === 'ArrowRight') {
+      nextSetting();
+    }
+  });
+
   // Create window controllers after DOM is loaded
   settingsWindow = createCodeEditorWindow({
     windowId: "settingWindow",
@@ -199,8 +212,6 @@ async function setup(){
       editor.setValue(formattedCounts);
     }
   });
-  // document.getElementById("entityCountBtn").onclick = () => entityCountWindow.toggle();
-  
 
   newBlueprintString(START_EXAMPLE_BLUEPRINT);
   showBlueprint();
@@ -213,6 +224,7 @@ async function setup(){
 }
 
 function showBlueprint(){
+  updateWindows()
   document.getElementById("svg-container").innerHTML = drawBlueprint(currentBlueprint, settingsList[currentSettingIndex], svgWidthInMm=300)
 }
 
@@ -399,9 +411,33 @@ function validateAndApplySettings() {
     const editor = window.settingsWindow.getEditor();
     const newSettings = JSON.parse(editor.getValue());
     settingsList[currentSettingIndex] = newSettings;
+    // Set flag to prevent recursive update
+    editor.isUpdatingFromCode = true;
     showBlueprint();
+    editor.isUpdatingFromCode = false;
   } catch (e) {
     // Invalid JSON - silently fail
+  }
+}
+
+function updateWindows() {
+  // Update settings window
+  const settingsEditor = window.settingsWindow.getEditor();
+  if (settingsEditor && document.getElementById("settingWindow").style.display === "block") {
+    // Only update if not triggered by validateAndApplySettings
+    if (!settingsEditor.isUpdatingFromCode) {
+      settingsEditor.setValue(JSON.stringify(settingsList[currentSettingIndex], null, 2));
+    }
+  }
+
+  // Update entity count window
+  const entityCountEditor = window.entityCountWindow.getEditor();
+  if (entityCountEditor && document.getElementById("entityCountWindow").style.display === "block") {
+    const entityCounts = getCurrentBlueprintEntityCount(currentBlueprint);
+    const formattedCounts = entityCounts.map(([entity, count]) => 
+      `${entity}: ${count}`
+    ).join('\n');
+    entityCountEditor.setValue(formattedCounts);
   }
 }
 
@@ -431,10 +467,12 @@ settingsList.push(EXAMPLE_SETTINGS)
 <div class="svg-container" id="svg-container"></div>
 
 <div class="button-container">
+  <button class="btn" onclick="previousSetting()">←</button>
   <button class="btn" id="entityCountBtn">Show Entity Count</button>
   <button class="btn" id="settingsBtn">Modify Drawing Settings</button>
   <button class="btn" id="randomColorPalletBtn">Random Color Pallet</button>
   <button class="btn" id="saveBtn" onclick="saveBtnClick()">Save</button>
+  <button class="btn" onclick="nextSetting()">→</button>
 </div>
 
 <div id="settingWindow" class="setting-window">

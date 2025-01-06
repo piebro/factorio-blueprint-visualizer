@@ -36,6 +36,7 @@ An example can be found in [drawingSettings.js](drawingSettings.js).
 ## SVG Attributes
 
 - `fill`: Color for filling shapes
+- `fill-opacity`: Transparency of fill (0.0 to 1.0)
 - `stroke`: Color for lines/borders
 - `stroke-width`: Width of lines/borders
 - `stroke-linecap`: Style of line endings ('round', 'butt', 'square')
@@ -47,7 +48,6 @@ These parameters can only be used in tiles and bbox settings.
 
 - `allow`: Array of strings, only draw entities that match any of these strings.
 - `deny`: Array of strings, do not draw entities that match any of these strings.
-- `size`: Number, size of the entity.
 - `scale`: Number, scale of the entity.
 - `rx`: Number, radius of the rounded corners for rectangles.
 - `ry`: Number, radius of the rounded corners for rectangles.
