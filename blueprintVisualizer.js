@@ -60,7 +60,8 @@ function processBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {
             tile.pos = [tile.position.x + 0.5, tile.position.y + 0.5];
         }
     }
-    getSimplifiedEntities(blueprintJson.entities);
+
+    getSimplifiedEntities(blueprintJson.entities, blueprintJson.version);
     const [bboxWidth, bboxHeight, posOffset] = getSvgSizeAndPosOffset(blueprintJson.entities, blueprintJson.tiles, bboxBorderNWSE);
 
     return {
@@ -75,15 +76,19 @@ function processBlueprint(blueprintJson, bboxBorderNWSE = [3, 3, 3, 3]) {
     };
 }
 
-function getSimplifiedEntities(blueprintJsonEntities) {
+function getSimplifiedEntities(blueprintJsonEntities, blueprintJsonVersion) {
     for (const e of blueprintJsonEntities) {
-        // Set default direction if not present
         if (!("direction" in e)) {
             e.direction = 0;
         } else {
-            e.direction = parseInt(e.direction);
+            // I'm not sure how blueprint versioning works exactly, but this seems to work for the blueprints I've tested
+            const factorio_version_1 = (blueprintJsonVersion <= 300000000000000);
+            if (factorio_version_1) {
+                e.direction = parseInt(e.direction)*2;
+            } else {
+                e.direction = parseInt(e.direction);
+            }
         }
-
         // Convert position to array format
         e.pos = [e.position.x, e.position.y];
         
@@ -247,7 +252,6 @@ function drawBlueprint(blueprint, settings, svgWidthInMm = 300, aspectRatio = nu
             } else if (settingName === "red-wire-lines") {
                 lines = getLinesWire(blueprint.entities, blueprint.wires, WireType.RED_WIRE);
             } else {
-                console.log("unknown setting name:", settingName);
                 continue;
             }
             blueprint.cache[settingName] = lines;

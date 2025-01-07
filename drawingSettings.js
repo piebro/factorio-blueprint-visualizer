@@ -1,7 +1,7 @@
 const EXAMPLE_SETTINGS = [
     ["how to use: https://github.com/piebro/factorio-blueprint-visualizer/blob/master/draw_setting_documentation.md"],
     ["default settings", {'background': '#a2aebb', 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.3}, {'scale': 0.85, 'rx': 0.1, 'ry': 0.1}],
-    ["tiles", {'fill': '#420217', 'stroke': '#f3ffbd', 'stroke-width': 0.15}, {'deny': [], 'size': 0.7}],
+    ["tiles", {'fill': '#420217', 'stroke': '#f3ffbd', 'stroke-width': 0.15}, {'deny': [], 'scale': 0.7}],
     
     ["pipes", {'stroke': '#c84c09'}],
     ["underground-pipes", {'stroke': '#c84c09'}],
@@ -259,6 +259,66 @@ const RANDOM_SETTING_LIST = [
   ]
 ];
 
+
+
+const SVG_SETTINGS = {
+  'fill': 'none', 'fill-opacity': 1, 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.3, 'stroke-opacity': 1
+};
+const OTHER_SETTINGS_BBOX = {'scale': 0.85, 'rx': 0.1, 'ry': 0.1};
+const OTHER_SETTINGS_TILES = {'scale': 0.85};
+// buildingGenericTerms
+// artificialTilesSortedByLayer
+
+// 1. get all generic terms and do 1-6 bboxes with different colors. Look that 
+
+function getRandomSettings() {
+  let settings = [];
+  const SETTING_NAMES = ["belts", "underground-belts", "pipes", "underground-pipes", "heat-pipes", "inserters", "rails", "power-lines", "green-wire-lines", "red-wire-lines"];
+// "bbox",
+  settings.push(["default settings", {'background': 'none', 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.3}, {'scale': 0.85, 'rx': 0.1, 'ry': 0.1}])
+  
+  if (Math.random() < 0.8) {
+    settings.push(["tiles", {'fill': 'none', 'stroke': 'none', 'stroke-width': 0.15}, {'deny': [], 'scale': 0.7}])
+  }
+
+  const temp_settings = [];
+  const sampleSettings = shuffleArray([...SETTING_NAMES]).slice(0, 3);
+  for (const settingName of sampleSettings) {
+    temp_settings.push([settingName, {}]);
+  }
+
+  // Add 0-4 random bbox settings
+  const bboxCount = Math.floor(Math.random() * 5); // Random number 0-4
+  const genericBuildingTerms = Object.keys(buildingGenericTerms);
+  const buildingTerms = Object.keys(entityNameToProperties);
+  const allTerms = [...genericBuildingTerms, ...genericBuildingTerms, ...buildingTerms];
+  
+  for (let i = 0; i < bboxCount; i++) {
+    const buildingTermCount = Math.floor(Math.random() * 5) + 1;
+    const group = shuffleArray([...allTerms]).slice(0, buildingTermCount);
+    const bboxGroupType = Math.random() < 0.8 ? "allow" : "deny";
+    temp_settings.push(["bbox", {[bboxGroupType]: group, 'fill': 'none'}]);
+  }
+  
+  settings = [...settings, ...temp_settings];
+
+  // Replace any "none" values with incrementing hex colors
+  let noneColorCounter = 0;
+  for (let s of settings) {
+    if (typeof s[1] === 'object' && s[1] !== null) {
+      for (let key of ['stroke', 'fill', 'background']) {
+        if (key in s[1] && s[1][key] === 'none') {
+          const hexColor = '#' + noneColorCounter.toString(16).padStart(6, '0');
+          s[1][key] = hexColor;
+          noneColorCounter++;
+        }
+      }
+    }
+  }
+
+  return settingsChangeColors(settings, 10, true);
+}
+
 function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -322,38 +382,38 @@ function settingsChangeColors(settings, colorCount = null, changeBackground = tr
   return settings;
 }
 
-function getRandomSettings() {
-  let settings = deepCopy(RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)]);
+// function getRandomSettings() {
+//   let settings = deepCopy(RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)]);
 
-  if (Math.random() < 0.4) {
-    const additionalSettings = RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)];
-    settings = [...settings, ...additionalSettings];
-    settings = settingsChangeColors(settings);
-  }
+//   if (Math.random() < 0.4) {
+//     const additionalSettings = RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)];
+//     settings = [...settings, ...additionalSettings];
+//     settings = settingsChangeColors(settings);
+//   }
 
-  if (Math.random() < 0.3) {
-    const additionalSettings = RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)];
-    settings = [...settings, ...additionalSettings];
-    if (settings.length > 8) {
-      const indices = [0, 1, ...shuffleArray([...Array(settings.length).keys()].slice(2)).slice(0, settings.length - 4)];
-      settings = settings.filter((_, i) => indices.includes(i));
-    }
-    settings = settingsChangeColors(settings);
-  }
+//   if (Math.random() < 0.3) {
+//     const additionalSettings = RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)];
+//     settings = [...settings, ...additionalSettings];
+//     if (settings.length > 8) {
+//       const indices = [0, 1, ...shuffleArray([...Array(settings.length).keys()].slice(2)).slice(0, settings.length - 4)];
+//       settings = settings.filter((_, i) => indices.includes(i));
+//     }
+//     settings = settingsChangeColors(settings);
+//   }
 
-  if (Math.random() < 0.8) {
-    settings = settingsChangeColors(settings, Math.floor(Math.random() * 10) + 2);
-  }
+//   if (Math.random() < 0.8) {
+//     settings = settingsChangeColors(settings, Math.floor(Math.random() * 10) + 2);
+//   }
 
-  if (Math.random() < 0.5) {
-    settings = settingsChangeProperty(settings, "stroke-width", v => v * (Math.random() * 1.5 + 0.5));
-  }
+//   if (Math.random() < 0.5) {
+//     settings = settingsChangeProperty(settings, "stroke-width", v => v * (Math.random() * 1.5 + 0.5));
+//   }
 
-  if (Math.random() < 0.5) {
-    settings = settingsChangeProperty(settings, "bbox-scale", v => v * (Math.random() * 0.3 + 0.7));
-  }
-  return settings;
-}
+//   if (Math.random() < 0.5) {
+//     settings = settingsChangeProperty(settings, "bbox-scale", v => v * (Math.random() * 0.3 + 0.7));
+//   }
+//   return settings;
+// }
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
