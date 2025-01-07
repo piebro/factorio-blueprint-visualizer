@@ -146,10 +146,6 @@ function newBlueprintString(blueprintString){
 }
 
 async function setup(){
-  const elem = document.createElement("img");
-  elem.setAttribute("src", "start.svg");
-  document.getElementById("svg-container").appendChild(elem);
-
   // Add keyboard event listener for arrow keys
   document.addEventListener('keydown', (event) => {
     // Check if the active element is within a CodeMirror instance
