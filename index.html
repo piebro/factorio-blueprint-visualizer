@@ -134,24 +134,14 @@ function newBlueprintString(blueprintString){
 
   getCurrentBlueprintEntityCount(currentBlueprint)
 
-  prevSelection = document.getElementById('blueprintSelection');
-  if (prevSelection != null) {
-    prevSelection.remove();
-  }
-
-  if (currentBlueprintNames.length > 1){
-    selection = document.createElement("select")
-    selection.classList.add("btn")
-    selection.setAttribute("id", "blueprintSelection")
-    selection.setAttribute("style", "width: 160px;")
-    selection.setAttribute("onChange", "blueprintSelectionOnChange(this)")
-    for (i in currentBlueprintNames){
-      option = document.createElement("option")
-      option.setAttribute("value", i)
-      option.innerHTML = currentBlueprintNames[i] || "unnamed"
-      selection.appendChild(option)
-    }
-    document.getElementById("button-container").appendChild(selection)
+  const selection = document.getElementById('blueprintSelection');
+  selection.innerHTML = ''; // Clear existing options
+  
+  for (i in currentBlueprintNames){
+    option = document.createElement("option")
+    option.setAttribute("value", i)
+    option.innerHTML = currentBlueprintNames[i] || "unnamed"
+    selection.appendChild(option)
   }
 }
 
@@ -461,7 +451,8 @@ settingsList.push(EXAMPLE_SETTINGS)
 <div class="button-container" id="button-container">
   <button class="btn" id="uploadBtn" onclick="uploadBtnClick()">Upload Blueprint</button>
   <button class="btn" id="nextSettingBtn" onclick="nextSetting()">Random Drawing Setting</button>
-  
+  <select class="btn" id="blueprintSelection" style="width: 160px;" onChange="blueprintSelectionOnChange(this)">
+  </select>
 </div>
 
 <div class="svg-container" id="svg-container"></div>

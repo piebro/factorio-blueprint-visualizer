@@ -9,7 +9,7 @@ const EXAMPLE_SETTINGS = [
     ["underground-belts", {'stroke': '#f3ffbd'}],
     ["inserters", {'stroke': '#f3ffbd'}],
     
-    ["bbox", {'fill': '#247ba0'}, {'deny': ["pipe", "pipe-to-ground", "belt", "inserter", "solar-panel", "accumulator", "asteroid-collector", "cargo-bay", "space-platform-hub", "thruster"]}],
+    ["bbox", {'fill': '#247ba0'}, {'deny': ["pipe", "pipe-to-ground", "belts", "inserters", "solar-panel", "accumulator", "asteroid-collector", "cargo-bay", "space-platform-hub", "thruster"]}],
     ["bbox", {'fill': '#ff1654'}, {'allow': ["solar-panel"]}],
     ["bbox", {'fill': '#436436'}, {'allow': ["accumulator"]}],
     ["bbox", {'fill': '#70c1b3'}, {'allow': ["cargo-bay"]}],

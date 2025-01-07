@@ -7,7 +7,7 @@ I love the game Factorio and I really like the look of factories after growing f
 
 All factorio buildings and tiles with their bounding boxes and belt, pipe, rail, inserter, wire and electricity connections can be visualized. Everything is drawn in vector graphics (SVG) to be able to view it in any resolution.
 
-Use the [online demo](https://piebro.github.io/factorio-blueprint-visualizer/) to visualize your own blueprints. With the latest update, only Blueprints from Factorio 2.0 and later work correctly.
+Use the [online demo](https://piebro.github.io/factorio-blueprint-visualizer/) to visualize your own blueprints. With the latest update, Blueprints from Factorio before version 2.0 might not work correctly.
 
 ## Examples
 
