@@ -4,6 +4,15 @@ from math import ceil
 DIRECTION_4_TO_OFFSET = [[0, -1], [1, 0], [0, 1], [-1, 0]]
 
 CUSTOM_GENERIC_TERMS = {
+    "labs": ["lab", "biolab"],
+    "pipes": ["pipe", "pipe-to-ground"],
+    "power-distribution": [
+        "big-electric-pole",
+        "medium-electric-pole",
+        "small-electric-pole",
+        "substation",
+        "power-switch",
+    ],
     "power-generation": [
         "boiler",
         "steam-engine",
@@ -13,14 +22,6 @@ CUSTOM_GENERIC_TERMS = {
         "fusion-reactor",
         "steam-turbine",
     ],
-    "labs": ["lab", "biolab"],
-    "power-distribution": [
-        "big-electric-pole",
-        "medium-electric-pole",
-        "small-electric-pole",
-        "substation",
-        "power-switch",
-    ],
     "robotic-logistics": [
         "roboport",
         "active-provider-chest",
@@ -29,6 +30,7 @@ CUSTOM_GENERIC_TERMS = {
         "requester-chest",
         "storage-chest",
     ],
+    
 }
 
 CUSTOM_RENAME_GENERIC_TERMS = {

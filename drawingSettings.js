@@ -1,7 +1,7 @@
 const EXAMPLE_SETTINGS = [
     ["how to use: https://github.com/piebro/factorio-blueprint-visualizer/blob/master/draw_setting_documentation.md"],
-    ["default settings", {'background': '#a2aebb', 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.3}, {'scale': 0.85, 'rx': 0.1, 'ry': 0.1}],
-    ["tiles", {'fill': '#420217', 'stroke': '#f3ffbd', 'stroke-width': 0.15}, {'deny': [], 'scale': 0.7}],
+    ["default settings", {'background': '#a2aebb', 'fill': 'none', 'fill-opacity': 1, 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.3, 'stroke-opacity': 1, 'scale': 0.85, 'rx': 0.1, 'ry': 0.1}],
+    ["tiles", {'fill': '#420217', 'stroke': '#f3ffbd', 'stroke-width': 0.15, 'deny': [], 'scale': 0.7}],
     
     ["pipes", {'stroke': '#c84c09'}],
     ["underground-pipes", {'stroke': '#c84c09'}],
@@ -9,11 +9,11 @@ const EXAMPLE_SETTINGS = [
     ["underground-belts", {'stroke': '#f3ffbd'}],
     ["inserters", {'stroke': '#f3ffbd'}],
     
-    ["bbox", {'fill': '#247ba0'}, {'deny': ["pipe", "pipe-to-ground", "belts", "inserters", "solar-panel", "accumulator", "asteroid-collector", "cargo-bay", "space-platform-hub", "thruster"]}],
-    ["bbox", {'fill': '#ff1654'}, {'allow': ["solar-panel"]}],
-    ["bbox", {'fill': '#436436'}, {'allow': ["accumulator"]}],
-    ["bbox", {'fill': '#70c1b3'}, {'allow': ["cargo-bay"]}],
-    ["bbox", {'fill': '#b2dbbf'}, {'allow': ["asteroid-collector", "thruster", "space-platform-hub"]}],
+    ["bbox", {'fill': '#247ba0', 'deny': ["pipe", "pipe-to-ground", "belts", "inserters", "solar-panel", "accumulator", "asteroid-collector", "cargo-bay", "space-platform-hub", "thruster"]}],
+    ["bbox", {'fill': '#ff1654', 'allow': ["solar-panel"]}],
+    ["bbox", {'fill': '#436436', 'allow': ["accumulator"]}],
+    ["bbox", {'fill': '#70c1b3', 'allow': ["cargo-bay"]}],
+    ["bbox", {'fill': '#b2dbbf', 'allow': ["asteroid-collector", "thruster", "space-platform-hub"]}],
     
     ["heat-pipes", {'stroke': '#b2dbbf'}],
     ["power-lines", {'stroke': '#70c1b3'}], 
@@ -261,30 +261,65 @@ const RANDOM_SETTING_LIST = [
 
 
 
-const SVG_SETTINGS = {
-  'fill': 'none', 'fill-opacity': 1, 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.3, 'stroke-opacity': 1
-};
-const OTHER_SETTINGS_BBOX = {'scale': 0.85, 'rx': 0.1, 'ry': 0.1};
-const OTHER_SETTINGS_TILES = {'scale': 0.85};
-// buildingGenericTerms
-// artificialTilesSortedByLayer
-
-// 1. get all generic terms and do 1-6 bboxes with different colors. Look that 
+function randomSettings(bbox=false) {
+  let svgSettings = {};
+  if (bbox) {
+    if (Math.random() < 0.4) {
+      svgSettings['fill'] = 'color'
+    };
+    if (Math.random() < 0.1) {
+      svgSettings['fill-opacity'] = Math.random() * 0.6 + 0.4;
+    };
+    if (Math.random() < 0.3) {
+      if (Math.random() < 0.1) {
+        svgSettings['scale'] = Math.random() * 3 + 1;
+      } else {
+        svgSettings['scale'] = Math.random();
+      }
+    }
+    if (Math.random() < 0.2) {
+      svgSettings['rx'] = Math.random();
+      svgSettings['ry'] = Math.random();
+      if (Math.random() < 0.8) {
+        svgSettings['ry'] = svgSettings['rx'];
+      }
+    }
+  }
+  if (Math.random() < 0.4) {
+    svgSettings['stroke'] = 'color';
+  }
+  if (Math.random() < 0.1) {
+    if (Math.random() < 0.5) {
+      svgSettings['stroke-linecap'] = 'butt';
+    } else {
+      svgSettings['stroke-linecap'] = 'square';
+    }
+  }
+  if (Math.random() < 0.4) {
+    svgSettings['stroke-width'] = Math.random();
+  }
+  if (Math.random() < 0.4) {
+    svgSettings['stroke-opacity'] = Math.random() * 0.6 + 0.4;
+  }
+  return svgSettings;
+}
 
 function getRandomSettings() {
   let settings = [];
-  const SETTING_NAMES = ["belts", "underground-belts", "pipes", "underground-pipes", "heat-pipes", "inserters", "rails", "power-lines", "green-wire-lines", "red-wire-lines"];
-// "bbox",
-  settings.push(["default settings", {'background': 'none', 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.3}, {'scale': 0.85, 'rx': 0.1, 'ry': 0.1}])
+  settings.push(["default settings",
+    {'background': 'color', 'fill': 'none', 'fill-opacity': 1, 'stroke': 'color', 'stroke-linecap': 'round', 'stroke-width': 0.3, 'stroke-opacity': 1, 'scale': 0.85, 'rx': 0.1, 'ry': 0.1},
+  ]);
   
   if (Math.random() < 0.8) {
-    settings.push(["tiles", {'fill': 'none', 'stroke': 'none', 'stroke-width': 0.15}, {'deny': [], 'scale': 0.7}])
+    settings.push(["tiles", {'fill': 'color', 'stroke': 'color', 'stroke-width': 0.15}, {'deny': [], 'scale': 0.7}])
   }
 
-  const temp_settings = [];
+  const SETTING_NAMES = ["belts", "underground-belts", "pipes", "underground-pipes", "heat-pipes", "inserters", "rails", "power-lines", "green-wire-lines", "red-wire-lines"];  
+  let temp_settings = [];
   const sampleSettings = shuffleArray([...SETTING_NAMES]).slice(0, 3);
   for (const settingName of sampleSettings) {
-    temp_settings.push([settingName, {}]);
+    const settings = randomSettings(false);
+    temp_settings.push([settingName, settings]);
   }
 
   // Add 0-4 random bbox settings
@@ -297,17 +332,18 @@ function getRandomSettings() {
     const buildingTermCount = Math.floor(Math.random() * 5) + 1;
     const group = shuffleArray([...allTerms]).slice(0, buildingTermCount);
     const bboxGroupType = Math.random() < 0.8 ? "allow" : "deny";
-    temp_settings.push(["bbox", {[bboxGroupType]: group, 'fill': 'none'}]);
+    const settings = randomSettings(true);
+    temp_settings.push(["bbox", {[bboxGroupType]: group, ...settings}]);
   }
-  
-  settings = [...settings, ...temp_settings];
 
-  // Replace any "none" values with incrementing hex colors
+  settings = [...settings, ...shuffleArray(temp_settings)];
+
+  // Replace any "color" values with incrementing hex colors
   let noneColorCounter = 0;
   for (let s of settings) {
     if (typeof s[1] === 'object' && s[1] !== null) {
       for (let key of ['stroke', 'fill', 'background']) {
-        if (key in s[1] && s[1][key] === 'none') {
+        if (key in s[1] && s[1][key] === 'color') {
           const hexColor = '#' + noneColorCounter.toString(16).padStart(6, '0');
           s[1][key] = hexColor;
           noneColorCounter++;
@@ -421,36 +457,4 @@ function shuffleArray(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
-}
-
-function preProcessSettings(settings) {
-    settings = JSON.parse(JSON.stringify(settings)); // Deep copy
-    const processed_settings = [];
-    for (let [settingName, svgSettings, otherSettings] of settings) {
-        if (svgSettings === undefined) {
-            svgSettings = {};
-        }
-        if (otherSettings === undefined) {
-          otherSettings = {};
-        }
-        if ("allow" in otherSettings) {
-            otherSettings.allow = resolveBuildingGenericNames(otherSettings.allow);
-        } else if ("deny" in otherSettings) {
-            otherSettings.deny = resolveBuildingGenericNames(otherSettings.deny);
-        }
-        processed_settings.push([settingName, svgSettings, otherSettings]);
-    }
-    return processed_settings;
-}
-
-function resolveBuildingGenericNames(buildNameList) {
-  const buildingNameListWithoutGenericTerms = [];
-  for (const name of buildNameList) {
-      if (name in buildingGenericTerms) {
-          buildingNameListWithoutGenericTerms.push(...buildingGenericTerms[name]);
-      } else {
-          buildingNameListWithoutGenericTerms.push(name);
-      }
-  }
-  return buildingNameListWithoutGenericTerms;
 }
