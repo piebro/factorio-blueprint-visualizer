@@ -96,7 +96,11 @@ function getSimplifiedEntities(blueprintJsonEntities, blueprintJsonVersion) {
             const properties = entityNameToProperties[e.name];
             for (const bboxType of ["size", "selection_size", "collision_size"]) {
                 if (bboxType in properties) {
-                    const [sizeX, sizeY] = properties[bboxType];
+                    let [sizeX, sizeY] = properties[bboxType];
+                    if ((e.direction/4) % 2 === 1) {
+                        [sizeX, sizeY] = [sizeY, sizeX];
+                    }
+
                     e["bbox_" + bboxType] = [
                         [e.pos[0] - sizeX/2, e.pos[1] - sizeY/2],
                         [e.pos[0] + sizeX/2, e.pos[1] - sizeY/2],
