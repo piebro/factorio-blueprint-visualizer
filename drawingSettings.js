@@ -126,6 +126,10 @@ const PREDEFINED_COLOR_PALETTES = [
       ]
 ];
 
+function round(num) {
+  return Math.round(num * 100) / 100;
+}
+
 function randomSettings(bbox=false) {
   let svgSettings = {};
   if (bbox) {
@@ -133,18 +137,18 @@ function randomSettings(bbox=false) {
       svgSettings['fill'] = 'color'
     };
     if (Math.random() < 0.1) {
-      svgSettings['fill-opacity'] = Math.random() * 0.6 + 0.4;
+      svgSettings['fill-opacity'] = round(Math.random() * 0.6 + 0.4);
     };
     if (Math.random() < 0.3) {
       if (Math.random() < 0.1) {
-        svgSettings['scale'] = Math.random() * 3 + 1;
+        svgSettings['scale'] = round(Math.random() * 3 + 1);
       } else {
-        svgSettings['scale'] = Math.random();
+        svgSettings['scale'] = round(Math.random());
       }
     }
     if (Math.random() < 0.2) {
-      svgSettings['rx'] = Math.random();
-      svgSettings['ry'] = Math.random();
+      svgSettings['rx'] = Math.round(Math.random() * 100) / 100;
+      svgSettings['ry'] = Math.round(Math.random() * 100) / 100;
       if (Math.random() < 0.8) {
         svgSettings['ry'] = svgSettings['rx'];
       }
@@ -161,10 +165,10 @@ function randomSettings(bbox=false) {
     }
   }
   if (Math.random() < 0.4) {
-    svgSettings['stroke-width'] = Math.random();
+    svgSettings['stroke-width'] = round(Math.random());
   }
   if (Math.random() < 0.4) {
-    svgSettings['stroke-opacity'] = Math.random() * 0.6 + 0.4;
+    svgSettings['stroke-opacity'] = round(Math.random() * 0.6 + 0.4);
   }
   return svgSettings;
 }
@@ -181,14 +185,15 @@ function getRandomSettings() {
 
   const SETTING_NAMES = ["belts", "underground-belts", "pipes", "underground-pipes", "heat-pipes", "inserters", "rails", "power-lines", "green-wire-lines", "red-wire-lines"];  
   let temp_settings = [];
-  const sampleSettings = shuffleArray([...SETTING_NAMES]).slice(0, 3);
-  for (const settingName of sampleSettings) {
+  
+  const numSettings = Math.floor(Math.random() * 6);
+  for (let i = 0; i < numSettings; i++) {
+    const settingName = SETTING_NAMES[Math.floor(Math.random() * SETTING_NAMES.length)];
     const settings = randomSettings(false);
     temp_settings.push([settingName, settings]);
   }
 
-  // Add 0-4 random bbox settings
-  const bboxCount = Math.floor(Math.random() * 5); // Random number 0-4
+  const bboxCount = Math.floor(Math.random() * 5);
   const genericBuildingTerms = Object.keys(buildingGenericTerms);
   const buildingTerms = Object.keys(entityNameToProperties);
   const allTerms = [...genericBuildingTerms, ...genericBuildingTerms, ...buildingTerms];
