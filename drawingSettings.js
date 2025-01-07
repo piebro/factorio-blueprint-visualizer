@@ -126,141 +126,6 @@ const PREDEFINED_COLOR_PALETTES = [
       ]
 ];
 
-const RANDOM_SETTING_LIST = [
-  [
-    ['background', '#cfd186'],
-    ['svg', {'fill': 'none', 'stroke': '#596157', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['drills'], 'fill': '#5b8c5a', 'stroke': 'none'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#52414c', 'stroke': 'none'}],
-    ['bbox', {'allow': ['furnaces'], 'fill': '#e3655b', 'stroke': 'none'}],
-    ['bbox', {'allow': ['lab'], 'fill': '#e3655b', 'stroke': 'none'}],
-    ['bbox', {'allow': ['military'], 'fill': '#d67ab1', 'stroke': 'none'}],
-    ['bbox', {'deny': ['transportation', 'electricity', 'inserters', 'electricity-generators', 'boiler']}],
-  ],[
-    ['background', '#faf0ca'],
-    ['svg', {'fill': 'none', 'stroke': '#0d3b66', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
-    ['belts', {}],
-    ['bbox', {'deny': ['belts']}],
-    ['electricity', {}],
-  ],[
-    ['background', '#5998c5'],
-    ['svg', {'bbox-scale': 0.7, 'stroke': '#12eaea', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['drills'], 'fill': '#8eb1c7', 'stroke': 'none'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#fff689', 'stroke': 'none'}],
-    ['bbox', {'allow': ['furnaces'], 'fill': '#e03616', 'stroke': 'none'}],
-    ['bbox', {'allow': ['lab'], 'fill': '#cfffb0', 'stroke': 'none'}],
-    ['bbox', {'allow': ['military'], 'fill': '#58355e', 'stroke': 'none'}],
-  ],[
-    ['background', '#36827f'],
-    ['bbox', {'bbox-scale': 0.85, 'deny': ['transportation', 'electricity', 'inserters'], 'fill': '#f9db6d', 'stroke': 'none'}],
-    ['electricity', {'stroke': '#f9db6d', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
-  ],[
-    ['background', '#58355e'],
-    ['svg', {'bbox-scale': 0.7, 'fill': 'none', 'stroke': '#cfffb0', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['drills'], 'fill': '#e03616', 'stroke': 'none'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#8eb1c7', 'stroke': 'none'}],
-    ['bbox', {'allow': ['furnaces'], 'fill': '#5998c5', 'stroke': 'none'}],
-    ['bbox', {'allow': ['lab'], 'fill': '#fff689', 'stroke': 'none'}],
-    ['bbox', {'allow': ['military'], 'fill': '#12eaea', 'stroke': 'none'}],
-  ],[
-    ['background', '#eddea4'],
-    ['svg', {'fill': 'none', 'stroke': '#f7a072', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['drills'], 'fill': '#e08dac', 'stroke': 'none'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#0fa3b1', 'stroke': 'none'}],
-    ['bbox', {'allow': ['furnaces'], 'fill': '#ff9b42', 'stroke': 'none'}],
-    ['bbox', {'allow': ['lab'], 'fill': '#ff9b42', 'stroke': 'none'}],
-    ['bbox', {'allow': ['military'], 'fill': '#d9e5d6', 'stroke': 'none'}],
-    ['bbox', {'deny': ['transportation', 'electricity', 'inserters', 'electricity-generators', 'boiler']}],
-  ],[
-    ['background', '#a2aebb'],
-    ['svg', {'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['pipes', {}],
-    ['underground-pipes', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['drills'], 'fill': '#ffba08', 'stroke': 'none'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#d00000', 'stroke': 'none'}],
-    ['bbox', {'allow': ['furnaces', 'electricity-generators', 'boiler'], 'fill': '#1c3144', 'stroke': 'none'}],
-    ['bbox', {'allow': ['lab'], 'fill': '#1c3144', 'stroke': 'none'}],
-    ['bbox', {'deny': ['transportation', 'electricity', 'inserters'], 'fill': 'none'}],
-  ],[
-    ['background', '#2a9d8f'],
-    ['svg', {'bbox-scale': 0.85, 'stroke': '#e9c46a', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#264653', 'stroke': 'none'}],
-  ],[
-    ['background', '#6cd4ff'],
-    ['svg', {'bbox-scale': 0.65, 'stroke': '#1b2d2a', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['rails', {}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['drills'], 'fill': '#8a6552', 'stroke': 'none'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#462521', 'stroke': 'none'}],
-    ['bbox', {'allow': ['furnaces'], 'fill': '#bdb246', 'stroke': 'none'}],
-    ['bbox', {'allow': ['inserters'], 'fill': '#ffe0b5', 'stroke': 'none'}],
-    ['bbox', {'allow': ['beacon'], 'fill': '#69a197', 'stroke': 'none'}],
-    ['bbox', {'allow': ['electricity'], 'fill': '#104547', 'stroke': 'none'}],
-    ['bbox', {'allow': ['roboport'], 'fill': '#ca2e55', 'stroke': 'none'}],
-    ['bbox', {'allow': ['chests'], 'fill': '#000000', 'stroke': 'none'}],
-  ],[
-    ['background', '#52414c'],
-    ['svg', {'bbox-scale': 0.9, 'stroke': '#e3655b', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['pipes', {'stroke': '#596157'}],
-    ['underground-pipes', {'stroke': '#596157', 'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#5b8c5a', 'stroke': 'none'}],
-    ['bbox', {'allow': ['beacon'], 'fill': '#cfd186', 'stroke': 'none'}],
-    ['bbox', {'allow': ['electricity'], 'fill': '#d67ab1', 'stroke': 'none'}],
-  ],[
-    ['background', '#006494'],
-    ['svg', {'bbox-scale': 0.9, 'stroke': '#13293d', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['drills'], 'fill': '#5d675b', 'stroke': 'none'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#f78e69', 'stroke': 'none'}],
-    ['bbox', {'allow': ['furnaces'], 'fill': '#f7ef99', 'stroke': 'none'}],
-    ['bbox', {'allow': ['electricity'], 'fill': '#f1bb87', 'stroke': 'none'}],
-  ],[
-    ['background', '#52489c'],
-    ['svg', {'bbox-scale': 0.9, 'stroke': '#f45b69', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['drills'], 'fill': '#4062bb', 'stroke': 'none'}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#ebebeb', 'stroke': 'none'}],
-    ['bbox', {'allow': ['furnaces'], 'fill': '#59c3c3', 'stroke': 'none'}],
-  ],[
-    ['background', '#ffba08'],
-    ['svg', {'bbox-scale': 0.9, 'fill': 'none', 'stroke': '#3f88c5', 'stroke-linecap': 'round', 'stroke-width': 0.25}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.6}],
-    ['bbox', {'allow': ['producing-machines'], 'fill': '#1c3144', 'stroke': 'none'}],
-    ['bbox', {'allow': ['lab'], 'fill': '#a2aebb', 'stroke': 'none'}],
-    ['bbox', {'allow': ['electricity'], 'fill': '#d00000', 'stroke': 'none'}],
-  ],[
-    ['background', '#353535'],
-    ['svg', {'stroke': '#ffffff', 'stroke-linecap': 'round', 'stroke-width': 0.2}],
-    ['belts', {}],
-    ['underground-belts', {'stroke-opacity': 0.7}],
-    ['bbox', {'deny': ['belts'], 'fill': 'none'}],
-    ['electricity', {}],
-  ],[
-    ['background', '#444545'],
-    ['electricity', {'stroke': '#b5ffe9', 'stroke-linecap': 'round', 'stroke-width': 0.4}],
-  ]
-];
-
-
-
 function randomSettings(bbox=false) {
   let svgSettings = {};
   if (bbox) {
@@ -359,17 +224,6 @@ function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
-function settingsChangeProperty(settings, propertyName, changeFunc) {
-  settings = deepCopy(settings);
-  for (let s of settings) {
-    // Only check properties if s[1] is an object
-    if (typeof s[1] === 'object' && s[1] !== null && propertyName in s[1]) {
-      s[1][propertyName] = changeFunc(s[1][propertyName]);
-    }
-  }
-  return settings;
-}
-
 function settingsChangeColors(settings, colorCount = null, changeBackground = true) {
   settings = deepCopy(settings);
   const originalColors = {};
@@ -417,39 +271,6 @@ function settingsChangeColors(settings, colorCount = null, changeBackground = tr
 
   return settings;
 }
-
-// function getRandomSettings() {
-//   let settings = deepCopy(RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)]);
-
-//   if (Math.random() < 0.4) {
-//     const additionalSettings = RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)];
-//     settings = [...settings, ...additionalSettings];
-//     settings = settingsChangeColors(settings);
-//   }
-
-//   if (Math.random() < 0.3) {
-//     const additionalSettings = RANDOM_SETTING_LIST[Math.floor(Math.random() * RANDOM_SETTING_LIST.length)];
-//     settings = [...settings, ...additionalSettings];
-//     if (settings.length > 8) {
-//       const indices = [0, 1, ...shuffleArray([...Array(settings.length).keys()].slice(2)).slice(0, settings.length - 4)];
-//       settings = settings.filter((_, i) => indices.includes(i));
-//     }
-//     settings = settingsChangeColors(settings);
-//   }
-
-//   if (Math.random() < 0.8) {
-//     settings = settingsChangeColors(settings, Math.floor(Math.random() * 10) + 2);
-//   }
-
-//   if (Math.random() < 0.5) {
-//     settings = settingsChangeProperty(settings, "stroke-width", v => v * (Math.random() * 1.5 + 0.5));
-//   }
-
-//   if (Math.random() < 0.5) {
-//     settings = settingsChangeProperty(settings, "bbox-scale", v => v * (Math.random() * 0.3 + 0.7));
-//   }
-//   return settings;
-// }
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
