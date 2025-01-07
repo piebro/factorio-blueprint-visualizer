@@ -1,7 +1,7 @@
 const EXAMPLE_SETTINGS = [
     ["how to use: https://github.com/piebro/factorio-blueprint-visualizer/blob/master/draw_setting_documentation.md"],
     ["default settings", {'background': '#a2aebb', 'fill': 'none', 'fill-opacity': 1, 'stroke': 'none', 'stroke-linecap': 'round', 'stroke-width': 0.3, 'stroke-opacity': 1, 'scale': 0.85, 'rx': 0.1, 'ry': 0.1}],
-    ["tiles", {'fill': '#420217', 'stroke': '#f3ffbd', 'stroke-width': 0.15, 'deny': [], 'scale': 0.7}],
+    ["tiles", {'fill': '#420217', 'stroke': '#f3ffbd', 'stroke-width': 0.15, 'deny': [], 'scale': 0.65}],
     
     ["pipes", {'stroke': '#c84c09'}],
     ["underground-pipes", {'stroke': '#c84c09'}],
@@ -9,15 +9,17 @@ const EXAMPLE_SETTINGS = [
     ["underground-belts", {'stroke': '#f3ffbd'}],
     ["inserters", {'stroke': '#f3ffbd'}],
     
-    ["bbox", {'fill': '#247ba0', 'deny': ["pipe", "pipe-to-ground", "belts", "inserters", "solar-panel", "accumulator", "asteroid-collector", "cargo-bay", "space-platform-hub", "thruster"]}],
+    ["bbox", {'fill': '#247ba0', 'deny': ["pipe", "pipe-to-ground", "belts", "inserters", "solar-panel", "accumulator", "asteroid-collector", "cargo-bay", "space-platform-hub", "thruster", "rails"]}],
     ["bbox", {'fill': '#ff1654', 'allow': ["solar-panel"]}],
     ["bbox", {'fill': '#436436', 'allow': ["accumulator"]}],
     ["bbox", {'fill': '#70c1b3', 'allow': ["cargo-bay"]}],
-    ["bbox", {'fill': '#b2dbbf', 'allow': ["asteroid-collector", "thruster", "space-platform-hub"]}],
+    ["bbox", {'fill': '#b2dbbf', 'allow': ["asteroid-collector", "thruster"]}],
+    ["bbox", {'fill': '#b2dbbf', 'allow': ["space-platform-hub"], "scale": 0.95}],
     
-    ["heat-pipes", {'stroke': '#b2dbbf'}],
-    ["power-lines", {'stroke': '#70c1b3'}], 
-    ["rails", {'stroke': '#faa275'}],
+    ["rails", {'stroke': '#c84c09'}],
+    ["heat-pipes", {'stroke': '#c84c09'}],
+    ["power-lines", {'stroke': '#f3ffbd'}], 
+    
 ]
 
 const PREDEFINED_COLOR_PALETTES = [

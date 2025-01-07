@@ -36,6 +36,7 @@ CUSTOM_GENERIC_TERMS = {
 CUSTOM_RENAME_GENERIC_TERMS = {
     "inserter": "inserters",    # because inserter is also already an item name
     "belt": "belts",
+    "train-transport": "rails"
 }
 
 
@@ -170,17 +171,12 @@ def get_tile_layers(factorio_json):
         for tile_name, tile_data in factorio_json["tile"].items():
             if tile_name == "landfill":
                 tiles.append((tile_name, -1))
-            elif (
-                "subgroup" in tile_data
-                and tile_data["subgroup"] == "artificial-tiles"
-                and "layer" in tile_data
-            ):
+            elif "minable" in tile_data:
                 tiles.append((tile_name, tile_data["layer"]))
 
     # Sort by layer number ascending
     tiles.sort(key=lambda x: x[1])
     return [name for name, _ in tiles]
-
 
 def generate_js_output(sorted_items, pipe_positions, heat_positions, fluid_recipes, tile_layers):
     """Generate JavaScript output strings."""

@@ -54,10 +54,27 @@ async function setup(){
     const isInCodeMirror = event.target.closest('.CodeMirror');
     if (isInCodeMirror) return;
 
-    if (event.key === 'ArrowLeft') {
-      previousSetting();
-    } else if (event.key === 'ArrowRight') {
-      nextSetting();
+    switch(event.key) {
+      case 'ArrowLeft':
+        previousSetting();
+        break;
+      case 'ArrowRight':
+        nextSetting();
+        break;
+      case 'ArrowUp':
+        const selectUp = document.getElementById('blueprintSelection');
+        if (selectUp.selectedIndex > 0) {
+          selectUp.selectedIndex--;
+          blueprintSelectionOnChange(selectUp);
+        }
+        break;
+      case 'ArrowDown':
+        const selectDown = document.getElementById('blueprintSelection');
+        if (selectDown.selectedIndex < selectDown.options.length - 1) {
+          selectDown.selectedIndex++;
+          blueprintSelectionOnChange(selectDown);
+        }
+        break;
     }
   });
 

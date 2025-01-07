@@ -155,6 +155,9 @@ function getCurrentBlueprintEntityCount(currentBlueprint){
     for (const entity of currentBlueprint.entities) {
       entityCount[entity.name] = (entityCount[entity.name] || 0) + 1;
     }
+    for (const tile of currentBlueprint.tiles || []) {
+        entityCount[tile.name] = (entityCount[tile.name] || 0) + 1;
+    }
     return Object.entries(entityCount).sort((a, b) => b[1] - a[1]);
 }
 
