@@ -1,13 +1,13 @@
 # Factorio Blueprint Visualizer
 
-I love the game Factorio and I really like the look of factories after growing for many hours or blueprints after tweaking them for perfection. So I thought about visualizing the factories and blueprints and created this [online tool](https://piebro.github.io/factorio-blueprint-visualizer/).
+I love the game Factorio and I really like the look of factories after growing for many hours or blueprints after tweaking them for perfection. That's way I created a [website](https://piebro.github.io/factorio-blueprint-visualizer/) to artfully visualize Factorio blueprints.
 
 <p align="center">
 <img src="examples/Rocket_Ship_1.jpg" width="58%" style="padding: 1% 1% 1% 1%">
 <img src="examples/Rocket_Ship_1_Visualization.png" width="37%" style="padding: 1% 1% 1% 1%">
 </p>
 
-With the website you can export your blueprints in Factorio as text and visualize them. You can tweak the drawing settings or create random ones.
+With the website you can import Factorio blueprints as text and visualize them. You can tweak the drawing settings or create random ones.
 
 All buildings and tiles with their bounding boxes and belt, pipe, rail, inserter, wire and electricity connections can be visualized. Everything is drawn in vector graphics (SVG) to be able to view it in any resolution. 
 

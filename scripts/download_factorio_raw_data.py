@@ -113,7 +113,7 @@ if __name__ == "__main__":
         "gate",
         "generator",
         "half-diagonal-rail",
-        "heat-interface",  # TODO: check if this is needed
+        "heat-interface",
         "heat-pipe",
         "highlight-box",
         "inserter",
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         "radar",
         "rail-chain-signal",
         "rail-ramp",
-        "rail-remnants",  # TODO: check if this is needed
+        "rail-remnants",
         "rail-signal",
         "rail-support",
         "reactor",

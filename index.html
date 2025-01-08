@@ -152,7 +152,7 @@ function blueprintSelectionOnChange(selectObject){
 }
 
 function uploadBtnClick(){
-  input = window.prompt("paste blueprint here")
+  input = window.prompt("Export your blueprint as text in Factorio and paste it here:")
   if (input != null && input != ""){
     newBlueprintString(input)
     showBlueprint()
