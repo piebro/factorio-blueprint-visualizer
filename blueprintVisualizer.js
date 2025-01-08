@@ -379,76 +379,91 @@ function drawEntitiesBbox(dwg, entities, posOffset, settingProps, bboxType) {
 }
 
 function getLinesBelt(entities) {
-    const nodes = {};
-
-    // collect nodes
-    for (const e of entities) {
-        if (e.name === "transport-belt" || e.name === "fast-transport-belt" || e.name === "express-transport-belt" || e.name === "turbo-transport-belt"
-            || e.name === "underground-belt" || e.name === "fast-underground-belt" || e.name === "express-underground-belt" || e.name === "turbo-underground-belt"
-        ) {
-            const posKey = `${e.pos[0]},${e.pos[1]}`;
-            const dir = Math.floor(e.direction / 4);
-            const offset = DIRECTION_4_TO_OFFSET[dir];
-            const targetPos = [e.pos[0] + offset[0], e.pos[1] + offset[1]];
-            if (e.type === "input") {
-                nodes[posKey] = [e.pos, null];
-            } else {
-                nodes[posKey] = [e.pos, targetPos];
-            }
-        }
-        
-    }
-    
-    // create lines
-    const lines = [];
-    for (const [pos, targetPos] of Object.values(nodes)) {   
-        if (targetPos === null) continue;
-        const targetPosKey = `${targetPos[0]},${targetPos[1]}`;
-        if (targetPosKey in nodes) {
-            lines.push([pos, targetPos]);
-        }
+    function isOppositeDirection(dir1, dir2) {
+        return (dir1 + 2) % 4 === dir2;
     }
 
-    // Handle splitters
+    const entityNodes = {}
+    const beltEntityNames = ["transport-belt", "fast-transport-belt", "express-transport-belt", "turbo-transport-belt"];
+    const undergroundBeltEntityNames = ["underground-belt", "fast-underground-belt", "express-underground-belt", "turbo-underground-belt"];
+    const splitterEntityNames = ["splitter", "fast-splitter", "express-splitter", "turbo-splitter"];
+    const combinedEntityNames = [...beltEntityNames, ...undergroundBeltEntityNames, ...splitterEntityNames];
+
+    const lines = []
+
+    // Collect all nodes (belts, underground belts, and splitters)
     for (const e of entities) {
-        if (e.name === "splitter" || e.name === "fast-splitter" || e.name === "express-splitter" || e.name === "turbo-splitter") {
-            const dir = Math.floor(e.direction / 4);
-            const offset = DIRECTION_4_TO_OFFSET[dir];
+        if (!combinedEntityNames.includes(e.name)) {
+            continue;
+        }
+        const dir = Math.floor(e.direction / 4);
+        const offset = DIRECTION_4_TO_OFFSET[dir];
+
+        if (splitterEntityNames.includes(e.name)) {
+            // Handle splitter (create two nodes)
             const offset90 = DIRECTION_4_TO_OFFSET[(dir + 1) % 4];
             const offset270 = DIRECTION_4_TO_OFFSET[(dir + 3) % 4];
+            
+            // Create left and right positions
             const pos1 = [e.pos[0] + offset90[0]/2, e.pos[1] + offset90[1]/2];
             const pos2 = [e.pos[0] + offset270[0]/2, e.pos[1] + offset270[1]/2];
-
-            const inputPos1 = [pos1[0] - offset[0], pos1[1] - offset[1]];
-            const inputPos2 = [pos2[0] - offset[0], pos2[1] - offset[1]];
-
-            const inputPos1Key = `${inputPos1[0]},${inputPos1[1]}`;
-            const inputPos2Key = `${inputPos2[0]},${inputPos2[1]}`;
-
-            if (inputPos1Key in nodes) {
-                lines.push([inputPos1, pos1]);
-                lines.push([inputPos1, pos2]);
+            const pos1Key = `${pos1[0]},${pos1[1]}`;
+            const pos2Key = `${pos2[0]},${pos2[1]}`;
+            
+            const targetPos1 = [pos1[0] + offset[0], pos1[1] + offset[1]];
+            const targetPos2 = [pos2[0] + offset[0], pos2[1] + offset[1]];
+            
+            entityNodes[pos1Key] = {
+                pos: pos1,
+                dir: dir,
+                targetPos: targetPos1,
+                targetPosKey: `${targetPos1[0]},${targetPos1[1]}`,
+                is_underground_input: false
+            };
+            entityNodes[pos2Key] = {
+                pos: pos2,
+                dir: dir,
+                targetPos: targetPos2,
+                targetPosKey: `${targetPos2[0]},${targetPos2[1]}`,
+                is_underground_input: false
+            };
+            lines.push([pos1, pos2]); // Connect splitter halves
+        } else {
+            // Handle belts and underground belts
+            const posKey = `${e.pos[0]},${e.pos[1]}`;
+            const targetPos = [e.pos[0] + offset[0], e.pos[1] + offset[1]];
+            
+            let is_underground_input = false;
+            if (undergroundBeltEntityNames.includes(e.name)) {
+                is_underground_input = (e.type === "input");
             }
 
-            if (inputPos2Key in nodes) {
-                lines.push([inputPos2, pos1]);
-                lines.push([inputPos2, pos2]);
+            entityNodes[posKey] = {
+                pos: e.pos,
+                dir: dir,
+                targetPos: targetPos,
+                targetPosKey: `${targetPos[0]},${targetPos[1]}`,
+                is_underground_input: is_underground_input
+            };
+        }
+    }
+
+    // Create connections between nodes
+    for (const sourceNode of Object.values(entityNodes)) {
+        if (sourceNode.targetPosKey in entityNodes) {
+            const targetNode = entityNodes[sourceNode.targetPosKey];
+            
+            // Skip if source is underground input
+            if (sourceNode.is_underground_input) {
+                continue;
             }
 
-            const outputPos1 = [pos1[0] + offset[0], pos1[1] + offset[1]];
-            const outputPos2 = [pos2[0] + offset[0], pos2[1] + offset[1]];
-
-            const outputPos1Key = `${outputPos1[0]},${outputPos1[1]}`;
-            const outputPos2Key = `${outputPos2[0]},${outputPos2[1]}`;
-
-            if (outputPos1Key in nodes) {
-                lines.push([pos1, outputPos1]);
+            // Skip if directions are opposite
+            if (isOppositeDirection(sourceNode.dir, targetNode.dir)) {
+                continue;
             }
 
-            if (outputPos2Key in nodes) {
-                lines.push([pos2, outputPos2]);
-            }
-
+            lines.push([sourceNode.pos, targetNode.pos]);
         }
     }
 
