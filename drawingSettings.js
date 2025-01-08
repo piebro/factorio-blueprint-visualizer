@@ -16,9 +16,8 @@ const EXAMPLE_SETTINGS = [
     ["bbox", {'fill': '#b2dbbf', 'allow': ["asteroid-collector", "thruster"]}],
     ["bbox", {'fill': '#b2dbbf', 'allow': ["space-platform-hub"], "scale": 0.95}],
     
-    ["rails", {'stroke': '#c84c09'}],
-    ["heat-pipes", {'stroke': '#c84c09'}],
-    ["power-lines", {'stroke': '#f3ffbd'}], 
+    ["rails", {'stroke': '#b2dbbf'}],
+    ["heat-pipes", {'stroke': '#b2dbbf'}],
     
 ]
 

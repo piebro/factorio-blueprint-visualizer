@@ -47,34 +47,23 @@ I have a pen plotter, and one of my initial ideas was also to be able to plot my
 
 Another way to create plots from your factories is to use: https://github.com/drawscape-labs/factorio-cli.
 
-### verilog2factorio
+### Factorio Tools to create blueprints
 
-It's possible to use https://github.com/redcrafter/verilog2factorio to create factorio verilog blueprints and visualize the buildings and wire connections like this.
-
-<p align="center">
-    <img src="example_svgs/example_19.svg" width="20%" style="padding: 1% 1% 1% 1%;">
-</p>
+- [Factorio SAT](https://github.com/R-O-C-K-E-T/Factorio-SAT) - Create optimal belt layouts with a SAT solver
+- [Factorio Verilog](https://github.com/redcrafter/verilog2factorio) - Convert Verilog code to factorio blueprints
 
 ### Convert to PNGs
 
 To easily convert all SVGs in a folder, you can use a terminal and Inkscape like this.
 ```mkdir pngs; for f in *.svg; do inkscape -w 1000 "$f" -e "pngs/${f::-3}png"; done```
 
+## Development
+
+[uv](https://docs.astral.sh/uv/getting-started/installation/) is used for linting and formatting the python code with `uv run ruff check --fix` and `uv run ruff format`.
+
 ## Contribute
 
-```bash
-# install uv
-uv run ruff check --fix
-uv run ruff format
-```
-
 Contributions to this project are welcome. Feel free to report bugs or post ideas.
-
-To update the python code for the website, you have to update the python wheel in the website folder. To update it, just run: ```python setup.py bdist_wheel --universal --dist-dir=website```
-
-To update the installed version while developing you can use ```python setup.py bdist_wheel --universal --dist-dir=website && pip uninstall factorioBlueprintVisualizer -y && pip install website/factorioBlueprintVisualizer-1.1.0-py2.py3-none-any.whl```
-
-If you use an external api on localhost (e.g. for getting the blueprint from factorio.school) you need to disable CORS. To start Chrome on Ubuntu with CORS disable you can use ```google-chrome --disable-web-security --user-data-dir=temp http://0.0.0.0:8000/```.
 
 ## Statistics
 
