@@ -1,0 +1,30 @@
+[project]
+name = "factorio-blueprint-visualizer"
+version = "1.2"
+description = "A project to generate visualizations for Factorio blueprints"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "ruff",
+]
+
+license = { file = "LICENSE.md" }
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = [
+    "F",        # Pyflakes
+    "UP",       # pyupgrade
+    "B018",     # Found useless expression.
+    "I",        # isort
+    "RUF",      # ruff
+]
+ignore = [
+  "E501", # line too long - will be fixed in format
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
