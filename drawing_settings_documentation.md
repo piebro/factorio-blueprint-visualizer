@@ -4,9 +4,11 @@ The drawing settings control how your Factorio blueprint is visualized. Settings
 
 ## Basic Format
 
-```json
+```text
 [
-    ['setting-name', {svg-attributes and optional-parameters}]
+    ['setting-name-1', {svg-attributes and optional-parameters}],
+    ['setting-name-2', {svg-attributes and optional-parameters}],
+    ...
 ]
 ```
 An example can be found in [drawingSettings.js](drawingSettings.js).
