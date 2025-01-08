@@ -1,20 +1,14 @@
 # Drawing Settings Documentation
 
-The drawing settings control how your Factorio blueprint is visualized. Settings are defined as an array of arrays, where each inner array represents a drawing instruction.
+The drawing settings control how your Factorio blueprint is visualized. Settings are defined as an array of arrays, where each inner array represents a drawing instruction. The order of the settings defines the order in which they are drawn.
 
 ## Basic Format
 
 ```json
 [
-    ['setting-name', {svg-attributes}, {optional-parameters}]
+    ['setting-name', {svg-attributes and optional-parameters}]
 ]
 ```
-
-Each setting consists of:
-1. Setting name (string)
-2. SVG attributes object (required, can be empty `{}`)
-3. Optional parameters object (optional)
-
 An example can be found in [drawingSettings.js](drawingSettings.js).
 
 ## Available Setting Names
