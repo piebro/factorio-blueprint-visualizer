@@ -42,7 +42,7 @@ The last three blueprints are by Josh Ventura and can be found [here](https://fa
 - Ported everything from Python to Javascript for simplicity and performance.
 - Added ability to modify drawing settings.
 - Added support for tiles.
-- Lots of Quality of Life improvements.
+- Lots of quality-of-life improvements.
 
 ## Ways to use this tool
 
