@@ -39,7 +39,7 @@ The last three blueprints are by Josh Ventura and can be found [here](https://fa
 ## Update [2025-01-08]
 
 - Factorio 2.0 and Factorio: Space Age are supported (Blueprints from earlier version might only work partially)
-- Ported everything from Python to Javascript for simplicity and performance.
+- Ported everything from Python with Pyodide to Javascript for simplicity and performance.
 - Added ability to modify drawing settings.
 - Added support for tiles.
 - Lots of quality-of-life improvements.
