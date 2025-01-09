@@ -1,6 +1,6 @@
 # Factorio Blueprint Visualizer
 
-I love the game Factorio and I really like the look of factories after growing for many hours or blueprints after tweaking them for perfection. That's way I created a [website](https://piebro.github.io/factorio-blueprint-visualizer/) to artfully visualize Factorio blueprints.
+I love the game Factorio and I really like the look of factories after growing for many hours or blueprints after tweaking them for perfection. That's why I created a [website](https://piebro.github.io/factorio-blueprint-visualizer/) to artfully visualize Factorio blueprints.
 
 <p align="center">
 <img src="examples/Rocket_Ship_1.jpg" width="58%" style="padding: 1% 1% 1% 1%">
