@@ -17,7 +17,7 @@ With the latest update, Blueprints from Factorio before version 2.0 might not wo
 
 1. Open Factorio and create a blueprint.
 2. Export the blueprint as text (in the upper left corner, next to the "Delete" button).
-3. Go the the [website](https://piebro.github.io/factorio-blueprint-visualizer/).
+3. Go to the [website](https://piebro.github.io/factorio-blueprint-visualizer/).
 4. Click the "Upload Blueprint" button and paste the text into the text area.
 5. Now you can test new random drawing settings (using the buttons or the arrow keys) or edit the current drawing settings.
 
