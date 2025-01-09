@@ -5,14 +5,14 @@
   <meta charset="utf-8">
   <meta name="description" content="Online tool to artfully visualize Factorio Blueprints.">
   <title>Factorio Blueprint Visualizer</title>
-  <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'/>
-  <link rel="stylesheet" href="index.css">
+  <link rel='shortcut icon' type='image/x-icon' href='website/favicon.ico'/>
+  <link rel="stylesheet" href="website/index.css">
   <script defer data-domain="piebro.github.io/factorio-blueprint-visualizer" src="https://plausible.io/js/plausible.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>  <!-- for deflating the blueprint string -->
-  <script src="startExampleBlueprintString.js"></script>
-  <script src="entityProperties.js"></script>
-  <script src="drawingSettings.js"></script>
-  <script src="blueprintVisualizer.js"></script>
+  <script src="website/startExampleBlueprintString.js"></script>
+  <script src="website/entityProperties.js"></script>
+  <script src="website/drawingSettings.js"></script>
+  <script src="website/blueprintVisualizer.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
@@ -21,15 +21,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/json-lint.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.0/jsonlint.min.js"></script>
-  
 </head>
 
-<style>
-
-</style>
-
 <script>
-
 function newBlueprintString(blueprintString){
   [currentBlueprintNames, currentBlueprintJsons] = getBlueprintList(blueprintString);
   currentBlueprint = processBlueprint(currentBlueprintJsons[0])
